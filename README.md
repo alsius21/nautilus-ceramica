@@ -2,7 +2,7 @@
 
 # Nautilus Ceràmica
 
-**A quiet digital home for ceramic work, process, and place.**
+**Una llar digital serena per a la ceràmica, el procés i el lloc.**
 
 [![Built with Astro](https://img.shields.io/badge/built%20with-Astro-BC52EE?logo=astro&logoColor=white)](https://astro.build/)
 [![Node.js 22+](https://img.shields.io/badge/node-22%2B-417E38?logo=node.js&logoColor=white)](https://nodejs.org/)
@@ -10,70 +10,75 @@
 </div>
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/alsius21/nautilus-ceramica/main/public/images/instagram/plato_en_taller_de_hoji.webp" alt="Ceramic plate in the Hoji workshop" width="760">
+  <img src="https://raw.githubusercontent.com/alsius21/nautilus-ceramica/main/public/images/instagram/plato_en_taller_de_hoji.webp" alt="Plat de ceràmica al taller Hoji" width="760">
 </p>
 
-## About
+## Sobre el projecte
 
-Nautilus Ceràmica is an editorial-style portfolio for a ceramic studio. The landing page pairs a restrained typographic system with selected studio and exhibition imagery, giving the work space to lead.
+Nautilus Ceràmica és un portafolis de caràcter editorial per a un estudi de ceràmica. La pàgina d'inici combina un sistema tipogràfic sobri amb una selecció d'imatges del taller i d'exposicions, deixant que les peces siguin les protagonistes.
 
-The site is intentionally small and fast: static Astro output, locally served artwork, responsive layouts, and no client-side framework overhead.
+El lloc és intencionadament petit i ràpid: sortida estàtica amb Astro, obra servida localment, composició adaptable i sense el pes d'un framework de client.
 
-## Stack
+## Idiomes
 
-- [Astro](https://astro.build/) for the site and static build
-- [Fraunces](https://fonts.google.com/specimen/Fraunces) for display type
-- [Archivo](https://fonts.google.com/specimen/Archivo) for interface text
-- WebP imagery in `public/images/instagram/`
+- **Documentació del projecte:** català
+- **Idiomes previstos del lloc web:** català, castellà i anglès
 
-## Getting Started
+## Tecnologies
 
-### Requirements
+- [Astro](https://astro.build/) per al lloc i la compilació estàtica
+- [Fraunces](https://fonts.google.com/specimen/Fraunces) per a la tipografia de display
+- [Archivo](https://fonts.google.com/specimen/Archivo) per al text d'interfície
+- Imatges WebP a `public/images/instagram/`
+
+## Posada en marxa
+
+### Requisits
 
 - Node.js `>= 22.12.0`
 - [pnpm](https://pnpm.io/)
 
-### Install and run
+### Instal·lació i desenvolupament
 
 ```bash
 pnpm install
 pnpm dev
 ```
 
-The development server is available at `http://localhost:4321` by default.
+El servidor de desenvolupament estarà disponible per defecte a `http://localhost:4321`.
 
-### Production build
+### Compilació de producció
 
 ```bash
 pnpm build
 pnpm preview
 ```
 
-`pnpm build` generates the production-ready static site in `dist/`.
+`pnpm build` genera el lloc estàtic preparat per a producció dins de `dist/`.
 
-## Project Map
+## Estructura del projecte
 
 ```text
 src/
 ├── components/
-│   ├── Footer.astro       # Copyright and Instagram link
-│   └── Welcome.astro      # Landing page composition and gallery
+│   ├── Footer.astro       # Copyright i enllaç a Instagram
+│   └── Welcome.astro      # Composició de la pàgina d'inici i galeria
 ├── layouts/
-│   └── Layout.astro       # Document shell, fonts, and metadata
+│   └── Layout.astro       # Estructura del document, fonts i metadades
 └── pages/
-    └── index.astro        # Home route
+    └── index.astro        # Ruta d'inici
 public/
-└── images/instagram/       # Studio and exhibition artwork
+└── images/instagram/       # Obra del taller i d'exposicions
 ```
 
-## Updating the Gallery
+## Actualitzar la galeria
 
-1. Add an optimized image to `public/images/instagram/`.
-2. Add its path and a descriptive `alt` text to the `images` array in `src/components/Welcome.astro`.
-3. Run `pnpm build` to verify the production output.
+1. Afegeix una imatge optimitzada a `public/images/instagram/`.
+2. Afegeix-ne la ruta i un text `alt` descriptiu a l'array `images` de `src/components/Welcome.astro`.
+3. Executa `pnpm build` per verificar la sortida de producció.
 
-The Instagram profile linked by the site is [@nautilceramica](https://www.instagram.com/nautilceramica/).
+El perfil d'Instagram enllaçat al lloc és [@nautilceramica](https://www.instagram.com/nautilceramica/).
 
-## License
+## Llicència
 
-The source code is available for reference. Artwork and photographic assets remain the property of their respective creators and are not licensed for reuse.
+El codi font està disponible com a referència. Les obres i els recursos fotogràfics continuen sent propietat dels seus creadors i no tenen llicència per a la reutilització.
