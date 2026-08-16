@@ -47,6 +47,36 @@ pnpm dev
 
 El servidor de desenvolupament estarà disponible per defecte a `http://localhost:4321`.
 
+### Worktrees de Git
+
+Cada worktree és una còpia de treball independent, però comparteix l'historial i
+les branques del repositori. És una manera segura de treballar en una funcionalitat
+mentre es manté `main` neta:
+
+```bash
+git worktree add ../nautilus-ceramica-feature -b feature/nom-de-la-funcionalitat main
+cd ../nautilus-ceramica-feature
+pnpm install --frozen-lockfile
+pnpm dev
+```
+
+Les dependències (`node_modules/`), la sortida (`dist/`) i els fitxers generats per
+Astro (`.astro/`) són locals a cada worktree i estan exclosos de Git. Per executar
+diversos worktrees alhora, crea un `.env` a cadascun a partir de `.env.example` i
+assigna un port diferent:
+
+```bash
+PORT=4322 pnpm dev
+```
+
+Per veure, eliminar o netejar worktrees:
+
+```bash
+git worktree list
+git worktree remove ../nautilus-ceramica-feature
+git worktree prune
+```
+
 ### Compilació de producció
 
 ```bash

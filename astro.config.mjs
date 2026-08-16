@@ -8,7 +8,9 @@ export default defineConfig({
 	base: '/nautilus-ceramica',
 	server: {
 		host: true,
-		port: 80,
+		// Keep the default convenient for local development, while allowing
+		// simultaneous worktrees to use their own port via `.env` or `PORT`.
+		port: Number(process.env.PORT ?? 4321),
 		allowedHosts: ['nautilusceramica.localhost'],
 	},
 	i18n: {
