@@ -52,9 +52,8 @@ const images = [
 		{images.map((image, index) => (
 			<a class:list={["artwork", `artwork-${index + 1}`]} href={getRelativeLocaleUrl(locale, `/${t(locale, 'work.path')}/${image.slug}`)}>
 				<figure>
-					<img src={image.src} alt={image.alt} loading={index === 0 ? 'eager' : 'lazy'} />
+				<img src={image.src} alt={image.alt} loading={index === 0 ? 'eager' : 'lazy'} />
 				</figure>
-				<span class="artwork-link">{t(locale, 'work.read')}</span>
 			</a>
 		))}
 	</section>
@@ -219,21 +218,6 @@ const images = [
 
 	.artwork:hover img {
 		transform: scale(1.025);
-	}
-
-	.artwork-link {
-		display: block;
-		margin-top: 0.7rem;
-		color: color-mix(in srgb, var(--ink) 62%, transparent);
-		font-size: 0.68rem;
-		letter-spacing: 0.18em;
-		text-transform: uppercase;
-		transition: color 240ms ease;
-	}
-
-	.artwork:hover .artwork-link,
-	.artwork:focus-visible .artwork-link {
-		color: var(--ink);
 	}
 
 	.artwork:focus-visible,
