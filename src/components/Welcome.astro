@@ -1,15 +1,25 @@
 ---
 import Footer from './Footer.astro';
 import { BRAND_NAME } from '../consts';
+import { t, normalizeLocale, locales } from '../i18n';
+import { getRelativeLocaleUrl } from 'astro:i18n';
+
+const locale = normalizeLocale(Astro.currentLocale);
+
+// Base path with a guaranteed trailing slash (e.g. `/nautilus-ceramica/`), so
+// public/ URLs below start from it instead of a bare leading slash.
+const base = import.meta.env.BASE_URL.endsWith('/')
+	? import.meta.env.BASE_URL
+	: `${import.meta.env.BASE_URL}/`;
 
 const images = [
 	{
-		src: '/images/instagram/plato_en_taller_de_hoji.webp',
-		alt: 'Ceramic plate in the Hoji workshop',
+		src: `${base}images/instagram/plato_en_taller_de_hoji.webp`,
+		alt: t(locale, 'art.plate'),
 	},
 	{
-		src: '/images/instagram/exposicion_calabaza_en_llotja.webp',
-		alt: 'Calabaza ceramic piece at an exhibition in Llotja',
+		src: `${base}images/instagram/exposicion_calabaza_en_llotja.webp`,
+		alt: t(locale, 'art.pumpkin'),
 	},
 ];
 
@@ -17,11 +27,25 @@ const images = [
 
 <main class="home home-alt">
 	<header class="masthead">
-		
 		<h1>{BRAND_NAME}</h1>
+		<div class="masthead-meta">
+			<p class="eyebrow">Zara Castillo Martínez</p>
+			<nav class="lang-switcher" aria-label={t(locale, 'lang.selector')}>
+				{locales.map((code) => (
+					<a
+						href={getRelativeLocaleUrl(code, '/')}
+						class:list={['lang-link', { 'is-current': code === locale }]}
+						aria-current={code === locale ? 'page' : null}
+						title={t(code, 'lang.name')}
+					>
+						{code}
+					</a>
+				))}
+			</nav>
+		</div>
 	</header>
 
-	<section class="gallery" aria-label="Selected work">
+	<section class="gallery" aria-label={t(locale, 'gallery.label')}>
 		{images.map((image, index) => (
 			<figure class:list={["artwork", `artwork-${index + 1}`]}>
 				<img src={image.src} alt={image.alt} loading={index === 0 ? 'eager' : 'lazy'} />
@@ -111,6 +135,37 @@ const images = [
 		text-transform: uppercase;
 	}
 
+	.masthead-meta {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-end;
+		gap: 0.5rem;
+		text-align: right;
+	}
+
+	.lang-switcher {
+		display: flex;
+		gap: 1rem;
+		font-size: 0.68rem;
+		letter-spacing: 0.18em;
+		text-transform: uppercase;
+	}
+
+	.lang-link {
+		color: color-mix(in srgb, var(--ink) 55%, transparent);
+		text-decoration: none;
+		transition: color 240ms ease;
+	}
+
+	.lang-link:hover,
+	.lang-link:focus-visible {
+		color: var(--ink);
+	}
+
+	.lang-link.is-current {
+		color: var(--ink);
+	}
+
 	h1 {
 		margin: 0;
 		font-family: 'Fraunces Variable', Georgia, 'Times New Roman', serif;
@@ -158,8 +213,9 @@ const images = [
 			display: block;
 		}
 
-		.eyebrow {
-			margin-bottom: 1rem;
+		.masthead-meta {
+			align-items: flex-start;
+			text-align: left;
 		}
 
 		.gallery {

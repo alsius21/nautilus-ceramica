@@ -1,18 +1,29 @@
 ---
 import { BRAND_NAME } from '../consts';
+import { t, normalizeLocale } from '../i18n';
 import '@fontsource-variable/fraunces/full.css';
 import '@fontsource-variable/archivo';
+
+const locale = normalizeLocale(Astro.currentLocale);
+const title = `${BRAND_NAME} · ${t(locale, 'meta.tagline')}`;
+const description = t(locale, 'meta.description');
+
+// Base path with a guaranteed trailing slash (e.g. `/nautilus-ceramica/`).
+const base = import.meta.env.BASE_URL.endsWith('/')
+	? import.meta.env.BASE_URL
+	: `${import.meta.env.BASE_URL}/`;
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={locale}>
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/png" href="/favicon.png" />
-		<link rel="icon" href="/favicon.ico" />
+		<link rel="icon" type="image/png" href={`${base}favicon.png`} />
+		<link rel="icon" href={`${base}favicon.ico`} />
 		<meta name="generator" content={Astro.generator} />
-		<title>{BRAND_NAME}</title>
+		<title>{title}</title>
+		<meta name="description" content={description} />
 	</head>
 	<body>
 		<slot />
