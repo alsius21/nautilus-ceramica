@@ -17,7 +17,7 @@
 
 Nautilus Ceràmica és un portafolis de caràcter editorial per a l'estudi de ceràmica de **Zara Castillo Martínez**. La pàgina d'inici combina un sistema tipogràfic sobri amb una selecció d'imatges del taller i d'exposicions, deixant que les peces siguin les protagonistes.
 
-El lloc és intencionadament petit i ràpid: sortida estàtica amb Astro, obra servida localment, composició adaptable i sense el pes d'un framework de client.
+El lloc és intencionadament petit i ràpid: sortida estàtica amb Astro, obra servida localment, composició adaptable i sense el pes d'un framework de client. També és una **aplicació web progressiva (PWA)**: la instal·la des del navegador, funciona sense connexió gràcies al *service worker* i té una icona pròpia a la pantalla d'inici.
 
 ## Idiomes
 
@@ -27,6 +27,7 @@ El lloc és intencionadament petit i ràpid: sortida estàtica amb Astro, obra s
 ## Tecnologies
 
 - [Astro](https://astro.build/) per al lloc i la compilació estàtica
+- [vite-plugin-pwa](https://vite-pwa-org.netlify.app/) per al *service worker*, el manifest d'aplicació i l'ofuscació offline
 - [Fraunces](https://fonts.google.com/specimen/Fraunces) per a la tipografia de display
 - [Archivo](https://fonts.google.com/specimen/Archivo) per al text d'interfície
 - Imatges WebP a `public/images/instagram/`
@@ -96,7 +97,8 @@ src/
 ├── i18n/
 │   └── index.ts           # Diccionari de textos: català, castellà, anglès
 ├── layouts/
-│   └── Layout.astro       # Estructura del document, fonts i metadades
+│   └── Layout.astro       # Estructura del document, fonts, metadades i manifest PWA
+├── pwa.ts                 # Registre del service worker (virtual:pwa-register)
 └── pages/
     ├── index.astro        # Inici en català a `/`
     ├── es/
@@ -104,7 +106,11 @@ src/
     └── en/
         └── index.astro    # Versió anglesa a `/en/`
 public/
-└── images/instagram/       # Obra del taller i d'exposicions
+├── images/instagram/       # Obra del taller i d'exposicions
+├── pwa-192x192.png         # Icona PWA (192 px)
+├── pwa-512x512.png         # Icona PWA (512 px)
+├── pwa-maskable-512x512.png# Icona maskable (512 px)
+└── apple-touch-icon.png    # Icona per a dispositius Apple (180 px)
 ```
 
 ## Actualitzar la galeria

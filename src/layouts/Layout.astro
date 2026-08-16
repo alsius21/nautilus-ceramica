@@ -23,6 +23,15 @@ const base = import.meta.env.BASE_URL.endsWith('/')
 		<meta name="generator" content={Astro.generator} />
 		<title>{BRAND_NAME}</title>
 		<meta name="description" content={description} />
+		<!-- PWA: installability, theme and iOS standalone chrome -->
+		<link rel="manifest" href={`${base}manifest.webmanifest`} />
+		<meta name="theme-color" content="#eee9e1" />
+		<meta name="mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+		<meta name="apple-mobile-web-app-title" content={BRAND_NAME} />
+		<link rel="apple-touch-icon" href={`${base}apple-touch-icon.png`} />
+		<script src="/src/pwa.ts"></script>
 	</head>
 	<body>
 		<slot />
