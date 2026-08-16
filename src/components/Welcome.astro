@@ -2,7 +2,7 @@
 import Footer from '@/components/Footer.astro';
 import { BRAND_NAME } from '@/consts';
 import { t, normalizeLocale, locales } from '@/i18n';
-import { works } from '@/data/works';
+import { works, workImageFiles } from '@/data/works';
 import { getRelativeLocaleUrl } from 'astro:i18n';
 
 const locale = normalizeLocale(Astro.currentLocale);
@@ -13,16 +13,19 @@ const base = import.meta.env.BASE_URL.endsWith('/')
 	? import.meta.env.BASE_URL
 	: `${import.meta.env.BASE_URL}/`;
 
+// Chess piece featured on the home page (right-hand artwork).
+const featured = works.find((work) => work.slug === 'dama')!;
+
 const images = [
 	{
 		slug: works[0].slug,
-		src: `${base}images/instagram/plato_en_taller_de_hoji.webp`,
+		src: `${base}images/instagram/${workImageFiles[works[0].imageKeys[0]]}.webp`,
 		alt: t(locale, 'art.plate'),
 	},
 	{
-		slug: works[1].slug,
-		src: `${base}images/instagram/exposicion_calabaza_en_llotja.webp`,
-		alt: t(locale, 'art.pumpkin'),
+		slug: featured.slug,
+		src: `${base}images/instagram/${workImageFiles[featured.imageKeys[0]]}.webp`,
+		alt: t(locale, `work.${featured.imageKeys[0]}.alt` as Parameters<typeof t>[1]),
 	},
 ];
 
@@ -33,6 +36,9 @@ const images = [
 		<h1>{BRAND_NAME}</h1>
 		<div class="masthead-meta">
 			<p class="eyebrow">Zara Castillo Martínez</p>
+			<nav class="page-nav" aria-label={t(locale, 'nav.label')}>
+				<a href={getRelativeLocaleUrl(locale, `/${t(locale, 'gallery.path')}`)}>{t(locale, 'nav.gallery')}</a>
+			</nav>
 			<nav class="lang-switcher" aria-label={t(locale, 'lang.selector')}>
 				{locales.map((code) => (
 					<a
@@ -171,6 +177,25 @@ const images = [
 		color: var(--ink);
 	}
 
+	.page-nav {
+		display: flex;
+		gap: 1rem;
+		font-size: 0.68rem;
+		letter-spacing: 0.18em;
+		text-transform: uppercase;
+	}
+
+	.page-nav a {
+		color: color-mix(in srgb, var(--ink) 55%, transparent);
+		text-decoration: none;
+		transition: color 240ms ease;
+	}
+
+	.page-nav a:hover,
+	.page-nav a:focus-visible {
+		color: var(--ink);
+	}
+
 	h1 {
 		margin: 0;
 		font-family: 'Fraunces Variable', Georgia, 'Times New Roman', serif;
@@ -221,7 +246,8 @@ const images = [
 	}
 
 	.artwork:focus-visible,
-	.lang-link:focus-visible {
+	.lang-link:focus-visible,
+	.page-nav a:focus-visible {
 		outline: 1px solid var(--ink);
 		outline-offset: 0.35rem;
 	}

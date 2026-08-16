@@ -1,31 +1,31 @@
 ---
 import Footer from '@/components/Footer.astro';
-import { type Work, workImageFiles } from '@/data/works';
+import { works, workImageFiles } from '@/data/works';
 import { t, normalizeLocale, locales } from '@/i18n';
 import { getRelativeLocaleUrl } from 'astro:i18n';
 
-interface Props {
-	work: Work;
-}
-
-const { work } = Astro.props;
 const locale = normalizeLocale(Astro.currentLocale);
-const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
-const copyKey = (part: 'title' | 'description' | 'alt') => `work.${work.imageKeys[0]}.${part}` as Parameters<typeof t>[1];
-const title = t(locale, copyKey('title'));
-const images = work.imageKeys.map((imageKey) => ({
-	src: `${base}images/instagram/${workImageFiles[imageKey]}.webp`,
-	alt: t(locale, `work.${imageKey}.alt` as Parameters<typeof t>[1]),
+
+// Base path with a guaranteed trailing slash (e.g. `/nautilus-ceramica/`), so
+// public/ URLs below start from it instead of a bare leading slash.
+const base = import.meta.env.BASE_URL.endsWith('/')
+	? import.meta.env.BASE_URL
+	: `${import.meta.env.BASE_URL}/`;
+
+const images = works.map((work) => ({
+	slug: work.slug,
+	src: `${base}images/instagram/${workImageFiles[work.imageKeys[0]]}.webp`,
+	alt: t(locale, `work.${work.imageKeys[0]}.alt` as Parameters<typeof t>[1]),
 }));
 ---
 
-<main class="journal">
+<main class="portfolio">
 	<header class="journal-header">
-		<a class="back-link" href={getRelativeLocaleUrl(locale, '/')}>← {t(locale, 'work.back')}</a>
+		<a class="back-link" href={getRelativeLocaleUrl(locale, '/')}>← {t(locale, 'gallery.back')}</a>
 		<nav class="lang-switcher" aria-label={t(locale, 'lang.selector')}>
 			{locales.map((code) => (
 				<a
-					href={getRelativeLocaleUrl(code, `/${t(code, 'work.path')}/${work.slug}`)}
+					href={getRelativeLocaleUrl(code, `/${t(code, 'gallery.path')}`)}
 					class:list={['lang-link', { 'is-current': code === locale }]}
 					aria-current={code === locale ? 'page' : null}
 					title={t(code, 'lang.name')}
@@ -38,24 +38,26 @@ const images = work.imageKeys.map((imageKey) => ({
 
 	<article class="entry">
 		<div class="entry-intro">
-			<p class="eyebrow">{t(locale, 'work.meta')}</p>
-			<h1>{title}</h1>
-			<p class="description">{t(locale, copyKey('description'))}</p>
+			<p class="eyebrow">{t(locale, 'gallery.page.eyebrow')}</p>
+			<h1>{t(locale, 'gallery.page.title')}</h1>
+			<p class="description">{t(locale, 'gallery.page.description')}</p>
 		</div>
-		<div class:list={["work-gallery", { 'is-gallery': images.length > 1 }]} aria-label={title}>
+		<section class="work-grid" aria-label={t(locale, 'nav.gallery')}>
 			{images.map((image, index) => (
-				<figure>
-					<img src={image.src} alt={image.alt} loading={index === 0 ? 'eager' : 'lazy'} />
-				</figure>
+				<a class="artwork" href={getRelativeLocaleUrl(locale, `/${t(locale, 'work.path')}/${image.slug}`)}>
+					<figure>
+						<img src={image.src} alt={image.alt} loading={index === 0 ? 'eager' : 'lazy'} />
+					</figure>
+				</a>
 			))}
-		</div>
+		</section>
 	</article>
 
 	<Footer />
 </main>
 
 <style>
-	.journal {
+	.portfolio {
 		--ink: #29251f;
 		--paper: #e8e5dc;
 		display: flex;
@@ -143,33 +145,38 @@ const images = work.imageKeys.map((imageKey) => ({
 		line-height: 1.6;
 	}
 
-	.work-gallery {
+	.work-grid {
 		display: grid;
-		gap: clamp(1rem, 3vw, 3rem);
+		grid-template-columns: repeat(auto-fill, minmax(min(19rem, 100%), 1fr));
+		gap: clamp(1rem, 3vw, 3.5rem);
+		align-items: start;
 	}
 
-	.work-gallery figure {
+	.artwork {
+		color: inherit;
+		display: block;
 		margin: 0;
-		overflow: hidden;
-		background: #dcd5ca;
+		text-decoration: none;
 	}
 
-	.work-gallery img {
+	.artwork figure {
+		margin: 0;
+		background: #dcd5ca;
+		overflow: hidden;
+	}
+
+	.artwork img {
 		display: block;
 		width: 100%;
 		height: auto;
 		transition: transform 700ms cubic-bezier(0.2, 0.7, 0.2, 1);
 	}
 
-	.work-gallery figure:hover img {
+	.artwork:hover img {
 		transform: scale(1.025);
 	}
 
-	.work-gallery.is-gallery {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-	}
-
-	.journal :focus-visible {
+	.portfolio :focus-visible {
 		outline: 1px solid var(--ink);
 		outline-offset: 0.35rem;
 	}
@@ -191,7 +198,7 @@ const images = work.imageKeys.map((imageKey) => ({
 	}
 
 	@media (prefers-reduced-motion: reduce) {
-		.work-gallery img,
+		.work-grid img,
 		.back-link,
 		.lang-link {
 			transition: none;
