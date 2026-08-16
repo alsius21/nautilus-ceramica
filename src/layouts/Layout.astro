@@ -24,7 +24,7 @@ const base = import.meta.env.BASE_URL.endsWith('/')
 <html lang={locale}>
 	<head>
 		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
+		<meta name="viewport" content="width=device-width, viewport-fit=cover" />
 		<link rel="icon" type="image/png" href={`${base}favicon.png`} />
 		<link rel="icon" href={`${base}favicon.ico`} />
 		<meta name="generator" content={Astro.generator} />
@@ -51,11 +51,19 @@ const base = import.meta.env.BASE_URL.endsWith('/')
 		margin: 0;
 		width: 100%;
 		min-height: 100%;
+		/* Paper tone — matches the PWA theme_color/background_color (#eee9e1)
+		   and .home's --paper, so the notch/home-indicator bands and iOS
+		   overscroll never flash white. */
+		background: #eee9e1;
 	}
 
 	:global(body) {
 		font-family: 'Archivo Variable', system-ui, -apple-system, sans-serif;
 		-webkit-font-smoothing: antialiased;
 		text-rendering: optimizeLegibility;
+		/* With viewport-fit=cover the page draws under the notch and home
+		   indicator; keep content clear of them (0 on devices without insets). */
+		padding-top: env(safe-area-inset-top);
+		padding-bottom: env(safe-area-inset-bottom);
 	}
 </style>
