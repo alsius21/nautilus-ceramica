@@ -25,7 +25,7 @@ const images = work.imageKeys.map((imageKey) => ({
 		<nav class="lang-switcher" aria-label={t(locale, 'lang.selector')}>
 			{locales.map((code) => (
 				<a
-					href={getRelativeLocaleUrl(code, `/obra/${work.slug}`)}
+					href={getRelativeLocaleUrl(code, `/${t(code, 'work.path')}/${work.slug}`)}
 					class:list={['lang-link', { 'is-current': code === locale }]}
 					aria-current={code === locale ? 'page' : null}
 					title={t(code, 'lang.name')}

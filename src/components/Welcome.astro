@@ -50,7 +50,7 @@ const images = [
 
 	<section class="gallery" aria-label={t(locale, 'gallery.label')}>
 		{images.map((image, index) => (
-			<a class:list={["artwork", `artwork-${index + 1}`]} href={getRelativeLocaleUrl(locale, `/obra/${image.slug}`)}>
+			<a class:list={["artwork", `artwork-${index + 1}`]} href={getRelativeLocaleUrl(locale, `/${t(locale, 'work.path')}/${image.slug}`)}>
 				<figure>
 					<img src={image.src} alt={image.alt} loading={index === 0 ? 'eager' : 'lazy'} />
 				</figure>
