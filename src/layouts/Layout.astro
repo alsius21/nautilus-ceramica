@@ -25,6 +25,7 @@ const base = import.meta.env.BASE_URL.endsWith('/')
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, viewport-fit=cover" />
+		<meta name="color-scheme" content="light dark" />
 		<link rel="icon" type="image/png" href={`${base}favicon.png`} />
 		<link rel="icon" href={`${base}favicon.ico`} />
 		<meta name="generator" content={Astro.generator} />
@@ -33,6 +34,7 @@ const base = import.meta.env.BASE_URL.endsWith('/')
 		<!-- PWA: installability, theme and iOS standalone chrome -->
 		<link rel="manifest" href={`${base}manifest.webmanifest`} />
 		<meta name="theme-color" content="#eee9e1" />
+		<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#191712" />
 		<meta name="mobile-web-app-capable" content="yes" />
 		<meta name="apple-mobile-web-app-capable" content="yes" />
 		<meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -46,6 +48,14 @@ const base = import.meta.env.BASE_URL.endsWith('/')
 </html>
 
 <style>
+	:global(:root) {
+		/* Dark-mode palette, shared by every component's
+		   @media (prefers-color-scheme: dark) block. */
+		--nc-ink-dark: #e8e3d9;
+		--nc-paper-dark: #191712;
+		color-scheme: light dark;
+	}
+
 	:global(html),
 	:global(body) {
 		margin: 0;
@@ -65,5 +75,12 @@ const base = import.meta.env.BASE_URL.endsWith('/')
 		   indicator; keep content clear of them (0 on devices without insets). */
 		padding-top: env(safe-area-inset-top);
 		padding-bottom: env(safe-area-inset-bottom);
+	}
+
+	@media (prefers-color-scheme: dark) {
+		:global(html),
+		:global(body) {
+			background: var(--nc-paper-dark);
+		}
 	}
 </style>

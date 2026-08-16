@@ -33,7 +33,9 @@ const images = [
 
 <main class="home home-alt">
 	<header class="masthead">
-		<h1>{BRAND_NAME}</h1>
+		<a class="brand-home" href={getRelativeLocaleUrl(locale, '/')} aria-label={BRAND_NAME}>
+			<h1>{BRAND_NAME}</h1>
+		</a>
 		<div class="masthead-meta">
 			<p class="eyebrow">Zara Castillo Martínez</p>
 			<nav class="page-nav" aria-label={t(locale, 'nav.label')}>
@@ -196,6 +198,11 @@ const images = [
 		color: var(--ink);
 	}
 
+	.brand-home {
+		color: inherit;
+		text-decoration: none;
+	}
+
 	h1 {
 		margin: 0;
 		font-family: 'Fraunces Variable', Georgia, 'Times New Roman', serif;
@@ -247,7 +254,8 @@ const images = [
 
 	.artwork:focus-visible,
 	.lang-link:focus-visible,
-	.page-nav a:focus-visible {
+	.page-nav a:focus-visible,
+	.brand-home:focus-visible {
 		outline: 1px solid var(--ink);
 		outline-offset: 0.35rem;
 	}
@@ -269,6 +277,32 @@ const images = [
 
 		.artwork-2 {
 			margin-top: 1.5rem;
+		}
+	}
+
+	@media (prefers-color-scheme: dark) {
+		.home {
+			--ink: var(--nc-ink-dark);
+			--paper: var(--nc-paper-dark);
+			background:
+				linear-gradient(115deg, rgba(58, 92, 82, 0.42), transparent 42%),
+				radial-gradient(ellipse at 80% 18%, rgba(72, 112, 96, 0.3), transparent 32%),
+				var(--nc-paper-dark);
+		}
+
+		.home-alt::before {
+			background:
+				linear-gradient(95deg, transparent 8%, rgba(97, 158, 146, 0.16) 30%, rgba(255, 255, 255, 0.07) 48%, rgba(88, 141, 135, 0.18) 70%, transparent 90%);
+		}
+
+		.home-alt::after {
+			background:
+				radial-gradient(ellipse at 40% 52%, rgba(116, 174, 160, 0.24), transparent 47%),
+				radial-gradient(ellipse at 72% 46%, rgba(212, 178, 118, 0.18), transparent 42%);
+		}
+
+		.artwork figure {
+			background: #2b2822;
 		}
 	}
 
