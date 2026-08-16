@@ -1,0 +1,18 @@
+---
+import WorkJournal from '@/components/WorkJournal.astro';
+import Layout from '@/layouts/Layout.astro';
+import { works } from '@/data/works';
+import { normalizeLocale, t } from '@/i18n';
+
+export function getStaticPaths() {
+	return works.map((work) => ({ params: { slug: work.slug }, props: { work } }));
+}
+
+const { work } = Astro.props;
+const locale = normalizeLocale(Astro.currentLocale);
+const title = t(locale, `work.${work.imageKeys[0]}.title` as Parameters<typeof t>[1]);
+---
+
+<Layout title={title}>
+	<WorkJournal work={work} />
+</Layout>

@@ -1,0 +1,200 @@
+---
+import Footer from '@/components/Footer.astro';
+import type { Work } from '@/data/works';
+import { t, normalizeLocale, locales } from '@/i18n';
+import { getRelativeLocaleUrl } from 'astro:i18n';
+
+interface Props {
+	work: Work;
+}
+
+const { work } = Astro.props;
+const locale = normalizeLocale(Astro.currentLocale);
+const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
+const copyKey = (part: 'title' | 'description' | 'alt') => `work.${work.imageKeys[0]}.${part}` as Parameters<typeof t>[1];
+const title = t(locale, copyKey('title'));
+const images = work.imageKeys.map((imageKey) => ({
+	src: `${base}images/instagram/${imageKey === 'plate' ? 'plato_en_taller_de_hoji' : 'exposicion_calabaza_en_llotja'}.webp`,
+	alt: t(locale, `work.${imageKey}.alt` as Parameters<typeof t>[1]),
+}));
+---
+
+<main class="journal">
+	<header class="journal-header">
+		<a class="back-link" href={getRelativeLocaleUrl(locale, '/')}>← {t(locale, 'work.back')}</a>
+		<nav class="lang-switcher" aria-label={t(locale, 'lang.selector')}>
+			{locales.map((code) => (
+				<a
+					href={getRelativeLocaleUrl(code, `/${t(code, 'work.path')}/${work.slug}`)}
+					class:list={['lang-link', { 'is-current': code === locale }]}
+					aria-current={code === locale ? 'page' : null}
+					title={t(code, 'lang.name')}
+				>
+					{code}
+				</a>
+			))}
+		</nav>
+	</header>
+
+	<article class="entry">
+		<div class="entry-intro">
+			<p class="eyebrow">{t(locale, 'work.meta')}</p>
+			<h1>{title}</h1>
+			<p class="description">{t(locale, copyKey('description'))}</p>
+		</div>
+		<div class:list={["work-gallery", { 'is-gallery': images.length > 1 }]} aria-label={title}>
+			{images.map((image, index) => (
+				<figure>
+					<img src={image.src} alt={image.alt} loading={index === 0 ? 'eager' : 'lazy'} />
+				</figure>
+			))}
+		</div>
+	</article>
+
+	<Footer />
+</main>
+
+<style>
+	.journal {
+		--ink: #29251f;
+		--paper: #e8e5dc;
+		display: flex;
+		flex-direction: column;
+		box-sizing: border-box;
+		min-height: 100dvh;
+		padding: clamp(1.5rem, 4vw, 4rem) clamp(1.25rem, 6vw, 7rem) 0;
+		background:
+			linear-gradient(115deg, rgba(217, 232, 222, 0.78), transparent 42%),
+			radial-gradient(ellipse at 80% 18%, rgba(191, 214, 200, 0.5), transparent 32%),
+			var(--paper);
+		color: var(--ink);
+	}
+
+	.journal-header {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 2rem;
+		border-bottom: 1px solid color-mix(in srgb, var(--ink) 35%, transparent);
+		padding-bottom: 1.25rem;
+	}
+
+	.back-link,
+	.lang-link {
+		color: color-mix(in srgb, var(--ink) 62%, transparent);
+		font-size: 0.68rem;
+		letter-spacing: 0.14em;
+		text-decoration: none;
+		text-transform: uppercase;
+		transition: color 240ms ease;
+	}
+
+	.back-link:hover,
+	.back-link:focus-visible,
+	.lang-link:hover,
+	.lang-link:focus-visible,
+	.lang-link.is-current {
+		color: var(--ink);
+	}
+
+	.lang-switcher {
+		display: flex;
+		gap: 1rem;
+	}
+
+	.entry {
+		display: grid;
+		grid-template-columns: minmax(14rem, 0.65fr) minmax(0, 1.35fr);
+		gap: clamp(2rem, 8vw, 9rem);
+		align-items: start;
+		max-width: 110rem;
+		width: 100%;
+		margin: clamp(3rem, 9vw, 9rem) auto 0;
+	}
+
+	.entry-intro {
+		position: sticky;
+		top: 2rem;
+	}
+
+	.eyebrow {
+		margin: 0 0 1.5rem;
+		font-size: 0.68rem;
+		letter-spacing: 0.18em;
+		text-transform: uppercase;
+	}
+
+	h1 {
+		max-width: 9ch;
+		margin: 0;
+		font-family: 'Fraunces Variable', Georgia, serif;
+		font-size: clamp(3rem, 7vw, 7rem);
+		font-weight: 400;
+		font-optical-sizing: auto;
+		font-variation-settings: 'SOFT' 40, 'WONK' 1;
+		letter-spacing: -0.055em;
+		line-height: 0.88;
+	}
+
+	.description {
+		max-width: 34rem;
+		margin: 2.5rem 0 0;
+		font-size: clamp(1rem, 1.5vw, 1.25rem);
+		line-height: 1.6;
+	}
+
+	.work-gallery {
+		display: grid;
+		gap: clamp(1rem, 3vw, 3rem);
+	}
+
+	.work-gallery figure {
+		margin: 0;
+		overflow: hidden;
+		background: #dcd5ca;
+	}
+
+	.work-gallery img {
+		display: block;
+		width: 100%;
+		height: auto;
+		transition: transform 700ms cubic-bezier(0.2, 0.7, 0.2, 1);
+	}
+
+	.work-gallery figure:hover img {
+		transform: scale(1.025);
+	}
+
+	.work-gallery.is-gallery {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.journal :focus-visible {
+		outline: 1px solid var(--ink);
+		outline-offset: 0.35rem;
+	}
+
+	@media (max-width: 700px) {
+		.entry {
+			display: block;
+			margin-top: 3.5rem;
+		}
+
+		.entry-intro {
+			position: static;
+			margin-bottom: 2.5rem;
+		}
+
+		h1 {
+			max-width: 12ch;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.work-gallery img,
+		.back-link,
+		.lang-link {
+			transition: none;
+		}
+	}
+</style>

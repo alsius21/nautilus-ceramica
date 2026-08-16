@@ -1,11 +1,18 @@
 ---
-import { BRAND_NAME } from '../consts';
-import { t, normalizeLocale } from '../i18n';
+import { BRAND_NAME } from '@/consts';
+import { t, normalizeLocale } from '@/i18n';
 import '@fontsource-variable/fraunces/full.css';
 import '@fontsource-variable/archivo';
 
+interface Props {
+	title?: string;
+}
+
+const { title: pageTitle } = Astro.props;
+
 const locale = normalizeLocale(Astro.currentLocale);
 const description = t(locale, 'meta.description');
+const title = pageTitle ?? BRAND_NAME;
 
 // Base path with a guaranteed trailing slash (e.g. `/nautilus-ceramica/`).
 const base = import.meta.env.BASE_URL.endsWith('/')
@@ -21,7 +28,7 @@ const base = import.meta.env.BASE_URL.endsWith('/')
 		<link rel="icon" type="image/png" href={`${base}favicon.png`} />
 		<link rel="icon" href={`${base}favicon.ico`} />
 		<meta name="generator" content={Astro.generator} />
-		<title>{BRAND_NAME}</title>
+		<title>{pageTitle ? `${title} · ${BRAND_NAME}` : BRAND_NAME}</title>
 		<meta name="description" content={description} />
 		<!-- PWA: installability, theme and iOS standalone chrome -->
 		<link rel="manifest" href={`${base}manifest.webmanifest`} />
