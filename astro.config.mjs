@@ -96,8 +96,8 @@ export default defineConfig({
 			// virtual:pwa-register module; skip auto-injected scripts.
 			injectRegister: false,
 			manifest: {
-				name: 'NautilusCeramica',
-				short_name: 'NautilusCeramica',
+				name: 'nautilusceramica',
+				short_name: 'nautilusceramica',
 				description:
 					'Ceràmica artesanal de Zara Castillo Martínez. Peces úniques fetes a mà, del taller a l’exposició.',
 				// Relative to the manifest URL, so they resolve to the base
