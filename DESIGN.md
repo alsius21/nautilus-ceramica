@@ -39,8 +39,17 @@ Parella: **Fraunces Variable** (display) + **Archivo Variable** (UI).
 - Deriva orgànica lenta «celadon-flow» sobre els rentats de fons (bucles de 18–25s).
 - El mode de moviment reduït desactiva tota animació i transició d'imatges.
 
+## Pàgines d'obra (plantilla tipus diari)
+
+- **Requisit:** una plantilla de pàgina reutilitzable —amb estructura de diari/blog— que doni a cada peça la seva pròpia pàgina, a banda de la galeria de la home.
+- Cada pàgina d'obra ha d'incloure, com a mínim: **títol** de la peça i **descripció** lliure (materials, procés, textura, anècdotes del taller).
+- **Galeria en lloc d'imatge única:** una peça pot mostrar diverses fotografies (vistes, detalls, procés) en lloc d'un sol retrat; quan una obra té més d'una imatge, la pàgina ha de presentar-les com a galeria, mai com a imatges soltes.
+- La plantilla ha de seguir el llenguatge visual existent: tipografia, espaiat, línies de pèl i integració dins del fons del `<main>` —res de fons propi—, igual que les seccions actuals.
+- Cada pàgina ha d'estar disponible a les tres llengües (ca/es/en), amb títol, descripció i textos alternatius centralitzats al diccionari `src/i18n/index.ts`.
+
 ## Registre de decisions
 
 - **2026-08-16** — Tipografia: es substitueix Georgia/font de sistema per Fraunces Variable + Archivo Variable (autoallotjada). Direcció escollida: display serif artesà i càlid + UI grotesca neutra.
 - **2026-08-16** — Composició: la home es reconstrueix com a landing d'estudi; el peu de pàgina queda fixat a la part baixa de la viewport; `min-height: 100dvh`.
 - **2026-08-16** — i18n: tres llengües — català (per defecte, sense prefix a `/`), castellà (`/es/`) i anglès (`/en/`). Diccionari central a `src/i18n/index.ts`; `Astro.currentLocale` alimenta el `lang` del document, els textos i el selector d'idioma de la capçalera (estil meta, enllaç actiu amb `aria-current`).
+- **2026-08-16** — Requisit implementat: plantilla reutilitzable de pàgines d'obra (estil diari) amb títol, descripció, galeria opcional i rutes localitzades per a ca/es/en.
