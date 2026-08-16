@@ -64,10 +64,16 @@ function astroPWA(options) {
 }
 
 // https://astro.build/config
+// Netlify sets NETLIFY=true during its builds and serves the site at the
+// domain root, so the base must be '/' there. GitHub Pages serves the
+// project site under the /nautilus-ceramica base path.
+const isNetlify = process.env.NETLIFY === 'true';
+const base = isNetlify ? '/' : '/nautilus-ceramica';
+
 export default defineConfig({
 	// GitHub Pages project site: https://alsius21.github.io/nautilus-ceramica/
-	site: 'https://alsius21.github.io',
-	base: '/nautilus-ceramica',
+	site: isNetlify && process.env.URL ? process.env.URL : 'https://alsius21.github.io',
+	base,
 	server: {
 		host: true,
 		port: 80,
