@@ -1,1 +1,1 @@
-export const BRAND_NAME = 'NautilusCeràmica12';
+export const BRAND_NAME = 'NautilusCeramica';

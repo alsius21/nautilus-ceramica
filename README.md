@@ -15,14 +15,14 @@
 
 ## Sobre el projecte
 
-Nautilus Ceràmica és un portafolis de caràcter editorial per a un estudi de ceràmica. La pàgina d'inici combina un sistema tipogràfic sobri amb una selecció d'imatges del taller i d'exposicions, deixant que les peces siguin les protagonistes.
+Nautilus Ceràmica és un portafolis de caràcter editorial per a l'estudi de ceràmica de **Zara Castillo Martínez**. La pàgina d'inici combina un sistema tipogràfic sobri amb una selecció d'imatges del taller i d'exposicions, deixant que les peces siguin les protagonistes.
 
 El lloc és intencionadament petit i ràpid: sortida estàtica amb Astro, obra servida localment, composició adaptable i sense el pes d'un framework de client.
 
 ## Idiomes
 
 - **Documentació del projecte:** català
-- **Idiomes previstos del lloc web:** català, castellà i anglès
+- **Idiomes del lloc web:** català (per defecte, a `/`), castellà (`/es/`) i anglès (`/en/`)
 
 ## Tecnologies
 
@@ -62,11 +62,17 @@ pnpm preview
 src/
 ├── components/
 │   ├── Footer.astro       # Copyright i enllaç a Instagram
-│   └── Welcome.astro      # Composició de la pàgina d'inici i galeria
+│   └── Welcome.astro      # Composició de la pàgina d'inici, galeria i selector d'idioma
+├── i18n/
+│   └── index.ts           # Diccionari de textos: català, castellà, anglès
 ├── layouts/
 │   └── Layout.astro       # Estructura del document, fonts i metadades
 └── pages/
-    └── index.astro        # Ruta d'inici
+    ├── index.astro        # Inici en català a `/`
+    ├── es/
+    │   └── index.astro    # Versió castellana a `/es/`
+    └── en/
+        └── index.astro    # Versió anglesa a `/en/`
 public/
 └── images/instagram/       # Obra del taller i d'exposicions
 ```
@@ -74,7 +80,7 @@ public/
 ## Actualitzar la galeria
 
 1. Afegeix una imatge optimitzada a `public/images/instagram/`.
-2. Afegeix-ne la ruta i un text `alt` descriptiu a l'array `images` de `src/components/Welcome.astro`.
+2. Afegeix-ne la ruta a l'array `images` de `src/components/Welcome.astro` i el text alternatiu a les tres llengües a `src/i18n/index.ts`.
 3. Executa `pnpm build` per verificar la sortida de producció.
 
 El perfil d'Instagram enllaçat al lloc és [@nautilceramica](https://www.instagram.com/nautilceramica/).

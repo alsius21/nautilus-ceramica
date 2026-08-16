@@ -43,3 +43,4 @@ Parella: **Fraunces Variable** (display) + **Archivo Variable** (UI).
 
 - **2026-08-16** — Tipografia: es substitueix Georgia/font de sistema per Fraunces Variable + Archivo Variable (autoallotjada). Direcció escollida: display serif artesà i càlid + UI grotesca neutra.
 - **2026-08-16** — Composició: la home es reconstrueix com a landing d'estudi; el peu de pàgina queda fixat a la part baixa de la viewport; `min-height: 100dvh`.
+- **2026-08-16** — i18n: tres llengües — català (per defecte, sense prefix a `/`), castellà (`/es/`) i anglès (`/en/`). Diccionari central a `src/i18n/index.ts`; `Astro.currentLocale` alimenta el `lang` del document, els textos i el selector d'idioma de la capçalera (estil meta, enllaç actiu amb `aria-current`).
