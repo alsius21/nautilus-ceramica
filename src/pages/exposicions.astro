@@ -1,0 +1,12 @@
+---
+import Exhibitions from '@/components/Exhibitions.astro';
+import Layout from '@/layouts/Layout.astro';
+import { normalizeLocale, t } from '@/i18n';
+
+const locale = normalizeLocale(Astro.currentLocale);
+const title = t(locale, 'exhibitions.page.title');
+---
+
+<Layout title={title}>
+	<Exhibitions />
+</Layout>
