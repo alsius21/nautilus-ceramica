@@ -1,5 +1,6 @@
 ---
 import Footer from '@/components/Footer.astro';
+import { BRAND_NAME } from '@/consts';
 import { works, workImageFiles } from '@/data/works';
 import { t, normalizeLocale, locales } from '@/i18n';
 import { getRelativeLocaleUrl } from 'astro:i18n';
@@ -25,7 +26,7 @@ const images = works
 
 <main class="portfolio">
 	<header class="journal-header">
-		<a class="back-link" href={getRelativeLocaleUrl(locale, '/')}>← {t(locale, 'gallery.back')}</a>
+		<a class="brand-name" href={getRelativeLocaleUrl(locale, '/')}>{BRAND_NAME}</a>
 		<nav class="lang-switcher" aria-label={t(locale, 'lang.selector')}>
 			{locales.map((code) => (
 				<a
@@ -85,7 +86,19 @@ const images = works
 		padding-bottom: 1.25rem;
 	}
 
-	.back-link,
+	.brand-name {
+		color: color-mix(in srgb, var(--ink) 85%, transparent);
+		font-family: 'Fraunces Variable', Georgia, 'Times New Roman', serif;
+		font-size: clamp(1.15rem, 2.4vw, 1.75rem);
+		font-weight: 400;
+		font-optical-sizing: auto;
+		font-variation-settings: 'SOFT' 40, 'WONK' 1;
+		letter-spacing: -0.05em;
+		line-height: 0.9;
+		text-decoration: none;
+		transition: color 240ms ease;
+	}
+
 	.lang-link {
 		color: color-mix(in srgb, var(--ink) 62%, transparent);
 		font-size: 0.68rem;
@@ -95,8 +108,8 @@ const images = works
 		transition: color 240ms ease;
 	}
 
-	.back-link:hover,
-	.back-link:focus-visible,
+	.brand-name:hover,
+	.brand-name:focus-visible,
 	.lang-link:hover,
 	.lang-link:focus-visible,
 	.lang-link.is-current {
@@ -219,7 +232,7 @@ const images = works
 
 	@media (prefers-reduced-motion: reduce) {
 		.work-grid img,
-		.back-link,
+		.brand-name,
 		.lang-link {
 			transition: none;
 		}

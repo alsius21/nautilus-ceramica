@@ -3,21 +3,25 @@ export const works = [
 		slug: 'plat-de-taller',
 		titleKey: 'plate',
 		imageKeys: ['plate'],
+		made: 'hoji',
 	},
 	{
 		slug: 'calabaza-a-la-llotja',
 		titleKey: 'pumpkin',
 		imageKeys: ['pumpkin'],
+		made: 'llotja',
 	},
 	{
 		slug: 'bol-de-taller',
 		titleKey: 'bowl',
 		imageKeys: ['bowl'],
+		made: 'hoji',
 	},
 	{
 		slug: 'peces-descacs',
 		titleKey: 'chess',
 		imageKeys: ['queen', 'bishop'],
+		made: 'llotja',
 	},
 ] as const;
 
