@@ -12,11 +12,15 @@ const base = import.meta.env.BASE_URL.endsWith('/')
 	? import.meta.env.BASE_URL
 	: `${import.meta.env.BASE_URL}/`;
 
-const images = works.map((work) => ({
-	slug: work.slug,
-	src: `${base}images/${workImageFiles[work.imageKeys[0]]}.webp`,
-	alt: t(locale, `work.${work.imageKeys[0]}.alt` as Parameters<typeof t>[1]),
-}));
+const images = works
+	// The pumpkin has its own exhibition feature (Argillà 2026); keep it out of
+	// the general gallery grid so it only appears via the exhibitions section.
+	.filter((work) => work.slug !== 'calabaza-a-la-llotja')
+	.map((work) => ({
+		slug: work.slug,
+		src: `${base}images/${workImageFiles[work.imageKeys[0]]}.webp`,
+		alt: t(locale, `work.${work.imageKeys[0]}.alt` as Parameters<typeof t>[1]),
+	}));
 ---
 
 <main class="portfolio">
@@ -112,6 +116,7 @@ const images = works.map((work) => ({
 		max-width: 110rem;
 		width: 100%;
 		margin: clamp(3rem, 9vw, 9rem) auto 0;
+		padding-bottom: clamp(3rem, 8vw, 6rem);
 	}
 
 	.entry-intro {
