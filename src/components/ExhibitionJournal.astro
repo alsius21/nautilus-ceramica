@@ -1,31 +1,32 @@
 ---
 import Footer from '@/components/Footer.astro';
-import { type Work, workImageFiles } from '@/data/works';
+import { type Exhibition, exhibitionImageFiles } from '@/data/exhibitions';
 import { t, normalizeLocale, locales } from '@/i18n';
 import { getRelativeLocaleUrl } from 'astro:i18n';
 
 interface Props {
-	work: Work;
+	exhibition: Exhibition;
 }
 
-const { work } = Astro.props;
+const { exhibition } = Astro.props;
 const locale = normalizeLocale(Astro.currentLocale);
 const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
-const copyKey = (part: 'title' | 'description' | 'alt') => `work.${work.imageKeys[0]}.${part}` as Parameters<typeof t>[1];
+const copyKey = (part: 'venue' | 'title' | 'description' | 'alt') => `exhibit.${exhibition.slug}.${part}` as Parameters<typeof t>[1];
+const venue = t(locale, copyKey('venue'));
 const title = t(locale, copyKey('title'));
-const images = work.imageKeys.map((imageKey) => ({
-	src: `${base}images/${workImageFiles[imageKey]}.webp`,
-	alt: t(locale, `work.${imageKey}.alt` as Parameters<typeof t>[1]),
+const images = exhibition.imageKeys.map((imageKey) => ({
+	src: `${base}images/${exhibitionImageFiles[imageKey]}.webp`,
+	alt: t(locale, copyKey('alt')),
 }));
 ---
 
 <main class="journal">
 	<header class="journal-header">
-		<a class="back-link" href={getRelativeLocaleUrl(locale, '/')}>← {t(locale, 'work.back')}</a>
+		<a class="back-link" href={getRelativeLocaleUrl(locale, `/${t(locale, 'exhibitions.path')}`)}>← {t(locale, 'exhibit.back')}</a>
 		<nav class="lang-switcher" aria-label={t(locale, 'lang.selector')}>
 			{locales.map((code) => (
 				<a
-					href={getRelativeLocaleUrl(code, `/${t(code, 'work.path')}/${work.slug}`)}
+					href={getRelativeLocaleUrl(code, `/${t(code, 'exhibitions.path')}/${exhibition.slug}`)}
 					class:list={['lang-link', { 'is-current': code === locale }]}
 					aria-current={code === locale ? 'page' : null}
 					title={t(code, 'lang.name')}
@@ -38,9 +39,14 @@ const images = work.imageKeys.map((imageKey) => ({
 
 	<article class="entry">
 		<div class="entry-intro">
-			<p class="eyebrow">{t(locale, 'work.meta')}</p>
+			<p class="eyebrow">{venue}</p>
 			<h1>{title}</h1>
 			<p class="description">{t(locale, copyKey('description'))}</p>
+			{exhibition.url && (
+				<a class="visit" href={exhibition.url} target="_blank" rel="noopener noreferrer">
+					{t(locale, 'exhibit.visit')} ↗
+				</a>
+			)}
 		</div>
 		<div class:list={["work-gallery", { 'is-gallery': images.length > 1 }]} aria-label={title}>
 			{images.map((image, index) => (
@@ -141,6 +147,25 @@ const images = work.imageKeys.map((imageKey) => ({
 		margin: 2.5rem 0 0;
 		font-size: clamp(1rem, 1.5vw, 1.25rem);
 		line-height: 1.6;
+	}
+
+	.visit {
+		display: inline-block;
+		margin-top: 2rem;
+		font-size: 0.72rem;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+		color: color-mix(in srgb, var(--ink) 70%, transparent);
+		text-decoration: none;
+		transition: color 240ms ease;
+	}
+
+	.visit:hover,
+	.visit:focus-visible {
+		color: var(--ink);
+		text-decoration: underline;
+		text-decoration-thickness: 1px;
+		text-underline-offset: 0.25em;
 	}
 
 	.work-gallery {

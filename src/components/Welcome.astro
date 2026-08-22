@@ -19,12 +19,12 @@ const featured = works.find((work) => work.slug === 'dama')!;
 const images = [
 	{
 		slug: works[0].slug,
-		src: `${base}images/instagram/${workImageFiles[works[0].imageKeys[0]]}.webp`,
+		src: `${base}images/${workImageFiles[works[0].imageKeys[0]]}.webp`,
 		alt: t(locale, 'art.plate'),
 	},
 	{
 		slug: featured.slug,
-		src: `${base}images/instagram/${workImageFiles[featured.imageKeys[0]]}.webp`,
+		src: `${base}images/${workImageFiles[featured.imageKeys[0]]}.webp`,
 		alt: t(locale, `work.${featured.imageKeys[0]}.alt` as Parameters<typeof t>[1]),
 	},
 ];

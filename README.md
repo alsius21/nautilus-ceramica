@@ -87,30 +87,6 @@ pnpm preview
 
 `pnpm build` genera el lloc estàtic preparat per a producció dins de `dist/`.
 
-### Desplegament amb Netlify CLI
-
-Per desplegar el lloc a Netlify des de la línia d'ordres, consulta la
-[documentació oficial del CLI de Netlify](https://developers.netlify.com/cli/):
-
-```bash
-# Instal·la el CLI (o fes servir npx netlify ...)
-npm install -g netlify-cli
-
-# Inicia sessió i enllaça el projecte
-netlify login
-netlify init
-
-# Desplega la compilació de producció (dist/)
-netlify deploy --prod --dir=dist
-
-# Servei local amb l'entorn de Netlify (funcions, redirects...)
-netlify dev
-```
-
-El build detecta Netlify automàticament (`NETLIFY=true`): aleshores les rutes
-dels actius són relatives a l'arrel del domini, mentre que a GitHub Pages
-continuen prefixades amb `/nautilus-ceramica`.
-
 ## Estructura del projecte
 
 ```text

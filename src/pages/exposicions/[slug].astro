@@ -1,0 +1,18 @@
+---
+import ExhibitionJournal from '@/components/ExhibitionJournal.astro';
+import Layout from '@/layouts/Layout.astro';
+import { exhibitions } from '@/data/exhibitions';
+import { normalizeLocale, t } from '@/i18n';
+
+export function getStaticPaths() {
+	return exhibitions.map((exhibition) => ({ params: { slug: exhibition.slug }, props: { exhibition } }));
+}
+
+const { exhibition } = Astro.props;
+const locale = normalizeLocale(Astro.currentLocale);
+const title = t(locale, `exhibit.${exhibition.slug}.title` as Parameters<typeof t>[1]);
+---
+
+<Layout title={title}>
+	<ExhibitionJournal exhibition={exhibition} />
+</Layout>

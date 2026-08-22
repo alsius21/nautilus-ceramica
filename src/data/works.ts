@@ -25,13 +25,18 @@ export type Work = (typeof works)[number];
 export type WorkSlug = Work['slug'];
 export type WorkImageKey = Work['imageKeys'][number];
 
-/** File name (without extension) under public/images/instagram, per image key. */
+/**
+ * Relative path (dir + file name without extension) under public/images, per
+ * image key. Classified works live in `gallery/`; pieces tied to a public
+ * display live in `exhibitions/`. Unclassified photos stay in `instagram/`
+ * until they are assigned to a work or exhibition.
+ */
 export const workImageFiles: Record<WorkImageKey, string> = {
-	plate: 'plato_en_taller_de_hoji',
-	pumpkin: 'exposicion_calabaza_en_llotja',
-	bowl: 'bol_en_taller_de_hoji',
-	bishop: 'proyecto-alfil-negro_en_taller-de-hoji',
-	queen: 'proyecto-dama_en_taller-de-hoji',
+	plate: 'gallery/plato_en_taller_de_hoji',
+	pumpkin: 'exhibitions/exposicion_calabaza_en_llotja',
+	bowl: 'gallery/bol_en_taller_de_hoji',
+	bishop: 'gallery/proyecto-alfil-negro_en_taller-de-hoji',
+	queen: 'gallery/proyecto-dama_en_taller-de-hoji',
 };
 
 export function getWork(slug: string): Work | undefined {
