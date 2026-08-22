@@ -10,7 +10,7 @@ export function getStaticPaths() {
 
 const { work } = Astro.props;
 const locale = normalizeLocale(Astro.currentLocale);
-const title = t(locale, `work.${work.imageKeys[0]}.title` as Parameters<typeof t>[1]);
+const title = t(locale, `work.${work.titleKey}.title` as Parameters<typeof t>[1]);
 ---
 
 <Layout title={title}>
