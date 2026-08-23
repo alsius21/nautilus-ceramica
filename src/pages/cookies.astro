@@ -1,0 +1,12 @@
+---
+import CookiePolicy from '@/components/CookiePolicy.astro';
+import Layout from '@/layouts/Layout.astro';
+import { normalizeLocale, t } from '@/i18n';
+
+const locale = normalizeLocale(Astro.currentLocale);
+const title = t(locale, 'cookie.title');
+---
+
+<Layout title={title}>
+	<CookiePolicy />
+</Layout>

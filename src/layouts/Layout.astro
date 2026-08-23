@@ -1,24 +1,45 @@
 ---
 import { BRAND_NAME } from '@/consts';
-import { t, normalizeLocale } from '@/i18n';
+import { t, normalizeLocale, locales, type Locale } from '@/i18n';
 import '@fontsource-variable/fraunces/full.css';
 import '@fontsource-variable/archivo';
 
 interface Props {
 	title?: string;
+	description?: string;
+	/** Relative path of this page without locale prefix (e.g. '/', '/galeria', '/obres/plat-de-taller'). */
+	path?: string;
+	image?: string;
 }
 
-const { title: pageTitle } = Astro.props;
+const { title: pageTitle, description: pageDescription, path = '/', image } = Astro.props;
 
 const locale = normalizeLocale(Astro.currentLocale);
-const description = t(locale, 'meta.description');
+const description = pageDescription ?? t(locale, 'meta.description');
 const title = pageTitle ?? BRAND_NAME;
 
-// Base path with a guaranteed trailing slash (e.g. `/nautilus-ceramica/`).
+// Absolute origin + base path, so canonical/alternate/social URLs are stable
+// behind GitHub Pages' /nautilus-ceramica prefix.
+const site = Astro.site ?? new URL('https://alsius21.github.io');
 const base = import.meta.env.BASE_URL.endsWith('/')
 	? import.meta.env.BASE_URL
 	: `${import.meta.env.BASE_URL}/`;
+const origin = site.origin;
+const baseUrl = `${origin}${base}`;
+
+/** Locale-prefixed absolute URL for a locale-less page path. */
+const pageUrl = (code: Locale) => {
+	const segment = code === 'ca' ? '' : `/${code}`;
+	return `${baseUrl.replace(/\/$/, '')}${segment}${path === '/' ? '/' : path}`;
+};
+
+// Social share image: per-page override or the default card in public/.
+const ogImage = new URL(image ? `${base}${image}` : `${base}og-image.jpg`, origin).href;
+
+// hreflang set: every locale variant plus x-default pointing at the Catalan entry.
+const alternates = locales.map((code) => ({ code, href: pageUrl(code) }));
 ---
+
 
 <!doctype html>
 <html lang={locale}>
@@ -31,6 +52,38 @@ const base = import.meta.env.BASE_URL.endsWith('/')
 		<meta name="generator" content={Astro.generator} />
 		<title>{pageTitle ? `${title} · ${BRAND_NAME}` : BRAND_NAME}</title>
 		<meta name="description" content={description} />
+		<link rel="canonical" href={pageUrl(locale)} />
+		{alternates.map((alt) => (
+			<link rel="alternate" hreflang={alt.code} href={alt.href} />
+		))}
+		<link rel="alternate" hreflang="x-default" href={pageUrl('ca')} />
+		<!-- Open Graph / Twitter cards -->
+		<meta property="og:site_name" content={BRAND_NAME} />
+		<meta property="og:type" content="website" />
+		<meta property="og:title" content={pageTitle ? `${title} · ${BRAND_NAME}` : BRAND_NAME} />
+		<meta property="og:description" content={description} />
+		<meta property="og:url" content={pageUrl(locale)} />
+		<meta property="og:image" content={ogImage} />
+		<meta property="og:image:width" content="1200" />
+		<meta property="og:image:height" content="630" />
+		<meta property="og:locale" content={locale} />
+		{alternates.filter((alt) => alt.code !== locale).map((alt) => (
+			<meta property="og:locale:alternate" content={alt.code} />
+		))}
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content={pageTitle ? `${title} · ${BRAND_NAME}` : BRAND_NAME} />
+		<meta name="twitter:description" content={description} />
+		<meta name="twitter:image" content={ogImage} />
+		<script is:inline type="application/ld+json" set:html={JSON.stringify({
+			'@context': 'https://schema.org',
+			'@type': 'WebSite',
+			name: BRAND_NAME,
+			url: baseUrl,
+			inLanguage: locale,
+			description,
+			image: ogImage,
+			author: { '@type': 'Person', name: 'Zara Castillo Martínez' },
+		})} />
 		<!-- PWA: installability, theme and iOS standalone chrome -->
 		<link rel="manifest" href={`${base}manifest.webmanifest`} />
 		<meta name="theme-color" content="#eee9e1" />

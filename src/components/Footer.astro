@@ -1,15 +1,24 @@
 ---
 import { BRAND_NAME } from '@/consts';
+import { normalizeLocale, t } from '@/i18n';
+import { getRelativeLocaleUrl } from 'astro:i18n';
 
 const year = new Date().getFullYear();
 const instagramUrl = 'https://www.instagram.com/nautilceramica/';
+const locale = normalizeLocale(Astro.currentLocale);
+const cookiesUrl = getRelativeLocaleUrl(locale, `/${t(locale, 'cookie.path')}`);
+const legalUrl = getRelativeLocaleUrl(locale, `/${t(locale, 'legal.path')}`);
 ---
 
 <footer class="site-footer">
 	<p class="footer-year">&copy; {year} {BRAND_NAME}</p>
-	<a class="footer-instagram" href={instagramUrl} target="_blank" rel="noopener noreferrer">
-		Instagram
-	</a>
+	<div class="footer-links">
+		<a class="footer-legal" href={legalUrl}>{t(locale, 'legal.footer')}</a>
+		<a class="footer-cookies" href={cookiesUrl}>{t(locale, 'cookie.footer')}</a>
+		<a class="footer-instagram" href={instagramUrl} target="_blank" rel="noopener noreferrer">
+			Instagram
+		</a>
+	</div>
 </footer>
 
 <style>
@@ -33,21 +42,47 @@ const instagramUrl = 'https://www.instagram.com/nautilceramica/';
 		margin: 0;
 	}
 
-	.footer-instagram {
-		color: inherit;
-		text-decoration: none;
-		transition: color 240ms ease;
+	.footer-links {
+		display: flex;
+		align-items: baseline;
+		gap: 2rem;
 	}
 
-	.footer-instagram:hover,
-	.footer-instagram:focus-visible {
-		color: var(--ink);
-	}
+	.footer-legal,
+		.footer-legal:visited,
+		.footer-cookies,
+		.footer-cookies:visited,
+		.footer-instagram,
+		.footer-instagram:visited {
+			color: inherit;
+			text-decoration: none;
+			transition: color 240ms ease;
+		}
+
+		.footer-legal:hover,
+		.footer-legal:focus-visible,
+		.footer-cookies:hover,
+		.footer-cookies:focus-visible,
+		.footer-instagram:hover,
+		.footer-instagram:focus-visible,
+		.footer-legal:visited:hover,
+		.footer-legal:visited:focus-visible,
+		.footer-cookies:visited:hover,
+		.footer-cookies:visited:focus-visible,
+		.footer-instagram:visited:hover,
+		.footer-instagram:visited:focus-visible {
+			color: var(--ink);
+		}
 
 	@media (max-width: 640px) {
 		.site-footer {
 			flex-direction: column;
+			align-items: flex-start;
 			gap: 0.5rem;
+		}
+
+		.footer-links {
+			order: -1;
 		}
 	}
 
@@ -56,4 +91,15 @@ const instagramUrl = 'https://www.instagram.com/nautilceramica/';
 			--ink: var(--nc-ink-dark);
 		}
 	}
+
+	@media (prefers-reduced-motion: reduce) {
+			.footer-legal,
+			.footer-legal:visited,
+			.footer-cookies,
+			.footer-cookies:visited,
+			.footer-instagram,
+			.footer-instagram:visited {
+				transition: none;
+			}
+		}
 </style>

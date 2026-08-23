@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://alsius21.github.io/nautilus-ceramica/sitemap-index.xml
