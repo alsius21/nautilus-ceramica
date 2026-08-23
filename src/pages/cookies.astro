@@ -5,8 +5,9 @@ import { normalizeLocale, t } from '@/i18n';
 
 const locale = normalizeLocale(Astro.currentLocale);
 const title = t(locale, 'cookie.title');
+const description = t(locale, 'cookie.lead');
 ---
 
-<Layout title={title}>
+<Layout title={title} path={`/${t(locale, 'cookie.path')}`} description={description}>
 	<CookiePolicy />
 </Layout>

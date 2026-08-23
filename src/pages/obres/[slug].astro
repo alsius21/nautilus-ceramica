@@ -1,7 +1,7 @@
 ---
 import WorkJournal from '@/components/WorkJournal.astro';
 import Layout from '@/layouts/Layout.astro';
-import { works } from '@/data/works';
+import { workImageFiles, works } from '@/data/works';
 import { normalizeLocale, t } from '@/i18n';
 
 export function getStaticPaths() {
@@ -11,8 +11,10 @@ export function getStaticPaths() {
 const { work } = Astro.props;
 const locale = normalizeLocale(Astro.currentLocale);
 const title = t(locale, `work.${work.titleKey}.title` as Parameters<typeof t>[1]);
+const description = t(locale, `work.${work.titleKey}.meta` as Parameters<typeof t>[1]);
+const ogImage = `images/${workImageFiles[work.imageKeys[0]]}.webp`;
 ---
 
-<Layout title={title}>
+<Layout title={title} path={`/${t(locale, 'work.path')}/${work.slug}`} description={description} image={ogImage}>
 	<WorkJournal work={work} />
 </Layout>

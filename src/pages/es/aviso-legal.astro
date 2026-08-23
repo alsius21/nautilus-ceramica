@@ -5,8 +5,9 @@ import { normalizeLocale, t } from '@/i18n';
 
 const locale = normalizeLocale(Astro.currentLocale);
 const title = t(locale, 'legal.title');
+const description = t(locale, 'legal.lead');
 ---
 
-<Layout title={title}>
+<Layout title={title} path={`/${t(locale, 'legal.path')}`} description={description}>
 	<LegalNotice />
 </Layout>

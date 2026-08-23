@@ -7,6 +7,6 @@ const locale = normalizeLocale(Astro.currentLocale);
 const title = t(locale, 'exhibitions.page.title');
 ---
 
-<Layout title={title}>
+<Layout title={title} path={`/${t(locale, 'exhibitions.path')}`} description={t(locale, 'exhibitions.page.meta')}>
 	<Exhibitions />
 </Layout>
