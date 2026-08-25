@@ -1,0 +1,397 @@
+---
+import Footer from '@/components/Footer.astro';
+import { SHOP_ENABLED } from '@/consts';
+import { works, workImageFiles, type Work } from '@/data/works';
+import { t, normalizeLocale, locales } from '@/i18n';
+import { getRelativeLocaleUrl } from 'astro:i18n';
+
+interface Props {
+  work: Work;
+}
+
+const { work } = Astro.props;
+const locale = normalizeLocale(Astro.currentLocale);
+const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
+const copyKey = (part: 'title' | 'description') => `work.${work.titleKey}.${part}` as Parameters<typeof t>[1];
+const title = t(locale, copyKey('title'));
+const description = t(locale, copyKey('description'));
+const images = work.imageKeys.map((imageKey) => ({
+  src: `${base}images/${workImageFiles[imageKey]}.webp`,
+  alt: t(locale, `work.${imageKey}.alt` as Parameters<typeof t>[1]),
+}));
+
+const shop = work.shop;
+const statusLabel = t(locale, `shop.status.${shop.status}` as Parameters<typeof t>[1]);
+const priceLabel = typeof shop.price === 'number' ? `${shop.price} ${t(locale, 'shop.price.suffix')}` : t(locale, 'shop.price.inquiry');
+const hasPrice = typeof shop.price === 'number';
+const shopHref = getRelativeLocaleUrl(locale, `/${t(locale, 'shop.path')}`);
+const contactHref = getRelativeLocaleUrl(locale, `/${t(locale, 'shop.path')}/${t(locale, 'shop.contact.path')}`);
+
+// Data for cart sidebar — all available works for price/title lookup
+const availableWorksData = works
+  .filter((w) => w.shop.available)
+  .map((w) => ({
+    slug: w.slug,
+    title: t(locale, `work.${w.titleKey}.title` as Parameters<typeof t>[1]),
+    price: w.shop.price ?? null,
+    priceLabel: typeof w.shop.price === 'number' ? `${w.shop.price} ${t(locale, 'shop.price.suffix')}` : t(locale, 'shop.price.inquiry'),
+    hasPrice: typeof w.shop.price === 'number',
+  }));
+---
+
+<main class="journal">
+  <header class="journal-header">
+    <a class="back-link" href={shopHref}>← {t(locale, 'shop.page.title')}</a>
+    <nav class="lang-switcher" aria-label={t(locale, 'lang.selector')}>
+      {locales.map((code) => (
+        <a
+          href={getRelativeLocaleUrl(code, `/${t(code, 'shop.path')}/${t(code, 'shop.article.path')}/${work.slug}`)}
+          class:list={['lang-link', { 'is-current': code === locale }]}
+          aria-current={code === locale ? 'page' : null}
+          title={t(code, 'lang.name')}
+        >
+          {code}
+        </a>
+      ))}
+    </nav>
+  </header>
+
+  <article class="entry">
+    <div class="entry-intro">
+      <p class="eyebrow">{t(locale, `work.made.${work.made}` as Parameters<typeof t>[1])}</p>
+      <h1>{title}</h1>
+      <p class="description">{description}</p>
+
+      <div class="shop-detail">
+        <dl class="shop-meta">
+          <div class="meta-row">
+            <dt>{t(locale, 'shop.detail.availability')}</dt>
+            <dd><span class:list={["badge", `badge-${shop.status}`]}>{statusLabel}</span></dd>
+          </div>
+          {SHOP_ENABLED && (
+            <div class="meta-row">
+              <dt>Preu</dt>
+              <dd class:list={["price", { "is-inquiry": !hasPrice }]}>{priceLabel}</dd>
+            </div>
+          )}
+          {shop.dimensions && (
+            <div class="meta-row">
+              <dt>{t(locale, 'shop.detail.dimensions')}</dt>
+              <dd class="dims">{shop.dimensions}</dd>
+            </div>
+          )}
+        </dl>
+        {SHOP_ENABLED ? (
+          <>
+            <div class="shop-actions">
+              <button
+                type="button"
+                class="cart-btn"
+                data-cart-toggle
+                data-slug={work.slug}
+                data-add-label={t(locale, 'shop.card.add')}
+                data-remove-label={t(locale, 'shop.card.remove')}
+                aria-pressed="false"
+              >
+                {t(locale, 'shop.card.add')}
+              </button>
+            </div>
+            <p class="shop-note">{t(locale, 'shop.form.hint')}</p>
+          </>
+        ) : (
+          <p class="shop-note">{t(locale, 'shop.disabled.description')}</p>
+        )}
+      </div>
+    </div>
+
+    <div class="entry-main">
+      <div class:list={["work-gallery", { 'is-gallery': images.length > 1 }]} aria-label={title}>
+        {images.map((image, index) => (
+          <figure>
+            <img src={image.src} alt={image.alt} loading={index === 0 ? 'eager' : 'lazy'} />
+          </figure>
+        ))}
+      </div>
+    </div>
+
+    {SHOP_ENABLED && (
+      <aside class="cart-sidebar" data-cart aria-live="polite" data-locale={locale} hidden>
+        <div class="cart-head">
+          <h3 class="cart-title">{t(locale, 'shop.cart.title')} — <span data-cart-count>0</span></h3>
+          <button type="button" class="cart-clear" data-cart-clear>{t(locale, 'shop.cart.clear')}</button>
+        </div>
+        <p class="cart-empty" data-cart-empty>{t(locale, 'shop.cart.empty')}</p>
+        <ul class="cart-list" data-cart-list hidden></ul>
+        <p class="cart-total" data-cart-total hidden></p>
+        <a class="cart-cta" href={contactHref} data-cart-cta hidden>{t(locale, 'shop.cart.go_to_form')} →</a>
+      </aside>
+    )}
+  </article>
+
+  <script type="application/json" id="shop-data" set:html={JSON.stringify(availableWorksData)} />
+
+  <Footer />
+</main>
+
+<script>
+  const STORAGE_KEY = 'nautilus-cart';
+  const btn = document.querySelector('[data-cart-toggle]');
+  const cartEl = document.querySelector('[data-cart]');
+  const dataEl = document.getElementById('shop-data');
+  let worksData = [];
+  try { worksData = dataEl ? JSON.parse(dataEl.textContent || '[]') : []; } catch {}
+
+  const titleMap = new Map();
+  const priceMap = new Map();
+  for (const w of worksData) {
+    titleMap.set(w.slug, w.title);
+    priceMap.set(w.slug, { priceLabel: w.priceLabel, hasPrice: w.hasPrice, price: w.price });
+  }
+
+  const getCart = () => {
+    try { const raw = localStorage.getItem(STORAGE_KEY); const arr = raw ? JSON.parse(raw) : []; return Array.isArray(arr) ? arr.filter(s => titleMap.has(s)) : []; } catch { return []; }
+  };
+  const setCart = (arr) => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+    render();
+  };
+
+  const countEl = cartEl?.querySelector('[data-cart-count]');
+  const emptyEl = cartEl?.querySelector('[data-cart-empty]');
+  const listEl = cartEl?.querySelector('[data-cart-list]');
+  const totalEl = cartEl?.querySelector('[data-cart-total]');
+  const ctaEl = cartEl?.querySelector('[data-cart-cta]');
+  const clearBtn = cartEl?.querySelector('[data-cart-clear]');
+
+  const render = () => {
+    const cart = getCart();
+
+    // button for current work
+    if (btn) {
+      const slug = btn.getAttribute('data-slug');
+      const addLabel = btn.getAttribute('data-add-label') ?? 'Afegir';
+      const removeLabel = btn.getAttribute('data-remove-label') ?? 'Treure';
+      const isIn = slug ? cart.includes(slug) : false;
+      btn.textContent = isIn ? removeLabel : addLabel;
+      btn.setAttribute('aria-pressed', String(isIn));
+      btn.classList.toggle('is-added', isIn);
+    }
+
+    // sidebar
+    if (cartEl) {
+      const has = cart.length > 0;
+      cartEl.hidden = !has;
+      if (countEl) countEl.textContent = String(cart.length);
+      if (emptyEl) emptyEl.hidden = has;
+      if (listEl) listEl.hidden = !has;
+      if (ctaEl) ctaEl.hidden = !has;
+      if (clearBtn) clearBtn.hidden = !has;
+
+      if (totalEl) {
+        const priced = cart.map(s => priceMap.get(s)).filter(Boolean);
+        const numeric = priced.filter(p => p.hasPrice && typeof p.price === 'number');
+        const sum = numeric.reduce((a, p) => a + (p.price ?? 0), 0);
+        const hasNumeric = numeric.length > 0;
+        const hasInquiry = priced.some(p => !p.hasPrice);
+        if (!has) {
+          totalEl.hidden = true;
+          totalEl.textContent = '';
+        } else if (hasNumeric) {
+          const suffix = ' €';
+          let text = `Total: ${sum}${suffix}`;
+          const locale = cartEl.getAttribute('data-locale');
+          if (hasInquiry) text += ' + ' + (locale === 'es' ? 'a consultar' : locale === 'en' ? 'on request' : 'a consultar');
+          totalEl.textContent = text;
+          totalEl.hidden = false;
+        } else {
+          totalEl.textContent = priced[0]?.priceLabel ?? '';
+          totalEl.hidden = false;
+        }
+      }
+
+      if (listEl) {
+        listEl.innerHTML = '';
+        for (const slug of cart) {
+          const title = titleMap.get(slug) ?? slug;
+          const pm = priceMap.get(slug);
+          const priceLabel = pm?.priceLabel ?? '';
+          const li = document.createElement('li');
+          li.className = 'cart-item';
+          li.innerHTML = `<span class="cart-item-title">${title}</span><span class="cart-item-right"><span class="cart-item-price">${priceLabel}</span><button type="button" class="cart-item-remove" data-cart-remove data-slug="${slug}" aria-label="Treure ${title}">×</button></span>`;
+          listEl.appendChild(li);
+        }
+        for (const b of listEl.querySelectorAll('[data-cart-remove]')) {
+          b.addEventListener('click', () => {
+            const s = b.getAttribute('data-slug');
+            if (!s) return;
+            setCart(getCart().filter(x => x !== s));
+          });
+        }
+      }
+    }
+  };
+
+  render();
+
+  if (btn) {
+    btn.addEventListener('click', () => {
+      const slug = btn.getAttribute('data-slug');
+      if (!slug) return;
+      const cart = getCart();
+      const next = cart.includes(slug) ? cart.filter(s => s !== slug) : [...cart, slug];
+      setCart(next);
+    });
+  }
+  if (clearBtn) clearBtn.addEventListener('click', () => setCart([]));
+  window.addEventListener('storage', render);
+  // sync if cart changed from other tab or shop index
+  document.addEventListener('inquiry-success', () => setCart([]));
+</script>
+
+<style>
+  .journal {
+    --ink: #29251f;
+    --paper: #e8e5dc;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    min-height: 100dvh;
+    padding: clamp(1.5rem, 4vw, 4rem) clamp(1.25rem, 6vw, 7rem) 0;
+    background:
+      linear-gradient(115deg, rgba(217, 232, 222, 0.78), transparent 42%),
+      radial-gradient(ellipse at 80% 18%, rgba(191, 214, 200, 0.5), transparent 32%),
+      var(--paper);
+    color: var(--ink);
+  }
+  .journal-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 2rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--ink) 35%, transparent);
+    padding-bottom: 1.25rem;
+  }
+  .back-link, .lang-link {
+    color: color-mix(in srgb, var(--ink) 62%, transparent);
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color 240ms ease;
+  }
+  .back-link:hover, .back-link:focus-visible, .lang-link:hover, .lang-link:focus-visible, .lang-link.is-current { color: var(--ink); }
+  .lang-switcher { display: flex; gap: 1rem; }
+  .entry {
+    display: grid;
+    grid-template-columns: minmax(14rem, 0.62fr) minmax(0, 1.1fr) minmax(16rem, 0.72fr);
+    gap: clamp(1.5rem, 3vw, 3rem);
+    align-items: start;
+    max-width: 110rem;
+    width: 100%;
+    margin: clamp(3rem, 9vw, 9rem) auto 0;
+    padding-bottom: clamp(3rem, 8vw, 6rem);
+  }
+  .entry-intro { position: sticky; top: 2rem; }
+  .eyebrow { margin: 0 0 1.5rem; font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase; }
+  h1 {
+    max-width: 9ch;
+    margin: 0;
+    font-family: 'Fraunces Variable', Georgia, serif;
+    font-size: clamp(2.5rem, 5.5vw, 5.5rem);
+    font-weight: 400;
+    font-optical-sizing: auto;
+    font-variation-settings: 'SOFT' 40, 'WONK' 1;
+    letter-spacing: -0.055em;
+    line-height: 0.88;
+  }
+  .description { max-width: 34rem; margin: 2.5rem 0 0; font-size: clamp(1rem, 1.5vw, 1.2rem); line-height: 1.6; }
+  .shop-detail {
+    margin-top: 2rem;
+    padding-top: 1.75rem;
+    border-top: 1px solid color-mix(in srgb, var(--ink) 18%, transparent);
+  }
+  .shop-meta { display: grid; gap: 0.7rem; margin: 0; }
+  .meta-row { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; font-size: 0.82rem; }
+  .meta-row dt { font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; color: color-mix(in srgb, var(--ink) 62%, transparent); }
+  .meta-row dd { margin: 0; font-size: 0.92rem; }
+  .badge { display: inline-block; padding: 0.2rem 0.5rem; font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; border: 1px solid color-mix(in srgb, var(--ink) 14%, transparent); background: color-mix(in srgb, var(--paper) 90%, white); }
+  .badge-sold { background: var(--ink); color: var(--paper); }
+  .badge-reserved { background: #c9b99a; color: var(--ink); }
+  .badge-made_to_order { background: #d9e8de; color: #2a3d33; }
+  .price.is-inquiry { font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase; color: color-mix(in srgb, var(--ink) 62%, transparent); }
+  .dims { color: color-mix(in srgb, var(--ink) 64%, transparent); }
+  .shop-actions { display: flex; align-items: center; gap: 1rem; margin-top: 1.1rem; flex-wrap: wrap; }
+  .cart-btn {
+    padding: 0.7rem 1.2rem;
+    border: 1px solid var(--ink);
+    background: transparent;
+    color: var(--ink);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 200ms ease, color 200ms ease;
+  }
+  .cart-btn:hover, .cart-btn:focus-visible { background: var(--ink); color: var(--paper); }
+  .cart-btn.is-added { background: var(--ink); color: var(--paper); }
+  .cart-btn.is-added:hover { background: transparent; color: var(--ink); }
+  .shop-note { margin: 0.9rem 0 0; font-size: 0.78rem; line-height: 1.6; color: color-mix(in srgb, var(--ink) 58%, transparent); font-style: italic; }
+  .entry-main { min-width: 0; display: grid; gap: 2rem; }
+  .work-gallery { display: grid; gap: clamp(1rem, 3vw, 3rem); }
+  .work-gallery figure { margin: 0; overflow: hidden; background: #dcd5ca; }
+  .work-gallery img { display: block; width: 100%; height: auto; transition: transform 700ms cubic-bezier(0.2, 0.7, 0.2, 1); }
+  .work-gallery figure:hover img { transform: scale(1.025); }
+  .work-gallery.is-gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+  .cart-sidebar {
+    position: sticky;
+    top: 2rem;
+    align-self: start;
+    padding: 1rem 1rem 1.1rem;
+    border: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
+    background: color-mix(in srgb, var(--paper) 88%, white);
+  }
+  .cart-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: 0.7rem; }
+  .cart-title { margin: 0; font-family: 'Fraunces Variable', Georgia, serif; font-size: 1.05rem; font-weight: 400; letter-spacing: -0.02em; }
+  .cart-clear { border: none; background: none; padding: 0; font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: color-mix(in srgb, var(--ink) 62%, transparent); cursor: pointer; text-decoration: underline; text-underline-offset: 0.18em; }
+  .cart-clear:hover { color: var(--ink); }
+  .cart-empty { margin: 0; font-size: 0.88rem; line-height: 1.5; color: color-mix(in srgb, var(--ink) 62%, transparent); }
+  .cart-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.45rem; }
+  :global(.cart-item) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.35rem 0;
+    background: transparent;
+    border: none;
+    font-size: 0.88rem;
+  }
+  :global(.cart-item-title) { flex: 1; min-width: 0; }
+  :global(.cart-item-right) { display: flex; gap: .25rem; align-items: center; flex-shrink: 0; margin-left: auto; }
+  :global(.cart-item-price) { font-size: 0.88rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  :global(.cart-item-remove) { border: none; background: none; font-size: 1.1rem; line-height: 1; cursor: pointer; color: color-mix(in srgb, var(--ink) 60%, transparent); padding: 0 0.2rem; }
+  :global(.cart-item-remove):hover { color: var(--ink); }
+  .cart-total { margin: 0.7rem 0 0; padding-top: 0.7rem; border-top: 1px solid color-mix(in srgb, var(--ink) 12%, transparent); font-size: 0.88rem; text-align: right; }
+  .cart-cta { display: inline-block; margin-top: 0.9rem; font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink); text-decoration: none; border-bottom: 1px solid currentColor; padding-bottom: 0.15rem; }
+
+  .journal :focus-visible { outline: 1px solid var(--ink); outline-offset: 0.35rem; }
+  @media (max-width: 1100px) {
+    .entry { grid-template-columns: minmax(14rem, 0.65fr) minmax(0, 1.35fr); }
+    .cart-sidebar { grid-column: 1 / -1; position: static; }
+  }
+  @media (max-width: 700px) {
+    .entry { display: block; margin-top: 3.5rem; }
+    .entry-intro { position: static; margin-bottom: 2.5rem; }
+    h1 { max-width: 12ch; }
+  }
+  @media (prefers-color-scheme: dark) {
+    .journal { --ink: var(--nc-ink-dark); --paper: var(--nc-paper-dark); background: linear-gradient(115deg, rgba(58, 92, 82, 0.42), transparent 42%), radial-gradient(ellipse at 80% 18%, rgba(72, 112, 96, 0.3), transparent 32%), var(--nc-paper-dark); }
+    .work-gallery figure { background: #2b2822; }
+    .cart-sidebar { background: color-mix(in srgb, var(--nc-paper-dark) 90%, white 6%); border-color: color-mix(in srgb, var(--nc-ink-dark) 14%, transparent); }
+    :global(.cart-item) { background: transparent; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .work-gallery img, .back-link, .lang-link, .cart-btn { transition: none; }
+  }
+</style>

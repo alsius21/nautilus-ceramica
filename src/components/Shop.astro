@@ -1,0 +1,596 @@
+---
+import Footer from '@/components/Footer.astro';
+import { BRAND_NAME, SHOP_ENABLED } from '@/consts';
+import { works, workImageFiles } from '@/data/works';
+import { t, normalizeLocale, locales } from '@/i18n';
+import { getRelativeLocaleUrl } from 'astro:i18n';
+
+const locale = normalizeLocale(Astro.currentLocale);
+const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
+const contactHref = getRelativeLocaleUrl(locale, `/${t(locale, 'shop.path')}/${t(locale, 'shop.contact.path')}`);
+
+const availableWorks = works.filter((w) => w.shop.available);
+
+const cards = availableWorks.map((work) => {
+  const title = t(locale, `work.${work.titleKey}.title` as Parameters<typeof t>[1]);
+  const statusLabel = t(locale, `shop.status.${work.shop.status}` as Parameters<typeof t>[1]);
+  const priceLabel = work.shop.price
+    ? `${work.shop.price} ${t(locale, 'shop.price.suffix')}`
+    : t(locale, 'shop.price.inquiry');
+  return {
+    slug: work.slug,
+    title,
+    status: work.shop.status,
+    statusLabel,
+    priceLabel,
+    price: typeof work.shop.price === 'number' ? work.shop.price : null,
+    hasPrice: typeof work.shop.price === 'number',
+    dimensions: work.shop.dimensions ?? null,
+    href: getRelativeLocaleUrl(locale, `/${t(locale, 'shop.path')}/${t(locale, 'shop.article.path')}/${work.slug}`),
+    src: `${base}images/${workImageFiles[work.imageKeys[0]]}.webp`,
+    alt: t(locale, `work.${work.imageKeys[0]}.alt` as Parameters<typeof t>[1]),
+  };
+});
+---
+
+<main class="portfolio">
+  <header class="journal-header">
+    <a class="brand-name" href={getRelativeLocaleUrl(locale, '/')}>{BRAND_NAME}</a>
+    <div class="header-meta">
+      <nav class="page-nav" aria-label={t(locale, 'nav.label')}>
+        <a href={getRelativeLocaleUrl(locale, `/${t(locale, 'gallery.path')}`)}>{t(locale, 'nav.gallery')}</a>
+        <a href={getRelativeLocaleUrl(locale, `/${t(locale, 'exhibitions.path')}`)}>{t(locale, 'nav.exhibitions')}</a>
+        <a href={getRelativeLocaleUrl(locale, `/${t(locale, 'shop.path')}`)} aria-current="page">{t(locale, 'nav.shop')}</a>
+      </nav>
+      <nav class="lang-switcher" aria-label={t(locale, 'lang.selector')}>
+        {locales.map((code) => (
+          <a
+            href={getRelativeLocaleUrl(code, `/${t(code, 'shop.path')}`)}
+            class:list={['lang-link', { 'is-current': code === locale }]}
+            aria-current={code === locale ? 'page' : null}
+            title={t(code, 'lang.name')}
+          >
+            {code}
+          </a>
+        ))}
+      </nav>
+    </div>
+  </header>
+
+  <article class="entry is-shop-list">
+    <div class="shop-main">
+      {cards.length === 0 ? (
+        <p class="empty">{t(locale, 'shop.empty')}</p>
+      ) : (
+        <section class="shop-grid" aria-label={t(locale, 'shop.page.title')}>
+          {cards.map((card, index) => (
+            <article class="shop-card" data-card data-slug={card.slug} data-price-label={card.priceLabel} data-has-price={String(card.hasPrice)} data-price={card.price ?? ''}>
+              <a class="card-link" href={card.href} aria-label={`${card.title} — ${t(locale, 'shop.card.view')}`}>
+                <figure>
+                  <img src={card.src} alt={card.alt} loading={index === 0 ? 'eager' : 'lazy'} />
+                  <span class:list={["badge", `badge-${card.status}`]}>{card.statusLabel}</span>
+                </figure>
+              </a>
+              <div class="card-meta">
+                <h2 class="card-title"><a href={card.href}>{card.title}</a></h2>
+                {SHOP_ENABLED && (
+                  <div class="card-bottom">
+                    <span class:list={["price", { "is-inquiry": !card.hasPrice }]}>{card.priceLabel}</span>
+                    {card.dimensions && <span class="dimensions">{card.dimensions}</span>}
+                  </div>
+                )}
+                <div class="card-actions">
+                  <a class="view-link" href={card.href}>{t(locale, 'shop.card.view')} →</a>
+                  {SHOP_ENABLED && (
+                    <button
+                      type="button"
+                      class="cart-btn"
+                      data-cart-toggle
+                      data-slug={card.slug}
+                      aria-pressed="false"
+                      data-label-add={t(locale, 'shop.card.add')}
+                      data-label-remove={t(locale, 'shop.card.remove')}
+                      data-label-added={t(locale, 'shop.card.added')}
+                    >
+                      {t(locale, 'shop.card.add')}
+                    </button>
+                  )}
+                </div>
+              </div>
+            </article>
+          ))}
+        </section>
+      )}
+    </div>
+
+    {SHOP_ENABLED && (
+      <aside class="cart-sidebar" data-cart aria-live="polite" data-locale={locale} hidden>
+        <div class="cart-head">
+          <h3 class="cart-title">{t(locale, 'shop.cart.title')} — <span data-cart-count>0</span></h3>
+          <button type="button" class="cart-clear" data-cart-clear>{t(locale, 'shop.cart.clear')}</button>
+        </div>
+        <p class="cart-empty" data-cart-empty>{t(locale, 'shop.cart.empty')}</p>
+        <ul class="cart-list" data-cart-list hidden></ul>
+        <p class="cart-total" data-cart-total hidden></p>
+        <a class="cart-cta" href={contactHref} data-cart-cta hidden>{t(locale, 'shop.cart.go_to_form')} →</a>
+      </aside>
+    )}
+  </article>
+
+  <Footer />
+</main>
+
+<script>
+  const STORAGE_KEY = 'nautilus-cart';
+  const cartEl = document.querySelector('[data-cart]');
+  if (cartEl) {
+    const countEl = cartEl.querySelector('[data-cart-count]');
+    const emptyEl = cartEl.querySelector('[data-cart-empty]');
+    const listEl = cartEl.querySelector('[data-cart-list]');
+    const totalEl = cartEl.querySelector('[data-cart-total]');
+    const ctaEl = cartEl.querySelector('[data-cart-cta]');
+    const clearBtn = cartEl.querySelector('[data-cart-clear]');
+    const toggles = document.querySelectorAll('[data-cart-toggle]');
+
+    const titleMap = new Map();
+    const priceMap = new Map();
+    for (const card of document.querySelectorAll('[data-card]')) {
+      const slug = card.getAttribute('data-slug');
+      const title = card.querySelector('.card-title')?.textContent?.trim() ?? slug;
+      const priceLabel = card.getAttribute('data-price-label') ?? '';
+      const hasPrice = card.getAttribute('data-has-price') === 'true';
+      const priceRaw = card.getAttribute('data-price');
+      const price = priceRaw ? Number(priceRaw) : null;
+      if (slug) {
+        titleMap.set(slug, title);
+        priceMap.set(slug, { priceLabel, hasPrice, price });
+      }
+    }
+
+    const getCart = () => {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        const arr = raw ? JSON.parse(raw) : [];
+        return Array.isArray(arr) ? arr.filter(s => typeof s === 'string' && titleMap.has(s)) : [];
+      } catch { return []; }
+    };
+    const setCart = (arr) => {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+      render(arr);
+    };
+
+    const render = (arr) => {
+      const has = arr.length > 0;
+      cartEl.hidden = !has;
+      if (countEl) countEl.textContent = String(arr.length);
+      if (emptyEl) emptyEl.hidden = has;
+      if (listEl) listEl.hidden = !has;
+      if (ctaEl) ctaEl.hidden = !has;
+      if (clearBtn) clearBtn.hidden = !has;
+
+      if (totalEl) {
+        const priced = arr.map(s => priceMap.get(s)).filter(Boolean);
+        const numeric = priced.filter(p => p.hasPrice && typeof p.price === 'number');
+        const sum = numeric.reduce((a, p) => a + (p.price ?? 0), 0);
+        const hasNumeric = numeric.length > 0;
+        const hasInquiry = priced.some(p => !p.hasPrice);
+        if (!has) {
+          totalEl.hidden = true;
+          totalEl.textContent = '';
+        } else if (hasNumeric) {
+          let text = `Total: ${sum} €`;
+          const locale = cartEl.getAttribute('data-locale');
+          if (hasInquiry) text += ' + ' + (locale === 'es' ? 'a consultar' : locale === 'en' ? 'on request' : 'a consultar');
+          totalEl.textContent = text;
+          totalEl.hidden = false;
+        } else {
+          totalEl.textContent = priced.length > 0 ? priced[0].priceLabel : '';
+          totalEl.hidden = false;
+        }
+      }
+
+      if (listEl) {
+        listEl.innerHTML = '';
+        for (const slug of arr) {
+          const li = document.createElement('li');
+          li.className = 'cart-item';
+          const title = titleMap.get(slug) ?? slug;
+          const pm = priceMap.get(slug);
+          const priceLabel = pm?.priceLabel ?? '';
+          li.innerHTML = `<span class="cart-item-title">${title}</span><span class="cart-item-right"><span class="cart-item-price">${priceLabel}</span><button type="button" class="cart-item-remove" data-cart-remove data-slug="${slug}" aria-label="Treure ${title}">×</button></span>`;
+          listEl.appendChild(li);
+        }
+        for (const btn of listEl.querySelectorAll('[data-cart-remove]')) {
+          btn.addEventListener('click', () => {
+            const s = btn.getAttribute('data-slug');
+            if (!s) return;
+            setCart(getCart().filter(x => x !== s));
+          });
+        }
+      }
+
+      for (const btn of toggles) {
+        const slug = btn.getAttribute('data-slug');
+        const isIn = slug ? arr.includes(slug) : false;
+        const addLabel = btn.getAttribute('data-label-add') ?? 'Afegir';
+        const removeLabel = btn.getAttribute('data-label-remove') ?? 'Treure';
+        btn.setAttribute('aria-pressed', String(isIn));
+        btn.textContent = isIn ? removeLabel : addLabel;
+        btn.classList.toggle('is-added', isIn);
+      }
+    };
+
+    let cart = getCart();
+    render(cart);
+
+    for (const btn of toggles) {
+      btn.addEventListener('click', () => {
+        const slug = btn.getAttribute('data-slug');
+        if (!slug) return;
+        const cur = getCart();
+        const next = cur.includes(slug) ? cur.filter(s => s !== slug) : [...cur, slug];
+        setCart(next);
+      });
+    }
+    if (clearBtn) clearBtn.addEventListener('click', () => setCart([]));
+    window.addEventListener('storage', () => render(getCart()));
+    document.addEventListener('inquiry-success', () => setCart([]));
+  }
+</script>
+
+<style>
+  .portfolio {
+    --ink: #29251f;
+    --paper: #e8e5dc;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    min-height: 100dvh;
+    padding: clamp(1.5rem, 4vw, 4rem) clamp(1.25rem, 6vw, 7rem) 0;
+    background:
+      linear-gradient(115deg, rgba(217, 232, 222, 0.78), transparent 42%),
+      radial-gradient(ellipse at 80% 18%, rgba(191, 214, 200, 0.5), transparent 32%),
+      var(--paper);
+    color: var(--ink);
+  }
+
+  .journal-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 2rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--ink) 35%, transparent);
+    padding-bottom: 1.25rem;
+  }
+
+  .brand-name {
+    color: color-mix(in srgb, var(--ink) 85%, transparent);
+    font-family: 'Fraunces Variable', Georgia, 'Times New Roman', serif;
+    font-size: clamp(1.15rem, 2.4vw, 1.75rem);
+    font-weight: 400;
+    font-optical-sizing: auto;
+    font-variation-settings: 'SOFT' 40, 'WONK' 1;
+    letter-spacing: -0.05em;
+    line-height: 0.9;
+    text-decoration: none;
+    transition: color 240ms ease;
+  }
+  .lang-link {
+    color: color-mix(in srgb, var(--ink) 62%, transparent);
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color 240ms ease;
+  }
+  .brand-name:hover,
+  .brand-name:focus-visible,
+  .lang-link:hover,
+  .lang-link:focus-visible,
+  .lang-link.is-current { color: var(--ink); }
+  .header-meta { display: flex; align-items: baseline; gap: 2rem; }
+  .page-nav { display: flex; gap: 1rem; font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; }
+  .page-nav a { color: color-mix(in srgb, var(--ink) 62%, transparent); text-decoration: none; transition: color 240ms ease; }
+  .page-nav a:hover, .page-nav a:focus-visible, .page-nav a[aria-current="page"] { color: var(--ink); }
+  .lang-switcher { display: flex; gap: 1rem; }
+
+  .entry {
+    display: grid;
+    grid-template-columns: minmax(14rem, 0.62fr) minmax(0, 1.1fr) minmax(16rem, 0.72fr);
+    gap: clamp(1.5rem, 3vw, 3rem);
+    align-items: start;
+    max-width: 110rem;
+    width: 100%;
+    margin: clamp(3rem, 9vw, 9rem) auto 0;
+    padding-bottom: clamp(3rem, 8vw, 6rem);
+  }
+  .entry.is-shop-list {
+    grid-template-columns: minmax(0, 1.9fr) minmax(16rem, 0.7fr);
+  }
+  .entry-intro { position: sticky; top: 2rem; }
+  .eyebrow {
+    margin: 0 0 1.5rem;
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  h1 {
+    max-width: 9ch;
+    margin: 0;
+    font-family: 'Fraunces Variable', Georgia, serif;
+    font-size: clamp(3rem, 7vw, 7rem);
+    font-weight: 400;
+    font-optical-sizing: auto;
+    font-variation-settings: 'SOFT' 40, 'WONK' 1;
+    letter-spacing: -0.055em;
+    line-height: 0.88;
+  }
+  .description {
+    max-width: 34rem;
+    margin: 2.5rem 0 0;
+    font-size: clamp(1rem, 1.5vw, 1.25rem);
+    line-height: 1.6;
+  }
+  .shop-main { min-width: 0; display: grid; gap: 2rem; }
+  .empty {
+    margin: 0;
+    padding: 2rem;
+    border: 1px solid color-mix(in srgb, var(--ink) 16%, transparent);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: color-mix(in srgb, var(--ink) 70%, transparent);
+  }
+
+  .shop-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(19rem, 100%), 1fr));
+    gap: clamp(1rem, 3vw, 2.2rem);
+    align-items: start;
+  }
+
+  .shop-card {
+    display: flex;
+    flex-direction: column;
+    color: inherit;
+    background: color-mix(in srgb, var(--paper) 85%, white);
+    border: 1px solid color-mix(in srgb, var(--ink) 10%, transparent);
+    transition: border-color 240ms ease, transform 240ms ease;
+  }
+  .shop-card:hover { border-color: color-mix(in srgb, var(--ink) 18%, transparent); }
+  .card-link { display: block; text-decoration: none; color: inherit; }
+  .shop-card figure {
+    position: relative;
+    margin: 0;
+    background: #dcd5ca;
+    overflow: hidden;
+    aspect-ratio: 4 / 3;
+  }
+  .shop-card img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 700ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .shop-card:hover img { transform: scale(1.03); }
+
+  .badge {
+    position: absolute;
+    left: 0.75rem;
+    top: 0.75rem;
+    padding: 0.28rem 0.55rem;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    background: color-mix(in srgb, var(--paper) 92%, white);
+    border: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
+    color: color-mix(in srgb, var(--ink) 78%, transparent);
+    backdrop-filter: blur(6px);
+  }
+  .badge-sold { background: var(--ink); color: var(--paper); }
+  .badge-reserved { background: #c9b99a; color: var(--ink); }
+  .badge-made_to_order { background: #d9e8de; color: #2a3d33; border-color: rgba(42,61,51,0.18); }
+
+  .card-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    padding: 1rem 1.1rem 1.1rem;
+  }
+  .card-title {
+    margin: 0;
+    font-family: 'Fraunces Variable', Georgia, serif;
+    font-size: 1.35rem;
+    font-weight: 400;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+  .card-title a { color: inherit; text-decoration: none; }
+  .card-title a:hover { text-decoration: underline; text-underline-offset: 0.18em; text-decoration-thickness: 1px; }
+  .card-bottom {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .price {
+    font-size: 0.92rem;
+    letter-spacing: 0.04em;
+  }
+  .price.is-inquiry {
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--ink) 62%, transparent);
+  }
+  .dimensions {
+    font-size: 0.74rem;
+    letter-spacing: 0.06em;
+    color: color-mix(in srgb, var(--ink) 58%, transparent);
+  }
+  .card-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 0.55rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid color-mix(in srgb, var(--ink) 10%, transparent);
+  }
+  .view-link {
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--ink) 64%, transparent);
+    text-decoration: none;
+    transition: color 240ms ease;
+  }
+  .view-link:hover { color: var(--ink); }
+  .cart-btn {
+    padding: 0.45rem 0.8rem;
+    border: 1px solid var(--ink);
+    background: transparent;
+    color: var(--ink);
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 200ms ease, color 200ms ease;
+  }
+  .cart-btn:hover,
+  .cart-btn:focus-visible { background: var(--ink); color: var(--paper); }
+  .cart-btn.is-added { background: var(--ink); color: var(--paper); }
+  .cart-btn.is-added:hover { background: transparent; color: var(--ink); }
+
+  .cart,
+  .cart-sidebar {
+    padding: 1.1rem 1.1rem 1.2rem;
+    border: 1px solid color-mix(in srgb, var(--ink) 16%, transparent);
+    background: color-mix(in srgb, var(--paper) 88%, white);
+  }
+  .cart-sidebar {
+    position: sticky;
+    top: 2rem;
+    align-self: start;
+  }
+  .cart-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.7rem;
+  }
+  .cart-title {
+    margin: 0;
+    font-family: 'Fraunces Variable', Georgia, serif;
+    font-size: 1.15rem;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+  }
+  .cart-clear {
+    border: none;
+    background: none;
+    padding: 0;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--ink) 62%, transparent);
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+  }
+  .cart-clear:hover { color: var(--ink); }
+  .cart-empty {
+    margin: 0;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: color-mix(in srgb, var(--ink) 62%, transparent);
+  }
+  .cart-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.45rem;
+  }
+  :global(.cart-item) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.35rem 0;
+    background: transparent;
+    border: none;
+    font-size: 0.88rem;
+  }
+  :global(.cart-item-title) { flex: 1; min-width: 0; }
+  :global(.cart-item-right) { display: flex; align-items: center; gap: .25rem; flex-shrink: 0; margin-left: auto; }
+  :global(.cart-item-price) {
+    font-size: 0.88rem;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .cart-total {
+    margin: 0.7rem 0 0;
+    padding-top: 0.7rem;
+    border-top: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+    font-size: 0.88rem;
+    letter-spacing: 0.04em;
+    text-align: right;
+  }
+  :global(.cart-item-remove) {
+    border: none;
+    background: none;
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+    color: color-mix(in srgb, var(--ink) 60%, transparent);
+    padding: 0 0.2rem;
+  }
+  :global(.cart-item-remove):hover { color: var(--ink); }
+  .cart-cta {
+    display: inline-block;
+    margin-top: 0.9rem;
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid currentColor;
+    padding-bottom: 0.15rem;
+  }
+
+  @media (max-width: 1100px) {
+    .entry { grid-template-columns: minmax(14rem, 0.65fr) minmax(0, 1.35fr); }
+    .cart-sidebar { grid-column: 1 / -1; position: static; }
+  }
+  @media (max-width: 880px) {
+    .journal-header { flex-direction: column; align-items: flex-start; gap: 0.9rem; }
+    .header-meta { flex-direction: column; align-items: flex-start; gap: .25rem; }
+  }
+  @media (max-width: 700px) {
+    .entry { display: block; margin-top: 3.5rem; }
+    .entry-intro { position: static; margin-bottom: 2.5rem; }
+    h1 { max-width: 12ch; }
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .portfolio {
+      --ink: var(--nc-ink-dark);
+      --paper: var(--nc-paper-dark);
+      background:
+        linear-gradient(115deg, rgba(58, 92, 82, 0.42), transparent 42%),
+        radial-gradient(ellipse at 80% 18%, rgba(72, 112, 96, 0.3), transparent 32%),
+        var(--nc-paper-dark);
+    }
+    .shop-card { background: color-mix(in srgb, var(--nc-paper-dark) 92%, white 4%); border-color: color-mix(in srgb, var(--nc-ink-dark) 12%, transparent); }
+    .shop-card figure { background: #2b2822; }
+    .badge { background: color-mix(in srgb, var(--nc-paper-dark) 88%, white 8%); border-color: color-mix(in srgb, var(--nc-ink-dark) 16%, transparent); }
+    .badge-sold { background: var(--nc-ink-dark); color: var(--nc-paper-dark); }
+    .cart { background: color-mix(in srgb, var(--nc-paper-dark) 90%, white 6%); }
+    :global(.cart-item) { background: transparent; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .shop-card, .shop-card img, .brand-name, .lang-link, .cart-btn { transition: none; }
+  }
+</style>

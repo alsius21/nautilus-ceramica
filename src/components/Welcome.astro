@@ -1,6 +1,6 @@
 ---
 import Footer from '@/components/Footer.astro';
-import { BRAND_NAME } from '@/consts';
+import { BRAND_NAME, SHOP_ENABLED } from '@/consts';
 import { t, normalizeLocale, locales } from '@/i18n';
 import { works, workImageFiles } from '@/data/works';
 import { getRelativeLocaleUrl } from 'astro:i18n';
@@ -41,6 +41,7 @@ const images = [
 			<nav class="page-nav" aria-label={t(locale, 'nav.label')}>
 				<a href={getRelativeLocaleUrl(locale, `/${t(locale, 'gallery.path')}`)}>{t(locale, 'nav.gallery')}</a>
 				<a href={getRelativeLocaleUrl(locale, `/${t(locale, 'exhibitions.path')}`)}>{t(locale, 'nav.exhibitions')}</a>
+				<a href={getRelativeLocaleUrl(locale, `/${t(locale, 'shop.path')}`)}>{t(locale, 'nav.shop')}</a>
 			</nav>
 			<nav class="lang-switcher" aria-label={t(locale, 'lang.selector')}>
 				{locales.map((code) => (

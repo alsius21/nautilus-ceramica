@@ -1,6 +1,6 @@
 ---
 import Footer from '@/components/Footer.astro';
-import { BRAND_NAME } from '@/consts';
+import { BRAND_NAME, SHOP_ENABLED } from '@/consts';
 import { works, workImageFiles } from '@/data/works';
 import { t, normalizeLocale, locales } from '@/i18n';
 import { getRelativeLocaleUrl } from 'astro:i18n';
@@ -27,18 +27,25 @@ const images = works
 <main class="portfolio">
 	<header class="journal-header">
 		<a class="brand-name" href={getRelativeLocaleUrl(locale, '/')}>{BRAND_NAME}</a>
-		<nav class="lang-switcher" aria-label={t(locale, 'lang.selector')}>
-			{locales.map((code) => (
-				<a
-					href={getRelativeLocaleUrl(code, `/${t(code, 'gallery.path')}`)}
-					class:list={['lang-link', { 'is-current': code === locale }]}
-					aria-current={code === locale ? 'page' : null}
-					title={t(code, 'lang.name')}
-				>
-					{code}
-				</a>
-			))}
-		</nav>
+		<div class="header-meta">
+			<nav class="page-nav" aria-label={t(locale, 'nav.label')}>
+				<a href={getRelativeLocaleUrl(locale, `/${t(locale, 'gallery.path')}`)}>{t(locale, 'nav.gallery')}</a>
+				<a href={getRelativeLocaleUrl(locale, `/${t(locale, 'exhibitions.path')}`)}>{t(locale, 'nav.exhibitions')}</a>
+				<a href={getRelativeLocaleUrl(locale, `/${t(locale, 'shop.path')}`)} aria-current="page">{t(locale, 'nav.shop')}</a>
+			</nav>
+			<nav class="lang-switcher" aria-label={t(locale, 'lang.selector')}>
+				{locales.map((code) => (
+					<a
+						href={getRelativeLocaleUrl(code, `/${t(code, 'gallery.path')}`)}
+						class:list={['lang-link', { 'is-current': code === locale }]}
+						aria-current={code === locale ? 'page' : null}
+						title={t(code, 'lang.name')}
+					>
+						{code}
+					</a>
+				))}
+			</nav>
+		</div>
 	</header>
 
 	<article class="entry">
@@ -115,6 +122,27 @@ const images = works
 	.lang-link.is-current {
 		color: var(--ink);
 	}
+
+	.header-meta {
+		display: flex;
+		align-items: baseline;
+		gap: 2rem;
+	}
+	.page-nav {
+		display: flex;
+		gap: 1rem;
+		font-size: 0.68rem;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+	}
+	.page-nav a {
+		color: color-mix(in srgb, var(--ink) 62%, transparent);
+		text-decoration: none;
+		transition: color 240ms ease;
+	}
+	.page-nav a:hover,
+	.page-nav a:focus-visible,
+	.page-nav a[aria-current="page"] { color: var(--ink); }
 
 	.lang-switcher {
 		display: flex;
@@ -199,6 +227,10 @@ const images = works
 		outline-offset: 0.35rem;
 	}
 
+	@media (max-width: 880px) {
+		.journal-header { flex-direction: column; align-items: flex-start; gap: 0.9rem; }
+		.header-meta { flex-direction: column; align-items: flex-start; gap: 0.6rem; }
+	}
 	@media (max-width: 700px) {
 		.entry {
 			display: block;

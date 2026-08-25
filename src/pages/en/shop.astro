@@ -1,0 +1,12 @@
+---
+import Shop from '@/components/Shop.astro';
+import Layout from '@/layouts/Layout.astro';
+import { normalizeLocale, t } from '@/i18n';
+
+const locale = normalizeLocale(Astro.currentLocale);
+const title = t(locale, 'shop.page.title');
+---
+
+<Layout title={title} path={`/${t(locale, 'shop.path')}`} description={t(locale, 'shop.page.meta')}>
+  <Shop />
+</Layout>

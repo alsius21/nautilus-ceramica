@@ -1,0 +1,11 @@
+---
+import ShopContact from '@/components/ShopContact.astro';
+import Layout from '@/layouts/Layout.astro';
+import { normalizeLocale, t } from '@/i18n';
+
+const locale = normalizeLocale(Astro.currentLocale);
+---
+
+<Layout title={t(locale, 'shop.contact.title')} path={`/${t(locale, 'shop.path')}/${t(locale, 'shop.contact.path')}`} description={t(locale, 'shop.contact.meta')}>
+  <ShopContact />
+</Layout>

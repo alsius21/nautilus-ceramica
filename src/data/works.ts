@@ -1,33 +1,73 @@
+export type ShopStatus = 'available' | 'reserved' | 'sold' | 'made_to_order' | 'inquiry';
+
+export type ShopInfo = {
+	/** Whether this work appears in the "Peces disponibles" collection. Toggle to curate the shop. */
+	available: boolean;
+	status: ShopStatus;
+	/** Price in euros (integer). Omit to show "A consultar" — mixt mode. */
+	price?: number;
+	/** Optional dimensions display, e.g. "Ø 24 cm". Kept as free text per piece. */
+	dimensions?: string;
+	/** Stripe Price ID for future pre-orders / manual capture. E.g. "price_1Q..." */
+	stripePriceId?: string;
+};
+
 export const works = [
 	{
 		slug: 'plat-de-taller',
 		titleKey: 'plate',
 		imageKeys: ['plate'],
 		made: 'hoji',
+		shop: { available: false, status: 'sold' } as ShopInfo,
 	},
 	{
 		slug: 'calabaza-a-la-llotja',
 		titleKey: 'pumpkin',
 		imageKeys: ['pumpkin'],
 		made: 'llotja',
+		shop: { available: false, status: 'sold' } as ShopInfo,
 	},
 	{
 		slug: 'bol-de-taller',
 		titleKey: 'bowl',
 		imageKeys: ['bowl'],
 		made: 'hoji',
+		shop: { available: false, status: 'sold' } as ShopInfo,
 	},
 	{
 		slug: 'peces-descacs',
 		titleKey: 'chess',
 		imageKeys: ['queen', 'bishop'],
 		made: 'llotja',
+		shop: { available: false, status: 'sold' } as ShopInfo,
 	},
 	{
 		slug: 'jarron',
 		titleKey: 'jarron',
 		imageKeys: ['jarron-1', 'jarron-2', 'jarron-3'],
 		made: 'hoji',
+		shop: { available: false, status: 'sold' } as ShopInfo,
+	},
+	{
+		slug: 'aceitera',
+		titleKey: 'aceitera',
+		imageKeys: ['aceitera-1', 'aceitera-2'],
+		made: 'hoji',
+		shop: { available: true, status: 'available', price: 45, dimensions: 'Ø 8 · 14 cm' } as ShopInfo,
+	},
+	{
+		slug: 'jarron-alt',
+		titleKey: 'jarron-alt',
+		imageKeys: ['jarron-alt-1', 'jarron-alt-2'],
+		made: 'hoji',
+		shop: { available: false, status: 'sold' } as ShopInfo,
+	},
+	{
+		slug: 'jarron-pf',
+		titleKey: 'jarron-pf',
+		imageKeys: ['jarron-pf-1'],
+		made: 'hoji',
+		shop: { available: false, status: 'sold' } as ShopInfo,
 	},
 ] as const;
 
@@ -51,6 +91,11 @@ export const workImageFiles: Record<WorkImageKey, string> = {
 	'jarron-1': 'jarron/jarron-08-26_01',
 	'jarron-2': 'jarron/jarron-08-26_02',
 	'jarron-3': 'jarron/jarron-08-26_03',
+	'aceitera-1': 'aceitera/aceitera_taller-de-hoji',
+	'aceitera-2': 'aceitera/aceitera_taller-de-hoji-02',
+	'jarron-alt-1': 'jarron-alt/jarron-alto_taller-de-hoji',
+	'jarron-alt-2': 'jarron-alt/jarron-alto_taller-de-hoji-02',
+	'jarron-pf-1': 'jarron-pf/jarron-pf',
 };
 
 export function getWork(slug: string): Work | undefined {

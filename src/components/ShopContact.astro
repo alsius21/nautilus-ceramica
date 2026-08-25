@@ -1,0 +1,315 @@
+---
+import Footer from '@/components/Footer.astro';
+import InquiryForm from '@/components/InquiryForm.astro';
+import { BRAND_NAME, SHOP_ENABLED } from '@/consts';
+import { works } from '@/data/works';
+import { t, normalizeLocale, locales } from '@/i18n';
+import { getRelativeLocaleUrl } from 'astro:i18n';
+
+const locale = normalizeLocale(Astro.currentLocale);
+const shopHref = getRelativeLocaleUrl(locale, `/${t(locale, 'shop.path')}`);
+const availableWorksData = works
+  .filter((w) => w.shop.available)
+  .map((w) => ({
+    slug: w.slug,
+    title: t(locale, `work.${w.titleKey}.title` as Parameters<typeof t>[1]),
+    price: w.shop.price ?? null,
+    priceLabel: typeof w.shop.price === 'number' ? `${w.shop.price} ${t(locale, 'shop.price.suffix')}` : t(locale, 'shop.price.inquiry'),
+    hasPrice: typeof w.shop.price === 'number',
+  }));
+---
+
+<main class="portfolio">
+  <header class="journal-header">
+    <a class="brand-name" href={getRelativeLocaleUrl(locale, '/')}>{BRAND_NAME}</a>
+    <div class="header-meta">
+      <nav class="page-nav" aria-label={t(locale, 'nav.label')}>
+        <a href={getRelativeLocaleUrl(locale, `/${t(locale, 'gallery.path')}`)}>{t(locale, 'nav.gallery')}</a>
+        <a href={getRelativeLocaleUrl(locale, `/${t(locale, 'exhibitions.path')}`)}>{t(locale, 'nav.exhibitions')}</a>
+        <a href={shopHref} aria-current="page">{t(locale, 'nav.shop')}</a>
+      </nav>
+      <nav class="lang-switcher" aria-label={t(locale, 'lang.selector')}>
+        {locales.map((code) => (
+          <a
+            href={getRelativeLocaleUrl(code, `/${t(code, 'shop.path')}/${t(code, 'shop.contact.path')}`)}
+            class:list={['lang-link', { 'is-current': code === locale }]}
+            aria-current={code === locale ? 'page' : null}
+            title={t(code, 'lang.name')}
+          >
+            {code}
+          </a>
+        ))}
+      </nav>
+    </div>
+  </header>
+
+  <article class="entry">
+    <div class="entry-intro">
+      {SHOP_ENABLED ? (
+        <>
+          <p class="eyebrow">{t(locale, 'shop.form.eyebrow')}</p>
+          <h1>{t(locale, 'shop.form.title')}</h1>
+          <p class="description">{t(locale, 'shop.form.lead')}</p>
+          <p class="cart-link-hint"><a href={shopHref} class="shop-link">← {t(locale, 'shop.contact.back')}</a></p>
+        </>
+      ) : (
+        <>
+          <p class="eyebrow">{t(locale, 'shop.contact.title')}</p>
+          <h1>{t(locale, 'shop.contact.title')}</h1>
+          <p class="description">{t(locale, 'shop.contact.fallback')}</p>
+          <p class="cart-link-hint"><a href={shopHref} class="shop-link">← {t(locale, 'shop.contact.back')}</a></p>
+        </>
+      )}
+    </div>
+
+    <div class="shop-main">
+      {SHOP_ENABLED ? (
+        <>
+          <section class="cart" data-cart aria-live="polite" data-locale={locale}>
+            <div class="cart-head">
+              <h3 class="cart-title">{t(locale, 'shop.cart.title')} — <span data-cart-count>0</span></h3>
+              <button type="button" class="cart-clear" data-cart-clear>{t(locale, 'shop.cart.clear')}</button>
+            </div>
+            <p class="cart-empty" data-cart-empty>{t(locale, 'shop.cart.empty')}</p>
+            <ul class="cart-list" data-cart-list hidden></ul>
+            <p class="cart-total" data-cart-total hidden></p>
+          </section>
+          <InquiryForm hideHeader hidePieces />
+        </>
+      ) : (
+        <div class="contact-fallback">
+          <p class="contact-text">{t(locale, 'shop.contact.fallback')}</p>
+          <a href="https://www.instagram.com/nautilceramica/" target="_blank" rel="noopener noreferrer" class="shop-link">Instagram →</a>
+          <p class="contact-hint" style="margin-top:0.75rem;font-size:0.78rem;color:color-mix(in srgb, var(--ink) 58%, transparent);">You can contact the studio by email at [EMAIL] or through the Instagram account found in the footer of the page.</p>
+        </div>
+      )}
+    </div>
+  </article>
+
+  <script type="application/json" id="shop-data" set:html={JSON.stringify(availableWorksData)} />
+
+  { !SHOP_ENABLED && <meta http-equiv="refresh" content={`0;url=${shopHref}`} /> }
+
+  <Footer />
+</main>
+
+{!SHOP_ENABLED && (
+  <script is:inline define:vars={{ shopHref }}>
+    // Redirect form page to shop when shop disabled (fallback for JS)
+    window.location.replace(shopHref);
+  </script>
+)}
+
+<script>
+  const STORAGE_KEY = 'nautilus-cart';
+  const cartEl = document.querySelector('[data-cart]');
+  const dataEl = document.getElementById('shop-data');
+  let worksData = [];
+  try { worksData = dataEl ? JSON.parse(dataEl.textContent || '[]') : []; } catch {}
+  const titleMap = new Map();
+  const priceMap = new Map();
+  for (const w of worksData) {
+    titleMap.set(w.slug, w.title);
+    priceMap.set(w.slug, { priceLabel: w.priceLabel, hasPrice: w.hasPrice, price: w.price });
+  }
+
+  const getCart = () => {
+    try { const raw = localStorage.getItem(STORAGE_KEY); const arr = raw ? JSON.parse(raw) : []; return Array.isArray(arr) ? arr.filter(s => titleMap.has(s)) : []; } catch { return []; }
+  };
+  const setCart = (arr) => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+    render(arr);
+    syncCheckboxes(arr);
+  };
+  const syncCheckboxes = (arr) => {
+    const boxes = document.querySelectorAll('[data-piece-checkbox]');
+    for (const b of boxes) {
+      const slug = b.getAttribute('data-slug');
+      if (!slug) continue;
+      const should = arr.includes(slug);
+      if (b.checked !== should) b.checked = should;
+    }
+    const first = document.querySelector('[data-piece-checkbox]');
+    if (first) first.dispatchEvent(new CustomEvent('pieces-change', { bubbles: true }));
+  };
+
+  const countEl = cartEl?.querySelector('[data-cart-count]');
+  const emptyEl = cartEl?.querySelector('[data-cart-empty]');
+  const listEl = cartEl?.querySelector('[data-cart-list]');
+  const totalEl = cartEl?.querySelector('[data-cart-total]');
+  const clearBtn = cartEl?.querySelector('[data-cart-clear]');
+
+  const render = (arrParam) => {
+    const arr = arrParam ?? getCart();
+    const has = arr.length > 0;
+    if (countEl) countEl.textContent = String(arr.length);
+    if (emptyEl) emptyEl.hidden = has;
+    if (listEl) listEl.hidden = !has;
+    if (clearBtn) clearBtn.hidden = !has;
+    if (totalEl) {
+      const priced = arr.map(s => priceMap.get(s)).filter(Boolean);
+      const numeric = priced.filter(p => p.hasPrice && typeof p.price === 'number');
+      const sum = numeric.reduce((a, p) => a + (p.price ?? 0), 0);
+      const hasNumeric = numeric.length > 0;
+      const hasInquiry = priced.some(p => !p.hasPrice);
+      if (!has) { totalEl.hidden = true; totalEl.textContent=''; }
+      else if (hasNumeric) {
+        let text = `Total: ${sum} €`;
+        const locale = cartEl.getAttribute('data-locale');
+        if (hasInquiry) text += ' + ' + (locale === 'es' ? 'a consultar' : locale === 'en' ? 'on request' : 'a consultar');
+        totalEl.textContent = text; totalEl.hidden = false;
+      } else { totalEl.textContent = priced[0]?.priceLabel ?? ''; totalEl.hidden=false; }
+    }
+    if (listEl) {
+      listEl.innerHTML='';
+      for (const slug of arr) {
+        const title = titleMap.get(slug) ?? slug;
+        const pm = priceMap.get(slug);
+        const priceLabel = pm?.priceLabel ?? '';
+        const li = document.createElement('li');
+        li.className='cart-item';
+        li.innerHTML = `<span class="cart-item-title">${title}</span><span class="cart-item-right"><span class="cart-item-price">${priceLabel}</span><button type="button" class="cart-item-remove" data-cart-remove data-slug="${slug}" aria-label="Treure ${title}">×</button></span>`;
+        listEl.appendChild(li);
+      }
+      for (const b of listEl.querySelectorAll('[data-cart-remove]')) {
+        b.addEventListener('click', () => {
+          const s = b.getAttribute('data-slug');
+          if (!s) return;
+          setCart(getCart().filter(x=>x!==s));
+        });
+      }
+    }
+  };
+
+  // init
+  let cart = getCart();
+  render(cart);
+  requestAnimationFrame(() => syncCheckboxes(cart));
+
+  if (clearBtn) clearBtn.addEventListener('click', ()=> setCart([]));
+
+  document.addEventListener('change', (e)=>{
+    const t = e.target;
+    if (!(t instanceof HTMLElement) || !t.matches('[data-piece-checkbox]')) return;
+    const slug = t.getAttribute('data-slug');
+    if (!slug) return;
+    const checked = t.checked;
+    const cur = getCart();
+    const next = checked ? (cur.includes(slug)?cur:[...cur,slug]) : cur.filter(s=>s!==slug);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    render(next);
+  });
+
+  document.addEventListener('inquiry-success', ()=> setCart([]));
+</script>
+
+<style>
+  .portfolio {
+    --ink: #29251f;
+    --paper: #e8e5dc;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    min-height: 100dvh;
+    padding: clamp(1.5rem, 4vw, 4rem) clamp(1.25rem, 6vw, 7rem) 0;
+    background:
+      linear-gradient(115deg, rgba(217, 232, 222, 0.78), transparent 42%),
+      radial-gradient(ellipse at 80% 18%, rgba(191, 214, 200, 0.5), transparent 32%),
+      var(--paper);
+    color: var(--ink);
+  }
+  .journal-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 2rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--ink) 35%, transparent);
+    padding-bottom: 1.25rem;
+  }
+  .brand-name {
+    color: color-mix(in srgb, var(--ink) 85%, transparent);
+    font-family: 'Fraunces Variable', Georgia, 'Times New Roman', serif;
+    font-size: clamp(1.15rem, 2.4vw, 1.75rem);
+    font-weight: 400;
+    font-optical-sizing: auto;
+    font-variation-settings: 'SOFT' 40, 'WONK' 1;
+    letter-spacing: -0.05em;
+    line-height: 0.9;
+    text-decoration: none;
+    transition: color 240ms ease;
+  }
+  .lang-link { color: color-mix(in srgb, var(--ink) 62%, transparent); font-size: 0.68rem; letter-spacing: 0.14em; text-decoration: none; text-transform: uppercase; transition: color 240ms ease; }
+  .brand-name:hover, .brand-name:focus-visible, .lang-link:hover, .lang-link:focus-visible, .lang-link.is-current { color: var(--ink); }
+  .header-meta { display: flex; align-items: baseline; gap: 2rem; }
+  .page-nav { display: flex; gap: 1rem; font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; }
+  .page-nav a { color: color-mix(in srgb, var(--ink) 62%, transparent); text-decoration: none; transition: color 240ms ease; }
+  .page-nav a:hover, .page-nav a:focus-visible, .page-nav a[aria-current="page"] { color: var(--ink); }
+  .lang-switcher { display: flex; gap: 1rem; }
+  .entry {
+    display: grid;
+    grid-template-columns: minmax(14rem, 0.62fr) minmax(0, 1.2fr);
+    gap: clamp(2rem, 8vw, 9rem);
+    align-items: start;
+    max-width: 110rem;
+    width: 100%;
+    margin: clamp(3rem, 9vw, 9rem) auto 0;
+    padding-bottom: clamp(3rem, 8vw, 6rem);
+  }
+  .entry-intro { position: sticky; top: 2rem; }
+  .eyebrow { margin: 0 0 1.5rem; font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase; }
+  h1 { max-width: 10ch; margin: 0; font-family: 'Fraunces Variable', Georgia, serif; font-size: clamp(2.2rem, 5vw, 3.8rem); font-weight: 400; letter-spacing: -0.055em; line-height: 0.9; }
+  .description { max-width: 34rem; margin: 2.5rem 0 0; font-size: 1rem; line-height: 1.6; color: color-mix(in srgb, var(--ink) 78%, transparent); }
+  .cart-link-hint { margin-top: 1rem; }
+  .shop-link { font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: color-mix(in srgb, var(--ink) 64%, transparent); text-decoration: none; border-bottom: 1px solid color-mix(in srgb, var(--ink) 20%, transparent); padding-bottom: 0.15rem; }
+  .shop-link:hover { color: var(--ink); border-color: var(--ink); }
+  .shop-main {
+    min-width: 0;
+    display: grid;
+    gap: 0;
+    border: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
+    background: color-mix(in srgb, var(--paper) 92%, white);
+    overflow: hidden;
+  }
+  .cart {
+    padding: 1.1rem 1.1rem 1.2rem;
+    border: none;
+    border-bottom: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+    background: transparent;
+  }
+  .shop-main :global(.inquiry) {
+    margin-top: 0;
+    padding: 1.2rem 1.1rem 1.2rem;
+    border-top: none;
+    max-width: none;
+  }
+  .shop-main :global(.inquiry-form) { margin-top: 1rem; }
+  .cart-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: 0.7rem; }
+  .cart-title { margin: 0; font-family: 'Fraunces Variable', Georgia, serif; font-size: 1.05rem; font-weight: 400; }
+  .cart-clear { border: none; background: none; padding: 0; font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: color-mix(in srgb, var(--ink) 62%, transparent); cursor: pointer; text-decoration: underline; }
+  .cart-clear:hover { color: var(--ink); }
+  .cart-empty { margin: 0; font-size: 0.88rem; line-height: 1.5; color: color-mix(in srgb, var(--ink) 62%, transparent); }
+  .cart-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.45rem; }
+  :global(.cart-item) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.35rem 0;
+    background: transparent;
+    border: none;
+    font-size: 0.88rem;
+  }
+  :global(.cart-item-title) { flex: 1; min-width: 0; }
+  :global(.cart-item-right) { display: flex; gap: .25rem; align-items: center; flex-shrink: 0; margin-left: auto; }
+  :global(.cart-item-price) { font-size: 0.88rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  :global(.cart-item-remove) { border: none; background: none; font-size: 1.1rem; line-height: 1; cursor: pointer; color: color-mix(in srgb, var(--ink) 60%, transparent); padding: 0 0.2rem; }
+  :global(.cart-item-remove):hover { color: var(--ink); }
+  .cart-total { margin: 0.7rem 0 0; padding-top: 0.7rem; border-top: 1px solid color-mix(in srgb, var(--ink) 12%, transparent); font-size: 0.88rem; text-align: right; }
+  @media (max-width: 880px) { .journal-header { flex-direction: column; align-items: flex-start; gap: 0.9rem; } .header-meta { flex-direction: column; align-items: flex-start; gap: .25rem; } }
+  @media (max-width: 700px) { .entry { display: block; margin-top: 3.5rem; } .entry-intro { position: static; margin-bottom: 2.5rem; } }
+  @media (prefers-color-scheme: dark) {
+    .portfolio { --ink: var(--nc-ink-dark); --paper: var(--nc-paper-dark); background: linear-gradient(115deg, rgba(58, 92, 82, 0.42), transparent 42%), radial-gradient(ellipse at 80% 18%, rgba(72, 112, 96, 0.3), transparent 32%), var(--nc-paper-dark); }
+    .cart { background: color-mix(in srgb, var(--nc-paper-dark) 90%, white 6%); }
+    :global(.cart-item) { background: transparent; }
+  }
+</style>

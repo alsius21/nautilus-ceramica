@@ -17,6 +17,10 @@ const images = work.imageKeys.map((imageKey) => ({
 	src: `${base}images/${workImageFiles[imageKey]}.webp`,
 	alt: t(locale, `work.${imageKey}.alt` as Parameters<typeof t>[1]),
 }));
+
+const shop = (work as { shop?: { available: boolean } }).shop;
+const shopAvailable = shop?.available ?? false;
+const shopHref = getRelativeLocaleUrl(locale, `/${t(locale, 'shop.path')}/${t(locale, 'shop.article.path')}/${work.slug}`);
 ---
 
 <main class="journal">
@@ -41,13 +45,21 @@ const images = work.imageKeys.map((imageKey) => ({
 			<p class="eyebrow">{t(locale, `work.made.${work.made}` as Parameters<typeof t>[1])}</p>
 			<h1>{title}</h1>
 			<p class="description">{t(locale, copyKey('description'))}</p>
+
+			{shopAvailable && (
+				<div class="shop-detail">
+					<a class="shop-link" href={shopHref}>{t(locale, 'shop.view_in_shop')} →</a>
+				</div>
+			)}
 		</div>
-		<div class:list={["work-gallery", { 'is-gallery': images.length > 1 }]} aria-label={title}>
-			{images.map((image, index) => (
-				<figure>
-					<img src={image.src} alt={image.alt} loading={index === 0 ? 'eager' : 'lazy'} />
-				</figure>
-			))}
+		<div class="entry-main">
+			<div class:list={["work-gallery", { 'is-gallery': images.length > 1 }]} aria-label={title}>
+				{images.map((image, index) => (
+					<figure>
+						<img src={image.src} alt={image.alt} loading={index === 0 ? 'eager' : 'lazy'} />
+					</figure>
+				))}
+			</div>
 		</div>
 	</article>
 
@@ -117,6 +129,97 @@ const images = work.imageKeys.map((imageKey) => ({
 		position: sticky;
 		top: 2rem;
 	}
+
+	.shop-detail {
+		margin-top: 2rem;
+		padding-top: 1.75rem;
+		border-top: 1px solid color-mix(in srgb, var(--ink) 18%, transparent);
+	}
+	.shop-meta {
+		display: grid;
+		gap: 0.7rem;
+		margin: 0;
+	}
+	.meta-row {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 1rem;
+		font-size: 0.82rem;
+	}
+	.meta-row dt {
+		font-size: 0.68rem;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+		color: color-mix(in srgb, var(--ink) 62%, transparent);
+	}
+	.meta-row dd {
+		margin: 0;
+		font-size: 0.92rem;
+	}
+	.badge {
+		display: inline-block;
+		padding: 0.2rem 0.5rem;
+		font-size: 0.62rem;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		border: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
+		background: color-mix(in srgb, var(--paper) 90%, white);
+	}
+	.badge-sold { background: var(--ink); color: var(--paper); }
+	.badge-reserved { background: #c9b99a; color: var(--ink); }
+	.badge-made_to_order { background: #d9e8de; color: #2a3d33; }
+	.price.is-inquiry {
+		font-size: 0.78rem;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		color: color-mix(in srgb, var(--ink) 62%, transparent);
+	}
+	.dims { color: color-mix(in srgb, var(--ink) 64%, transparent); }
+	.shop-note {
+		margin: 1rem 0 0;
+		font-size: 0.78rem;
+		line-height: 1.6;
+		color: color-mix(in srgb, var(--ink) 58%, transparent);
+		font-style: italic;
+	}
+	.shop-note.muted { margin-top: 0.75rem; opacity: 0.9; }
+	.shop-link {
+		display: inline-block;
+		margin-top: 0.9rem;
+		font-size: 0.68rem;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		color: color-mix(in srgb, var(--ink) 78%, transparent);
+		text-decoration: none;
+		border-bottom: 1px solid color-mix(in srgb, var(--ink) 28%, transparent);
+		padding-bottom: 0.15rem;
+		transition: color 200ms ease, border-color 200ms ease;
+	}
+	.shop-link:hover,
+	.shop-link:focus-visible {
+		color: var(--ink);
+		border-color: var(--ink);
+	}
+	.cta-interest {
+		display: inline-block;
+		margin-top: 1.1rem;
+		padding: 0.7rem 1.2rem;
+		border: 1px solid var(--ink);
+		background: var(--ink);
+		color: var(--paper);
+		font-size: 0.72rem;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+		text-decoration: none;
+		transition: background 200ms ease, color 200ms ease;
+	}
+	.cta-interest:hover,
+	.cta-interest:focus-visible {
+		background: transparent;
+		color: var(--ink);
+	}
+	.entry-main { min-width: 0; display: grid; gap: 2rem; }
 
 	.eyebrow {
 		margin: 0 0 1.5rem;
