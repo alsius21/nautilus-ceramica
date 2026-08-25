@@ -29,9 +29,9 @@ const images = works
 		<a class="brand-name" href={getRelativeLocaleUrl(locale, '/')}>{BRAND_NAME}</a>
 		<div class="header-meta">
 			<nav class="page-nav" aria-label={t(locale, 'nav.label')}>
-				<a href={getRelativeLocaleUrl(locale, `/${t(locale, 'gallery.path')}`)}>{t(locale, 'nav.gallery')}</a>
+				<a href={getRelativeLocaleUrl(locale, `/${t(locale, 'gallery.path')}`)} aria-current="page">{t(locale, 'nav.gallery')}</a>
 				<a href={getRelativeLocaleUrl(locale, `/${t(locale, 'exhibitions.path')}`)}>{t(locale, 'nav.exhibitions')}</a>
-				<a href={getRelativeLocaleUrl(locale, `/${t(locale, 'shop.path')}`)} aria-current="page">{t(locale, 'nav.shop')}</a>
+				<a href={getRelativeLocaleUrl(locale, `/${t(locale, 'shop.path')}`)}>{t(locale, 'nav.shop')}</a>
 			</nav>
 			<nav class="lang-switcher" aria-label={t(locale, 'lang.selector')}>
 				{locales.map((code) => (
@@ -56,7 +56,7 @@ const images = works
 		</div>
 		<section class="work-grid" aria-label={t(locale, 'nav.gallery')}>
 			{images.map((image, index) => (
-				<a class="artwork" href={getRelativeLocaleUrl(locale, `/${t(locale, 'work.path')}/${image.slug}`)}>
+				<a class="artwork" href={getRelativeLocaleUrl(locale, `/${t(locale, 'gallery.path')}/${image.slug}`)}>
 					<figure>
 						<img src={image.src} alt={image.alt} loading={index === 0 ? 'eager' : 'lazy'} />
 					</figure>

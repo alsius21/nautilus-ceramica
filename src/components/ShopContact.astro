@@ -1,7 +1,7 @@
 ---
 import Footer from '@/components/Footer.astro';
 import InquiryForm from '@/components/InquiryForm.astro';
-import { BRAND_NAME, SHOP_ENABLED } from '@/consts';
+import { SHOP_ENABLED } from '@/consts';
 import { works } from '@/data/works';
 import { t, normalizeLocale, locales } from '@/i18n';
 import { getRelativeLocaleUrl } from 'astro:i18n';
@@ -21,26 +21,19 @@ const availableWorksData = works
 
 <main class="portfolio">
   <header class="journal-header">
-    <a class="brand-name" href={getRelativeLocaleUrl(locale, '/')}>{BRAND_NAME}</a>
-    <div class="header-meta">
-      <nav class="page-nav" aria-label={t(locale, 'nav.label')}>
-        <a href={getRelativeLocaleUrl(locale, `/${t(locale, 'gallery.path')}`)}>{t(locale, 'nav.gallery')}</a>
-        <a href={getRelativeLocaleUrl(locale, `/${t(locale, 'exhibitions.path')}`)}>{t(locale, 'nav.exhibitions')}</a>
-        <a href={shopHref} aria-current="page">{t(locale, 'nav.shop')}</a>
-      </nav>
-      <nav class="lang-switcher" aria-label={t(locale, 'lang.selector')}>
-        {locales.map((code) => (
-          <a
-            href={getRelativeLocaleUrl(code, `/${t(code, 'shop.path')}/${t(code, 'shop.contact.path')}`)}
-            class:list={['lang-link', { 'is-current': code === locale }]}
-            aria-current={code === locale ? 'page' : null}
-            title={t(code, 'lang.name')}
-          >
-            {code}
-          </a>
-        ))}
-      </nav>
-    </div>
+    <a class="back-link" href={shopHref}>← {t(locale, 'shop.contact.back')}</a>
+    <nav class="lang-switcher" aria-label={t(locale, 'lang.selector')}>
+      {locales.map((code) => (
+        <a
+          href={getRelativeLocaleUrl(code, `/${t(code, 'order.path')}/${t(code, 'shop.contact.path')}`)}
+          class:list={['lang-link', { 'is-current': code === locale }]}
+          aria-current={code === locale ? 'page' : null}
+          title={t(code, 'lang.name')}
+        >
+          {code}
+        </a>
+      ))}
+    </nav>
   </header>
 
   <article class="entry">
@@ -50,14 +43,12 @@ const availableWorksData = works
           <p class="eyebrow">{t(locale, 'shop.form.eyebrow')}</p>
           <h1>{t(locale, 'shop.form.title')}</h1>
           <p class="description">{t(locale, 'shop.form.lead')}</p>
-          <p class="cart-link-hint"><a href={shopHref} class="shop-link">← {t(locale, 'shop.contact.back')}</a></p>
         </>
       ) : (
         <>
           <p class="eyebrow">{t(locale, 'shop.contact.title')}</p>
           <h1>{t(locale, 'shop.contact.title')}</h1>
           <p class="description">{t(locale, 'shop.contact.fallback')}</p>
-          <p class="cart-link-hint"><a href={shopHref} class="shop-link">← {t(locale, 'shop.contact.back')}</a></p>
         </>
       )}
     </div>
@@ -80,7 +71,7 @@ const availableWorksData = works
         <div class="contact-fallback">
           <p class="contact-text">{t(locale, 'shop.contact.fallback')}</p>
           <a href="https://www.instagram.com/nautilceramica/" target="_blank" rel="noopener noreferrer" class="shop-link">Instagram →</a>
-          <p class="contact-hint" style="margin-top:0.75rem;font-size:0.78rem;color:color-mix(in srgb, var(--ink) 58%, transparent);">You can contact the studio by email at [EMAIL] or through the Instagram account found in the footer of the page.</p>
+          <p class="contact-hint" style="margin-top:0.75rem;font-size:0.78rem;color:color-mix(in srgb, var(--ink) 58%, transparent);">You can contact me by email at [EMAIL] or through the Instagram account found in the footer of the page.</p>
         </div>
       )}
     </div>
@@ -226,24 +217,22 @@ const availableWorksData = works
     border-bottom: 1px solid color-mix(in srgb, var(--ink) 35%, transparent);
     padding-bottom: 1.25rem;
   }
-  .brand-name {
-    color: color-mix(in srgb, var(--ink) 85%, transparent);
-    font-family: 'Fraunces Variable', Georgia, 'Times New Roman', serif;
-    font-size: clamp(1.15rem, 2.4vw, 1.75rem);
-    font-weight: 400;
-    font-optical-sizing: auto;
-    font-variation-settings: 'SOFT' 40, 'WONK' 1;
-    letter-spacing: -0.05em;
-    line-height: 0.9;
+  .back-link,
+  .lang-link {
+    color: color-mix(in srgb, var(--ink) 62%, transparent);
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
     text-decoration: none;
+    text-transform: uppercase;
     transition: color 240ms ease;
   }
-  .lang-link { color: color-mix(in srgb, var(--ink) 62%, transparent); font-size: 0.68rem; letter-spacing: 0.14em; text-decoration: none; text-transform: uppercase; transition: color 240ms ease; }
-  .brand-name:hover, .brand-name:focus-visible, .lang-link:hover, .lang-link:focus-visible, .lang-link.is-current { color: var(--ink); }
-  .header-meta { display: flex; align-items: baseline; gap: 2rem; }
-  .page-nav { display: flex; gap: 1rem; font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; }
-  .page-nav a { color: color-mix(in srgb, var(--ink) 62%, transparent); text-decoration: none; transition: color 240ms ease; }
-  .page-nav a:hover, .page-nav a:focus-visible, .page-nav a[aria-current="page"] { color: var(--ink); }
+  .back-link:hover,
+  .back-link:focus-visible,
+  .lang-link:hover,
+  .lang-link:focus-visible,
+  .lang-link.is-current {
+    color: var(--ink);
+  }
   .lang-switcher { display: flex; gap: 1rem; }
   .entry {
     display: grid;
@@ -259,7 +248,6 @@ const availableWorksData = works
   .eyebrow { margin: 0 0 1.5rem; font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase; }
   h1 { max-width: 10ch; margin: 0; font-family: 'Fraunces Variable', Georgia, serif; font-size: clamp(2.2rem, 5vw, 3.8rem); font-weight: 400; letter-spacing: -0.055em; line-height: 0.9; }
   .description { max-width: 34rem; margin: 2.5rem 0 0; font-size: 1rem; line-height: 1.6; color: color-mix(in srgb, var(--ink) 78%, transparent); }
-  .cart-link-hint { margin-top: 1rem; }
   .shop-link { font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: color-mix(in srgb, var(--ink) 64%, transparent); text-decoration: none; border-bottom: 1px solid color-mix(in srgb, var(--ink) 20%, transparent); padding-bottom: 0.15rem; }
   .shop-link:hover { color: var(--ink); border-color: var(--ink); }
   .shop-main {
@@ -305,8 +293,18 @@ const availableWorksData = works
   :global(.cart-item-remove) { border: none; background: none; font-size: 1.1rem; line-height: 1; cursor: pointer; color: color-mix(in srgb, var(--ink) 60%, transparent); padding: 0 0.2rem; }
   :global(.cart-item-remove):hover { color: var(--ink); }
   .cart-total { margin: 0.7rem 0 0; padding-top: 0.7rem; border-top: 1px solid color-mix(in srgb, var(--ink) 12%, transparent); font-size: 0.88rem; text-align: right; }
-  @media (max-width: 880px) { .journal-header { flex-direction: column; align-items: flex-start; gap: 0.9rem; } .header-meta { flex-direction: column; align-items: flex-start; gap: .25rem; } }
-  @media (max-width: 700px) { .entry { display: block; margin-top: 3.5rem; } .entry-intro { position: static; margin-bottom: 2.5rem; } }
+  .portfolio :focus-visible {
+    outline: 1px solid var(--ink);
+    outline-offset: 0.35rem;
+  }
+  @media (max-width: 700px) {
+    .entry { display: block; margin-top: 3.5rem; }
+    .entry-intro { position: static; margin-bottom: 1rem; }
+    /* Manté la conversió mobile anterior: amaga eyebrow/títol/descripció a la intro, però el header ja és visible com a WorkJournal */
+    .entry-intro .eyebrow,
+    .entry-intro h1,
+    .entry-intro .description { display: none; }
+  }
   @media (prefers-color-scheme: dark) {
     .portfolio { --ink: var(--nc-ink-dark); --paper: var(--nc-paper-dark); background: linear-gradient(115deg, rgba(58, 92, 82, 0.42), transparent 42%), radial-gradient(ellipse at 80% 18%, rgba(72, 112, 96, 0.3), transparent 32%), var(--nc-paper-dark); }
     .cart { background: color-mix(in srgb, var(--nc-paper-dark) 90%, white 6%); }

@@ -25,7 +25,7 @@ const statusLabel = t(locale, `shop.status.${shop.status}` as Parameters<typeof 
 const priceLabel = typeof shop.price === 'number' ? `${shop.price} ${t(locale, 'shop.price.suffix')}` : t(locale, 'shop.price.inquiry');
 const hasPrice = typeof shop.price === 'number';
 const shopHref = getRelativeLocaleUrl(locale, `/${t(locale, 'shop.path')}`);
-const contactHref = getRelativeLocaleUrl(locale, `/${t(locale, 'shop.path')}/${t(locale, 'shop.contact.path')}`);
+const contactHref = getRelativeLocaleUrl(locale, `/${t(locale, 'order.path')}/${t(locale, 'shop.contact.path')}`);
 
 // Data for cart sidebar — all available works for price/title lookup
 const availableWorksData = works
@@ -115,10 +115,13 @@ const availableWorksData = works
     </div>
 
     {SHOP_ENABLED && (
-      <aside class="cart-sidebar" data-cart aria-live="polite" data-locale={locale} hidden>
+      <aside class="cart-sidebar" data-cart aria-live="polite" data-locale={locale} hidden id="cart-drawer" role="dialog" aria-modal="true" aria-label={t(locale, 'shop.cart.title')}>
         <div class="cart-head">
           <h3 class="cart-title">{t(locale, 'shop.cart.title')} — <span data-cart-count>0</span></h3>
-          <button type="button" class="cart-clear" data-cart-clear>{t(locale, 'shop.cart.clear')}</button>
+          <div class="cart-head-actions">
+            <button type="button" class="cart-clear" data-cart-clear>{t(locale, 'shop.cart.clear')}</button>
+            <button type="button" class="cart-close" data-cart-close aria-label={t(locale, 'shop.cart.close')}>×</button>
+          </div>
         </div>
         <p class="cart-empty" data-cart-empty>{t(locale, 'shop.cart.empty')}</p>
         <ul class="cart-list" data-cart-list hidden></ul>
@@ -130,6 +133,28 @@ const availableWorksData = works
 
   <script type="application/json" id="shop-data" set:html={JSON.stringify(availableWorksData)} />
 
+  {SHOP_ENABLED && (
+    <>
+      <button
+        type="button"
+        class="cart-fab"
+        data-cart-fab
+        hidden
+        aria-label={t(locale, 'shop.cart.open')}
+        aria-haspopup="dialog"
+        aria-expanded="false"
+        aria-controls="cart-drawer"
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M6 7h12l-1 11H7L6 7Z"></path>
+          <path d="M9 7V5a3 3 0 0 1 6 0v2"></path>
+        </svg>
+        <span class="cart-fab-badge" data-cart-fab-count>0</span>
+      </button>
+      <div class="cart-backdrop" data-cart-backdrop hidden></div>
+    </>
+  )}
+
   <Footer />
 </main>
 
@@ -137,6 +162,8 @@ const availableWorksData = works
   const STORAGE_KEY = 'nautilus-cart';
   const btn = document.querySelector('[data-cart-toggle]');
   const cartEl = document.querySelector('[data-cart]');
+  const fabEl = document.querySelector('[data-cart-fab]');
+  const backdropEl = document.querySelector('[data-cart-backdrop]');
   const dataEl = document.getElementById('shop-data');
   let worksData = [];
   try { worksData = dataEl ? JSON.parse(dataEl.textContent || '[]') : []; } catch {}
@@ -148,12 +175,15 @@ const availableWorksData = works
     priceMap.set(w.slug, { priceLabel: w.priceLabel, hasPrice: w.hasPrice, price: w.price });
   }
 
+  const mqMobile = window.matchMedia('(max-width: 768px)');
+  const isMobile = () => mqMobile.matches;
+
   const getCart = () => {
     try { const raw = localStorage.getItem(STORAGE_KEY); const arr = raw ? JSON.parse(raw) : []; return Array.isArray(arr) ? arr.filter(s => titleMap.has(s)) : []; } catch { return []; }
   };
-  const setCart = (arr) => {
+  const setCart = (arr, opts = {}) => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
-    render();
+    render(opts);
   };
 
   const countEl = cartEl?.querySelector('[data-cart-count]');
@@ -162,8 +192,31 @@ const availableWorksData = works
   const totalEl = cartEl?.querySelector('[data-cart-total]');
   const ctaEl = cartEl?.querySelector('[data-cart-cta]');
   const clearBtn = cartEl?.querySelector('[data-cart-clear]');
+  const closeBtn = cartEl?.querySelector('[data-cart-close]');
+  const fabCountEl = fabEl?.querySelector('[data-cart-fab-count]');
 
-  const render = () => {
+  const openDrawer = () => {
+    if (!cartEl) return;
+    cartEl.classList.add('is-open');
+    if (backdropEl) {
+      backdropEl.hidden = false;
+      requestAnimationFrame(() => backdropEl.classList.add('is-open'));
+    }
+    if (fabEl) fabEl.setAttribute('aria-expanded', 'true');
+    if (isMobile()) document.body.style.overflow = 'hidden';
+  };
+  const closeDrawer = () => {
+    if (!cartEl) return;
+    cartEl.classList.remove('is-open');
+    if (backdropEl) {
+      backdropEl.classList.remove('is-open');
+      setTimeout(() => { if (!cartEl.classList.contains('is-open')) backdropEl.hidden = true; }, 240);
+    }
+    if (fabEl) fabEl.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+  };
+
+  const render = (opts = {}) => {
     const cart = getCart();
 
     // button for current work
@@ -177,10 +230,21 @@ const availableWorksData = works
       btn.classList.toggle('is-added', isIn);
     }
 
-    // sidebar
+    // sidebar / drawer
     if (cartEl) {
       const has = cart.length > 0;
+      const prevHas = !cartEl.hidden;
       cartEl.hidden = !has;
+      if (fabEl) {
+        fabEl.hidden = !has;
+        if (fabCountEl) fabCountEl.textContent = String(cart.length);
+      }
+      if (!has) {
+        closeDrawer();
+        if (backdropEl) backdropEl.hidden = true;
+      } else if (opts.openOnAdd && isMobile() && !prevHas) {
+        openDrawer();
+      }
       if (countEl) countEl.textContent = String(cart.length);
       if (emptyEl) emptyEl.hidden = has;
       if (listEl) listEl.hidden = !has;
@@ -238,12 +302,29 @@ const availableWorksData = works
       const slug = btn.getAttribute('data-slug');
       if (!slug) return;
       const cart = getCart();
-      const next = cart.includes(slug) ? cart.filter(s => s !== slug) : [...cart, slug];
-      setCart(next);
+      const wasIn = cart.includes(slug);
+      const next = wasIn ? cart.filter(s => s !== slug) : [...cart, slug];
+      const shouldOpen = !wasIn && isMobile();
+      setCart(next, { openOnAdd: shouldOpen });
+      if (shouldOpen) openDrawer();
     });
   }
   if (clearBtn) clearBtn.addEventListener('click', () => setCart([]));
-  window.addEventListener('storage', render);
+  if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
+  if (fabEl) fabEl.addEventListener('click', () => {
+    if (cartEl?.classList.contains('is-open')) closeDrawer(); else openDrawer();
+  });
+  if (backdropEl) backdropEl.addEventListener('click', closeDrawer);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && cartEl?.classList.contains('is-open')) closeDrawer(); });
+  mqMobile.addEventListener('change', (e) => {
+    if (!e.matches) {
+      document.body.style.overflow = '';
+      if (backdropEl) { backdropEl.hidden = true; backdropEl.classList.remove('is-open'); }
+      cartEl?.classList.remove('is-open');
+      if (fabEl) fabEl.setAttribute('aria-expanded', 'false');
+    }
+  });
+  window.addEventListener('storage', () => render());
   // sync if cart changed from other tab or shop index
   document.addEventListener('inquiry-success', () => setCart([]));
 </script>
@@ -352,9 +433,43 @@ const availableWorksData = works
     background: color-mix(in srgb, var(--paper) 88%, white);
   }
   .cart-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: 0.7rem; }
+  .cart-head-actions { display: flex; align-items: center; gap: 0.85rem; flex-shrink: 0; }
   .cart-title { margin: 0; font-family: 'Fraunces Variable', Georgia, serif; font-size: 1.05rem; font-weight: 400; letter-spacing: -0.02em; }
   .cart-clear { border: none; background: none; padding: 0; font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: color-mix(in srgb, var(--ink) 62%, transparent); cursor: pointer; text-decoration: underline; text-underline-offset: 0.18em; }
   .cart-clear:hover { color: var(--ink); }
+  .cart-close {
+    display: none;
+    border: 1px solid color-mix(in srgb, var(--ink) 18%, transparent);
+    background: transparent;
+    width: 2rem; height: 2rem; border-radius: 999px;
+    font-size: 1.15rem; line-height: 1; cursor: pointer; color: var(--ink);
+    align-items: center; justify-content: center;
+    transition: background 200ms ease, color 200ms ease;
+  }
+  .cart-close:hover, .cart-close:focus-visible { background: var(--ink); color: var(--paper); }
+  .cart-fab {
+    position: fixed; right: 1.25rem; bottom: calc(1.25rem + env(safe-area-inset-bottom));
+    z-index: 60; width: 3.5rem; height: 3.5rem; border-radius: 999px;
+    border: 1px solid var(--ink); background: var(--ink); color: var(--paper);
+    display: none; align-items: center; justify-content: center; cursor: pointer;
+    box-shadow: 0 10px 28px rgba(25,23,18,0.22), 0 2px 8px rgba(25,23,18,0.14);
+    transition: transform 200ms ease, background 200ms ease;
+  }
+  .cart-fab:hover { transform: translateY(-1px); }
+  .cart-fab:active { transform: translateY(0); }
+  .cart-fab-badge {
+    position: absolute; top: -0.35rem; right: -0.35rem;
+    min-width: 1.35rem; height: 1.35rem; padding: 0 0.32rem;
+    border-radius: 999px; background: #d9e8de; color: #2a3d33;
+    border: 1px solid var(--paper); font-size: 0.68rem; font-weight: 600;
+    display: grid; place-items: center; line-height: 1; font-variant-numeric: tabular-nums;
+  }
+  .cart-backdrop {
+    position: fixed; inset: 0; z-index: 55;
+    background: rgba(25,23,18,0.38); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+    opacity: 0; transition: opacity 240ms ease;
+  }
+  .cart-backdrop.is-open { opacity: 1; }
   .cart-empty { margin: 0; font-size: 0.88rem; line-height: 1.5; color: color-mix(in srgb, var(--ink) 62%, transparent); }
   .cart-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.45rem; }
   :global(.cart-item) {
@@ -380,6 +495,31 @@ const availableWorksData = works
     .entry { grid-template-columns: minmax(14rem, 0.65fr) minmax(0, 1.35fr); }
     .cart-sidebar { grid-column: 1 / -1; position: static; }
   }
+  @media (max-width: 768px) {
+    .cart-sidebar {
+      position: fixed;
+      inset: 0 0 0 auto;
+      width: min(88vw, 360px);
+      height: 100dvh;
+      max-height: 100dvh;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      z-index: 56;
+      margin: 0;
+      padding: calc(1.25rem + env(safe-area-inset-top)) 1.15rem calc(1.5rem + env(safe-area-inset-bottom));
+      border: none;
+      border-left: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
+      box-shadow: -12px 0 40px rgba(25, 23, 18, 0.18);
+      transform: translateX(100%);
+      transition: transform 320ms cubic-bezier(0.32, 0.72, 0, 1);
+      grid-column: auto;
+    }
+    .cart-sidebar.is-open { transform: translateX(0); }
+    .cart-sidebar[hidden] { display: none !important; }
+    .cart-close { display: inline-flex; }
+    .cart-fab:not([hidden]) { display: flex; }
+    .cart-backdrop[hidden] { display: none; }
+  }
   @media (max-width: 700px) {
     .entry { display: block; margin-top: 3.5rem; }
     .entry-intro { position: static; margin-bottom: 2.5rem; }
@@ -389,9 +529,10 @@ const availableWorksData = works
     .journal { --ink: var(--nc-ink-dark); --paper: var(--nc-paper-dark); background: linear-gradient(115deg, rgba(58, 92, 82, 0.42), transparent 42%), radial-gradient(ellipse at 80% 18%, rgba(72, 112, 96, 0.3), transparent 32%), var(--nc-paper-dark); }
     .work-gallery figure { background: #2b2822; }
     .cart-sidebar { background: color-mix(in srgb, var(--nc-paper-dark) 90%, white 6%); border-color: color-mix(in srgb, var(--nc-ink-dark) 14%, transparent); }
+    .cart-backdrop { background: rgba(0, 0, 0, 0.45); }
     :global(.cart-item) { background: transparent; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .work-gallery img, .back-link, .lang-link, .cart-btn { transition: none; }
+    .work-gallery img, .back-link, .lang-link, .cart-btn, .cart-sidebar, .cart-backdrop, .cart-fab { transition: none; }
   }
 </style>

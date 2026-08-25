@@ -15,6 +15,6 @@ const description = t(locale, `work.${work.titleKey}.meta` as Parameters<typeof 
 const ogImage = `images/${workImageFiles[work.imageKeys[0]]}.webp`;
 ---
 
-<Layout title={title} path={`/${t(locale, 'work.path')}/${work.slug}`} description={description} image={ogImage}>
+<Layout title={title} path={`/${t(locale, 'gallery.path')}/${work.slug}`} description={description} image={ogImage}>
 	<WorkJournal work={work} />
 </Layout>

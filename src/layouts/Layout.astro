@@ -7,7 +7,7 @@ import '@fontsource-variable/archivo';
 interface Props {
 	title?: string;
 	description?: string;
-	/** Relative path of this page without locale prefix (e.g. '/', '/galeria', '/obres/plat-de-taller'). */
+	/** Relative path of this page without locale prefix (e.g. '/', '/galeria', '/galeria/plat-de-taller'). */
 	path?: string;
 	image?: string;
 }
@@ -27,10 +27,41 @@ const base = import.meta.env.BASE_URL.endsWith('/')
 const origin = site.origin;
 const baseUrl = `${origin}${base}`;
 
+// Translate each URL segment per locale so hreflang alternates point
+// to the correctly localised path (galeria vs gallery, botiga/article
+// vs tienda/articulo, etc.) instead of reusing the current locale's path.
+const pathKeys = [
+	'gallery.path',
+	'exhibitions.path',
+	'shop.path',
+	'shop.article.path',
+	'order.path',
+	'shop.contact.path',
+	'cookie.path',
+	'legal.path',
+	'about.path',
+	'work.path',
+] as const;
+
+const translatePath = (targetCode: Locale) => {
+	if (path === '/') return '/';
+	const segments = path.split('/').filter(Boolean);
+	const translated = segments.map((seg) => {
+		for (const key of pathKeys) {
+			if (t(locale, key as Parameters<typeof t>[1]) === seg) {
+				return t(targetCode, key as Parameters<typeof t>[1]);
+			}
+		}
+		return seg;
+	});
+	return `/${translated.join('/')}`;
+};
+
 /** Locale-prefixed absolute URL for a locale-less page path. */
 const pageUrl = (code: Locale) => {
 	const segment = code === 'ca' ? '' : `/${code}`;
-	return `${baseUrl.replace(/\/$/, '')}${segment}${path === '/' ? '/' : path}`;
+	const translatedPath = translatePath(code);
+	return `${baseUrl.replace(/\/$/, '')}${segment}${translatedPath === '/' ? '/' : translatedPath}`;
 };
 
 // Social share image: per-page override or the default card in public/.

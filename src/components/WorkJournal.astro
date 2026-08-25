@@ -29,7 +29,7 @@ const shopHref = getRelativeLocaleUrl(locale, `/${t(locale, 'shop.path')}/${t(lo
 		<nav class="lang-switcher" aria-label={t(locale, 'lang.selector')}>
 			{locales.map((code) => (
 				<a
-					href={getRelativeLocaleUrl(code, `/${t(code, 'work.path')}/${work.slug}`)}
+					href={getRelativeLocaleUrl(code, `/${t(code, 'gallery.path')}/${work.slug}`)}
 					class:list={['lang-link', { 'is-current': code === locale }]}
 					aria-current={code === locale ? 'page' : null}
 					title={t(code, 'lang.name')}
@@ -42,7 +42,6 @@ const shopHref = getRelativeLocaleUrl(locale, `/${t(locale, 'shop.path')}/${t(lo
 
 	<article class="entry">
 		<div class="entry-intro">
-			<p class="eyebrow">{t(locale, `work.made.${work.made}` as Parameters<typeof t>[1])}</p>
 			<h1>{title}</h1>
 			<p class="description">{t(locale, copyKey('description'))}</p>
 

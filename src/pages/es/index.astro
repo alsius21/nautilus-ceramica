@@ -1,8 +1,12 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 import Welcome from '@/components/Welcome.astro';
+import { t, normalizeLocale } from '@/i18n';
+
+const locale = normalizeLocale(Astro.currentLocale);
+const title = t(locale, 'home.title');
 ---
 
-<Layout>
+<Layout title={title}>
 	<Welcome />
 </Layout>
