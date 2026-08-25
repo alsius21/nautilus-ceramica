@@ -1,6 +1,6 @@
 ---
 import Footer from '@/components/Footer.astro';
-import { type Work, workImageFiles } from '@/data/works';
+import { type Work, workImageFiles, getSlug } from '@/data/works';
 import { t, normalizeLocale, locales } from '@/i18n';
 import { getRelativeLocaleUrl } from 'astro:i18n';
 
@@ -20,7 +20,7 @@ const images = work.imageKeys.map((imageKey) => ({
 
 const shop = (work as { shop?: { available: boolean } }).shop;
 const shopAvailable = shop?.available ?? false;
-const shopHref = getRelativeLocaleUrl(locale, `/${t(locale, 'shop.path')}/${t(locale, 'shop.article.path')}/${work.slug}`);
+const shopHref = getRelativeLocaleUrl(locale, `/${t(locale, 'shop.path')}/${t(locale, 'shop.article.path')}/${getSlug(work, locale)}`);
 ---
 
 <main class="journal">
@@ -28,8 +28,8 @@ const shopHref = getRelativeLocaleUrl(locale, `/${t(locale, 'shop.path')}/${t(lo
 		<a class="back-link" href={getRelativeLocaleUrl(locale, `/${t(locale, 'gallery.path')}`)}>← {t(locale, 'gallery.page.eyebrow')}</a>
 		<nav class="lang-switcher" aria-label={t(locale, 'lang.selector')}>
 			{locales.map((code) => (
-				<a
-					href={getRelativeLocaleUrl(code, `/${t(code, 'gallery.path')}/${work.slug}`)}
+					<a
+						href={getRelativeLocaleUrl(code, `/${t(code, 'gallery.path')}/${getSlug(work, code)}`)}
 					class:list={['lang-link', { 'is-current': code === locale }]}
 					aria-current={code === locale ? 'page' : null}
 					title={t(code, 'lang.name')}

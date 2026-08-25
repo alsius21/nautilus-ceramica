@@ -1,6 +1,6 @@
 ---
 import { t, normalizeLocale } from '@/i18n';
-import { works } from '@/data/works';
+import { works, getSlug } from '@/data/works';
 
 interface Props {
   preselectedSlug?: string;
@@ -20,9 +20,9 @@ const FORMSPREE_ENDPOINT = import.meta.env.PUBLIC_FORMSPREE_ENDPOINT ?? 'https:/
 const pieceOptions = works
   .filter((w) => w.shop.available)
   .map((w) => ({
-    slug: w.slug,
+    slug: w.id,
     label: t(locale, `work.${w.titleKey}.title` as Parameters<typeof t>[1]),
-    value: `${t(locale, `work.${w.titleKey}.title` as Parameters<typeof t>[1])} — ${w.slug}`,
+    value: `${t(locale, `work.${w.titleKey}.title` as Parameters<typeof t>[1])} — ${getSlug(w, locale)}`,
   }));
 
 const preselectedValue = preselectedSlug

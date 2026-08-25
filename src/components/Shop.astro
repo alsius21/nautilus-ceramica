@@ -1,7 +1,7 @@
 ---
 import Footer from '@/components/Footer.astro';
 import { BRAND_NAME, SHOP_ENABLED } from '@/consts';
-import { works, workImageFiles } from '@/data/works';
+import { works, workImageFiles, getSlug } from '@/data/works';
 import { t, normalizeLocale, locales } from '@/i18n';
 import { getRelativeLocaleUrl } from 'astro:i18n';
 
@@ -18,7 +18,8 @@ const cards = availableWorks.map((work) => {
     ? `${work.shop.price} ${t(locale, 'shop.price.suffix')}`
     : t(locale, 'shop.price.inquiry');
   return {
-    slug: work.slug,
+    id: work.id,
+    slug: getSlug(work, locale),
     title,
     status: work.shop.status,
     statusLabel,
@@ -26,7 +27,7 @@ const cards = availableWorks.map((work) => {
     price: typeof work.shop.price === 'number' ? work.shop.price : null,
     hasPrice: typeof work.shop.price === 'number',
     dimensions: work.shop.dimensions ?? null,
-    href: getRelativeLocaleUrl(locale, `/${t(locale, 'shop.path')}/${t(locale, 'shop.article.path')}/${work.slug}`),
+    href: getRelativeLocaleUrl(locale, `/${t(locale, 'shop.path')}/${t(locale, 'shop.article.path')}/${getSlug(work, locale)}`),
     src: `${base}images/${workImageFiles[work.imageKeys[0]]}.webp`,
     alt: t(locale, `work.${work.imageKeys[0]}.alt` as Parameters<typeof t>[1]),
   };
@@ -64,7 +65,7 @@ const cards = availableWorks.map((work) => {
       ) : (
         <section class="shop-grid" aria-label={t(locale, 'shop.page.title')}>
           {cards.map((card, index) => (
-            <article class="shop-card" data-card data-slug={card.slug} data-price-label={card.priceLabel} data-has-price={String(card.hasPrice)} data-price={card.price ?? ''}>
+            <article class="shop-card" data-card data-slug={card.id} data-price-label={card.priceLabel} data-has-price={String(card.hasPrice)} data-price={card.price ?? ''}>
               <a class="card-link" href={card.href} aria-label={`${card.title} — ${t(locale, 'shop.card.view')}`}>
                 <figure>
                   <img src={card.src} alt={card.alt} loading={index === 0 ? 'eager' : 'lazy'} />
@@ -86,7 +87,7 @@ const cards = availableWorks.map((work) => {
                       type="button"
                       class="cart-btn"
                       data-cart-toggle
-                      data-slug={card.slug}
+                      data-slug={card.id}
                       aria-pressed="false"
                       data-label-add={t(locale, 'shop.card.add')}
                       data-label-remove={t(locale, 'shop.card.remove')}

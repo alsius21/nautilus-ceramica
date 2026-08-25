@@ -2,7 +2,7 @@
 import Footer from '@/components/Footer.astro';
 import InquiryForm from '@/components/InquiryForm.astro';
 import { SHOP_ENABLED } from '@/consts';
-import { works } from '@/data/works';
+import { works, getSlug } from '@/data/works';
 import { t, normalizeLocale, locales } from '@/i18n';
 import { getRelativeLocaleUrl } from 'astro:i18n';
 
@@ -11,7 +11,7 @@ const shopHref = getRelativeLocaleUrl(locale, `/${t(locale, 'shop.path')}`);
 const availableWorksData = works
   .filter((w) => w.shop.available)
   .map((w) => ({
-    slug: w.slug,
+    slug: w.id,
     title: t(locale, `work.${w.titleKey}.title` as Parameters<typeof t>[1]),
     price: w.shop.price ?? null,
     priceLabel: typeof w.shop.price === 'number' ? `${w.shop.price} ${t(locale, 'shop.price.suffix')}` : t(locale, 'shop.price.inquiry'),

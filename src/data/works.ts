@@ -1,3 +1,5 @@
+import type { Locale } from '@/i18n';
+
 export type ShopStatus = 'available' | 'reserved' | 'sold' | 'made_to_order' | 'inquiry';
 
 export type ShopInfo = {
@@ -12,59 +14,73 @@ export type ShopInfo = {
 	stripePriceId?: string;
 };
 
+export type LocalizedSlugs = Record<Locale, string>;
+
 export const works = [
 	{
-		slug: 'plat-de-taller',
+		id: 'plat-de-taller',
 		titleKey: 'plate',
+		slugs: { ca: 'plat-de-taller', es: 'plato-de-taller', en: 'workshop-plate' } as LocalizedSlugs,
 		imageKeys: ['plate'],
 		made: 'hoji',
 		shop: { available: false, status: 'sold' } as ShopInfo,
 	},
 	{
-		slug: 'calabaza-a-la-llotja',
+		id: 'calabaza-a-la-llotja',
 		titleKey: 'pumpkin',
+		slugs: {
+			ca: 'carabassa-a-la-llotja',
+			es: 'calabaza-a-la-llotja',
+			en: 'pumpkin-at-llotja',
+		} as LocalizedSlugs,
 		imageKeys: ['pumpkin'],
 		made: 'llotja',
 		shop: { available: false, status: 'sold' } as ShopInfo,
 	},
 	{
-		slug: 'bol-de-taller',
+		id: 'bol-de-taller',
 		titleKey: 'bowl',
+		slugs: { ca: 'bol-de-taller', es: 'cuenco-de-taller', en: 'workshop-bowl' } as LocalizedSlugs,
 		imageKeys: ['bowl'],
 		made: 'hoji',
 		shop: { available: false, status: 'sold' } as ShopInfo,
 	},
 	{
-		slug: 'peces-descacs',
+		id: 'peces-descacs',
 		titleKey: 'chess',
+		slugs: { ca: 'peces-descacs', es: 'piezas-de-ajedrez', en: 'chess-pieces' } as LocalizedSlugs,
 		imageKeys: ['queen', 'bishop'],
 		made: 'llotja',
 		shop: { available: false, status: 'sold' } as ShopInfo,
 	},
 	{
-		slug: 'jarron',
+		id: 'jarron',
 		titleKey: 'jarron',
+		slugs: { ca: 'gerro', es: 'jarron', en: 'vase' } as LocalizedSlugs,
 		imageKeys: ['jarron-1', 'jarron-2', 'jarron-3'],
 		made: 'hoji',
 		shop: { available: false, status: 'sold' } as ShopInfo,
 	},
 	{
-		slug: 'aceitera',
+		id: 'aceitera',
 		titleKey: 'aceitera',
+		slugs: { ca: 'setrillera', es: 'aceitera', en: 'oil-cruet' } as LocalizedSlugs,
 		imageKeys: ['aceitera-1', 'aceitera-2'],
 		made: 'hoji',
 		shop: { available: true, status: 'available', price: 45, dimensions: 'Ø 8 · 14 cm' } as ShopInfo,
 	},
 	{
-		slug: 'jarron-alt',
+		id: 'jarron-alt',
 		titleKey: 'jarron-alt',
+		slugs: { ca: 'gerro-alt', es: 'jarron-alto', en: 'tall-vase' } as LocalizedSlugs,
 		imageKeys: ['jarron-alt-1', 'jarron-alt-2'],
 		made: 'hoji',
 		shop: { available: false, status: 'sold' } as ShopInfo,
 	},
 	{
-		slug: 'jarron-pf',
+		id: 'jarron-pf',
 		titleKey: 'jarron-pf',
+		slugs: { ca: 'gerro-pf', es: 'jarron-pf', en: 'pf-vase' } as LocalizedSlugs,
 		imageKeys: ['jarron-pf-1'],
 		made: 'hoji',
 		shop: { available: false, status: 'sold' } as ShopInfo,
@@ -72,7 +88,8 @@ export const works = [
 ] as const;
 
 export type Work = (typeof works)[number];
-export type WorkSlug = Work['slug'];
+export type WorkId = Work['id'];
+export type WorkSlug = Work['slugs'][Locale];
 export type WorkImageKey = Work['imageKeys'][number];
 
 /**
@@ -98,6 +115,22 @@ export const workImageFiles: Record<WorkImageKey, string> = {
 	'jarron-pf-1': 'jarron-pf/jarron-pf',
 };
 
+export function getSlug(work: Work, locale: Locale): string {
+	return work.slugs[locale] ?? work.slugs.ca;
+}
+
+export function getWorkBySlug(slug: string, locale: Locale): Work | undefined {
+	return works.find((work) => getSlug(work, locale) === slug);
+}
+
+export function getWorkById(id: string): Work | undefined {
+	return works.find((work) => work.id === id);
+}
+
+// Legacy helper — finds by any slug or id across locales (for redirects / backwards compat)
 export function getWork(slug: string): Work | undefined {
-	return works.find((work) => work.slug === slug);
+	return (
+		works.find((work) => work.id === slug) ??
+		works.find((work) => Object.values(work.slugs).includes(slug as WorkSlug))
+	);
 }

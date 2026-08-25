@@ -1,11 +1,16 @@
 ---
 import ShopJournal from '@/components/ShopJournal.astro';
 import Layout from '@/layouts/Layout.astro';
-import { workImageFiles, works } from '@/data/works';
+import { workImageFiles, works, getSlug } from '@/data/works';
 import { normalizeLocale, t } from '@/i18n';
 
 export function getStaticPaths() {
-  return works.filter((w) => w.shop.available).map((work) => ({ params: { slug: work.slug }, props: { work } }));
+  return works.filter((w) => w.shop.available).flatMap((work) => {
+    const slug = getSlug(work, 'ca');
+    const paths = [{ params: { slug }, props: { work } }];
+    if (work.id !== slug) paths.push({ params: { slug: work.id }, props: { work } });
+    return paths;
+  });
 }
 
 const { work } = Astro.props;
@@ -15,6 +20,6 @@ const description = t(locale, `work.${work.titleKey}.meta` as Parameters<typeof 
 const ogImage = `images/${workImageFiles[work.imageKeys[0]]}.webp`;
 ---
 
-<Layout title={title} path={`/${t(locale, 'shop.path')}/${t(locale, 'shop.article.path')}/${work.slug}`} description={description} image={ogImage}>
+<Layout title={title} path={`/${t(locale, 'shop.path')}/${t(locale, 'shop.article.path')}/${getSlug(work, locale)}`} description={description} image={ogImage}>
   <ShopJournal work={work} />
 </Layout>

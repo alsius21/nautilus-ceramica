@@ -1,7 +1,7 @@
 ---
 import Footer from '@/components/Footer.astro';
 import { SHOP_ENABLED } from '@/consts';
-import { works, workImageFiles, type Work } from '@/data/works';
+import { works, workImageFiles, type Work, getSlug } from '@/data/works';
 import { t, normalizeLocale, locales } from '@/i18n';
 import { getRelativeLocaleUrl } from 'astro:i18n';
 
@@ -31,7 +31,7 @@ const contactHref = getRelativeLocaleUrl(locale, `/${t(locale, 'order.path')}/${
 const availableWorksData = works
   .filter((w) => w.shop.available)
   .map((w) => ({
-    slug: w.slug,
+    slug: w.id,
     title: t(locale, `work.${w.titleKey}.title` as Parameters<typeof t>[1]),
     price: w.shop.price ?? null,
     priceLabel: typeof w.shop.price === 'number' ? `${w.shop.price} ${t(locale, 'shop.price.suffix')}` : t(locale, 'shop.price.inquiry'),
@@ -45,7 +45,7 @@ const availableWorksData = works
     <nav class="lang-switcher" aria-label={t(locale, 'lang.selector')}>
       {locales.map((code) => (
         <a
-          href={getRelativeLocaleUrl(code, `/${t(code, 'shop.path')}/${t(code, 'shop.article.path')}/${work.slug}`)}
+          href={getRelativeLocaleUrl(code, `/${t(code, 'shop.path')}/${t(code, 'shop.article.path')}/${getSlug(work, code)}`)}
           class:list={['lang-link', { 'is-current': code === locale }]}
           aria-current={code === locale ? 'page' : null}
           title={t(code, 'lang.name')}
@@ -88,7 +88,7 @@ const availableWorksData = works
                 type="button"
                 class="cart-btn"
                 data-cart-toggle
-                data-slug={work.slug}
+                data-slug={work.id}
                 data-add-label={t(locale, 'shop.card.add')}
                 data-remove-label={t(locale, 'shop.card.remove')}
                 aria-pressed="false"
