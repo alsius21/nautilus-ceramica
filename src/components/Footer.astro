@@ -8,11 +8,13 @@ const instagramUrl = 'https://www.instagram.com/nautilceramica/';
 const locale = normalizeLocale(Astro.currentLocale);
 const cookiesUrl = getRelativeLocaleUrl(locale, `/${t(locale, 'cookie.path')}`);
 const legalUrl = getRelativeLocaleUrl(locale, `/${t(locale, 'legal.path')}`);
+const aboutUrl = getRelativeLocaleUrl(locale, `/${t(locale, 'about.path')}`);
 ---
 
 <footer class="site-footer">
 	<p class="footer-year">&copy; {year} {BRAND_NAME}</p>
 	<div class="footer-links">
+		<a class="footer-legal" href={aboutUrl}>{t(locale, 'about.footer')}</a>
 		<a class="footer-legal" href={legalUrl}>{t(locale, 'legal.footer')}</a>
 		<a class="footer-cookies" href={cookiesUrl}>{t(locale, 'cookie.footer')}</a>
 		<a class="footer-instagram" href={instagramUrl} target="_blank" rel="noopener noreferrer">
