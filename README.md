@@ -10,7 +10,7 @@
 </div>
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/alsius21/nautilus-ceramica/main/public/images/instagram/plato_en_taller_de_hoji.webp" alt="Plat de ceràmica al taller Hoji" width="760">
+  <img src="https://raw.githubusercontent.com/alsius21/nautilus-ceramica/main/public/images/gallery/plato_en_taller_de_hoji.webp" alt="Plat de ceràmica al taller Hoji" width="760">
 </p>
 
 ## Sobre el projecte

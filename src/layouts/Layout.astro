@@ -1,6 +1,7 @@
 ---
 import { BRAND_NAME } from '@/consts';
 import { t, normalizeLocale, locales, type Locale } from '@/i18n';
+import { works, getSlug } from '@/data/works';
 import '@fontsource-variable/fraunces/full.css';
 import '@fontsource-variable/archivo';
 
@@ -52,6 +53,9 @@ const translatePath = (targetCode: Locale) => {
 				return t(targetCode, key as Parameters<typeof t>[1]);
 			}
 		}
+		// Localised work slug — e.g. setrillera (ca) ↔ aceitera (es) ↔ oil-cruet (en)
+		const work = works.find((w) => getSlug(w, locale) === seg) ?? works.find((w) => w.id === seg || Object.values(w.slugs).includes(seg as any));
+		if (work) return getSlug(work, targetCode);
 		return seg;
 	});
 	return `/${translated.join('/')}`;

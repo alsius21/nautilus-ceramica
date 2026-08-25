@@ -4,6 +4,7 @@ import { SHOP_ENABLED } from '@/consts';
 import { works, workImageFiles, type Work, getSlug } from '@/data/works';
 import { t, normalizeLocale, locales } from '@/i18n';
 import { getRelativeLocaleUrl } from 'astro:i18n';
+import ResponsiveImage from '@/components/ResponsiveImage.astro';
 
 interface Props {
   work: Work;
@@ -11,12 +12,11 @@ interface Props {
 
 const { work } = Astro.props;
 const locale = normalizeLocale(Astro.currentLocale);
-const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
 const copyKey = (part: 'title' | 'description') => `work.${work.titleKey}.${part}` as Parameters<typeof t>[1];
 const title = t(locale, copyKey('title'));
 const description = t(locale, copyKey('description'));
 const images = work.imageKeys.map((imageKey) => ({
-  src: `${base}images/${workImageFiles[imageKey]}.webp`,
+  src: workImageFiles[imageKey],
   alt: t(locale, `work.${imageKey}.alt` as Parameters<typeof t>[1]),
 }));
 
@@ -58,7 +58,6 @@ const availableWorksData = works
 
   <article class="entry">
     <div class="entry-intro">
-      <p class="eyebrow">{t(locale, `work.made.${work.made}` as Parameters<typeof t>[1])}</p>
       <h1>{title}</h1>
       <p class="description">{description}</p>
 
@@ -108,7 +107,14 @@ const availableWorksData = works
       <div class:list={["work-gallery", { 'is-gallery': images.length > 1 }]} aria-label={title}>
         {images.map((image, index) => (
           <figure>
-            <img src={image.src} alt={image.alt} loading={index === 0 ? 'eager' : 'lazy'} />
+            <ResponsiveImage
+              src={image.src}
+              alt={image.alt}
+              loading={index === 0 ? 'eager' : 'lazy'}
+              fetchPriority={index === 0 ? 'high' : 'auto'}
+              sizes={images.length > 1 ? "(max-width: 700px) 100vw, 30vw" : "(max-width: 700px) 100vw, 60vw"}
+              widths={[480, 640, 800, 1024, 1280]}
+            />
           </figure>
         ))}
       </div>

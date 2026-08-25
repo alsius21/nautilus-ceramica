@@ -8,6 +8,7 @@ export type Locale = (typeof locales)[number];
 
 const ca = {
 	'home.title': 'Inici',
+	'home.h1.tagline': 'ceràmica artesanal de Zara Castillo Martínez',
 	'meta.description': 'Ceràmica artesanal de Zara Castillo Martínez. Peces úniques fetes a mà, del taller a l’exposició.',
 	'gallery.label': 'Obra seleccionada',
 	'nav.label': 'Navegació principal',
@@ -205,6 +206,7 @@ const ca = {
 
 const es: Record<keyof typeof ca, string> = {
 	'home.title': 'Inicio',
+	'home.h1.tagline': 'cerámica artesanal de Zara Castillo Martínez',
 	'meta.description': 'Cerámica artesanal de Zara Castillo Martínez. Piezas únicas hechas a mano, del taller a la exposición.',
 	'gallery.label': 'Obra seleccionada',
 	'nav.label': 'Navegación principal',
@@ -399,6 +401,7 @@ const es: Record<keyof typeof ca, string> = {
 
 const en: Record<keyof typeof ca, string> = {
 	'home.title': 'Home',
+	'home.h1.tagline': 'handmade ceramics by Zara Castillo Martínez',
 	'meta.description': 'Handmade ceramics by Zara Castillo Martínez. One-of-a-kind pieces, from the workshop to the exhibition.',
 	'gallery.label': 'Selected work',
 	'nav.label': 'Main navigation',

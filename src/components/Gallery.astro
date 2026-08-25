@@ -4,14 +4,9 @@ import { BRAND_NAME, SHOP_ENABLED } from '@/consts';
 import { works, workImageFiles, getSlug } from '@/data/works';
 import { t, normalizeLocale, locales } from '@/i18n';
 import { getRelativeLocaleUrl } from 'astro:i18n';
+import ResponsiveImage from '@/components/ResponsiveImage.astro';
 
 const locale = normalizeLocale(Astro.currentLocale);
-
-// Base path with a guaranteed trailing slash (e.g. `/nautilus-ceramica/`), so
-// public/ URLs below start from it instead of a bare leading slash.
-const base = import.meta.env.BASE_URL.endsWith('/')
-	? import.meta.env.BASE_URL
-	: `${import.meta.env.BASE_URL}/`;
 
 const images = works
 	// The pumpkin has its own exhibition feature (Argillà 2026); keep it out of
@@ -19,7 +14,7 @@ const images = works
 	.filter((work) => work.id !== 'calabaza-a-la-llotja')
 	.map((work) => ({
 		slug: getSlug(work, locale),
-		src: `${base}images/${workImageFiles[work.imageKeys[0]]}.webp`,
+		src: workImageFiles[work.imageKeys[0]],
 		alt: t(locale, `work.${work.imageKeys[0]}.alt` as Parameters<typeof t>[1]),
 	}));
 ---
@@ -58,7 +53,14 @@ const images = works
 			{images.map((image, index) => (
 				<a class="artwork" href={getRelativeLocaleUrl(locale, `/${t(locale, 'gallery.path')}/${image.slug}`)}>
 					<figure>
-						<img src={image.src} alt={image.alt} loading={index === 0 ? 'eager' : 'lazy'} />
+						<ResponsiveImage
+							src={image.src}
+							alt={image.alt}
+							loading={index === 0 ? 'eager' : 'lazy'}
+							fetchPriority={index < 2 ? 'high' : 'auto'}
+							sizes="(max-width: 700px) 100vw, (max-width: 1100px) 50vw, 33vw"
+							widths={[360, 480, 640, 800, 960]}
+						/>
 					</figure>
 				</a>
 			))}
