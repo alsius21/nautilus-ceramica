@@ -28,8 +28,8 @@ const images = [
 
 <main class="home home-alt">
 	<header class="journal-header">
-		<a class="brand-name" href={getRelativeLocaleUrl(locale, '/')} aria-label={`${BRAND_NAME} — ${t(locale, 'home.h1.tagline')}`}>
-			<h1><span class="brand-main">{BRAND_NAME}</span><span class="brand-tagline"> — {t(locale, 'home.h1.tagline')}</span></h1>
+		<a class="brand-name" href={getRelativeLocaleUrl(locale, '/')} aria-label={BRAND_NAME}>
+			<h1>{BRAND_NAME}</h1>
 		</a>
 		<div class="header-meta">
 			<nav class="page-nav" aria-label={t(locale, 'nav.label')}>
@@ -61,8 +61,8 @@ const images = [
 						alt={image.alt}
 						loading={index === 0 ? 'eager' : 'lazy'}
 						fetchPriority={index === 0 ? 'high' : 'auto'}
-						sizes="(max-width: 640px) 100vw, (max-width: 1100px) 50vw, 620px"
-						widths={[400, 640, 800, 1024, 1280, 1440]}
+						sizes={index === 0 ? "(max-width: 640px) 100vw, 57vw" : "(max-width: 640px) 100vw, 42vw"}
+						widths={[400, 640, 800, 960, 1200]}
 					/>
 				</figure>
 			</a>
@@ -210,18 +210,6 @@ const images = [
 		font: inherit;
 		letter-spacing: inherit;
 		line-height: inherit;
-	}
-
-	.brand-tagline {
-		font-family: 'Archivo Variable', system-ui, sans-serif;
-		font-size: 0.52em;
-		font-weight: 400;
-		font-optical-sizing: auto;
-		font-variation-settings: normal;
-		letter-spacing: 0.02em;
-		color: color-mix(in srgb, var(--ink) 62%, transparent);
-		text-transform: none;
-		white-space: normal;
 	}
 
 	.gallery {
