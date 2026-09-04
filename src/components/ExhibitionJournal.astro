@@ -3,7 +3,6 @@ import Footer from '@/components/Footer.astro';
 import { type Exhibition, exhibitionImageFiles } from '@/data/exhibitions';
 import { t, normalizeLocale, locales } from '@/i18n';
 import { getRelativeLocaleUrl } from 'astro:i18n';
-import ResponsiveImage from '@/components/ResponsiveImage.astro';
 
 interface Props {
 	exhibition: Exhibition;
@@ -11,6 +10,7 @@ interface Props {
 
 const { exhibition } = Astro.props;
 const locale = normalizeLocale(Astro.currentLocale);
+const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
 const copyKey = (part: 'venue' | 'title' | 'description' | 'alt') => `exhibit.${exhibition.slug}.${part}` as Parameters<typeof t>[1];
 const venue = t(locale, copyKey('venue'));
 const title = t(locale, copyKey('title'));
@@ -51,14 +51,7 @@ const images = exhibition.imageKeys.map((imageKey) => ({
 		<div class:list={["work-gallery", { 'is-gallery': images.length > 1 }]} aria-label={title}>
 			{images.map((image, index) => (
 				<figure>
-					<ResponsiveImage
-						src={image.src}
-						alt={image.alt}
-						loading={index === 0 ? 'eager' : 'lazy'}
-						fetchPriority={index === 0 ? 'high' : 'auto'}
-						sizes={images.length > 1 ? "(max-width: 700px) 100vw, 30vw" : "(max-width: 700px) 100vw, 60vw"}
-						widths={[480, 640, 800, 1024, 1280]}
-					/>
+					<img src={`${base}images/${image.src}.webp`} alt={image.alt} loading={index === 0 ? 'eager' : 'lazy'} />
 				</figure>
 			))}
 		</div>

@@ -4,9 +4,9 @@ import { BRAND_NAME, SHOP_ENABLED } from '@/consts';
 import { works, workImageFiles, getSlug } from '@/data/works';
 import { t, normalizeLocale, locales } from '@/i18n';
 import { getRelativeLocaleUrl } from 'astro:i18n';
-import ResponsiveImage from '@/components/ResponsiveImage.astro';
 
 const locale = normalizeLocale(Astro.currentLocale);
+const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
 const contactHref = getRelativeLocaleUrl(locale, `/${t(locale, 'order.path')}/${t(locale, 'shop.contact.path')}`);
 
 const availableWorks = works.filter((w) => w.shop.available);
@@ -68,14 +68,7 @@ const cards = availableWorks.map((work) => {
             <article class="shop-card" data-card data-slug={card.id} data-price-label={card.priceLabel} data-has-price={String(card.hasPrice)} data-price={card.price ?? ''}>
               <a class="card-link" href={card.href} aria-label={`${card.title} — ${t(locale, 'shop.card.view')}`}>
                 <figure>
-                  <ResponsiveImage
-                    src={card.src}
-                    alt={card.alt}
-                    loading={index === 0 ? 'eager' : 'lazy'}
-                    fetchPriority={index === 0 ? 'high' : 'auto'}
-                    sizes="(max-width: 700px) 100vw, (max-width: 1100px) 50vw, 400px"
-                    widths={[360, 480, 640, 800]}
-                  />
+                  <img src={`${base}images/${card.src}.webp`} alt={card.alt} loading={index === 0 ? 'eager' : 'lazy'} />
                   <span class:list={["badge", `badge-${card.status}`]}>{card.statusLabel}</span>
                 </figure>
               </a>

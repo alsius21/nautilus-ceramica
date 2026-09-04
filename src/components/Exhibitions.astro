@@ -4,9 +4,9 @@ import { BRAND_NAME, SHOP_ENABLED } from '@/consts';
 import { exhibitions, exhibitionImageFiles } from '@/data/exhibitions';
 import { t, normalizeLocale, locales } from '@/i18n';
 import { getRelativeLocaleUrl } from 'astro:i18n';
-import ResponsiveImage from '@/components/ResponsiveImage.astro';
 
 const locale = normalizeLocale(Astro.currentLocale);
+const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
 
 const items = exhibitions.map((exhibition) => ({
 	slug: exhibition.slug,
@@ -66,13 +66,7 @@ const items = exhibitions.map((exhibition) => ({
 						{item.images.map((image, index) => (
 							<a class="artwork" href={item.detail}>
 								<figure>
-									<ResponsiveImage
-										src={image.src}
-										alt={image.alt}
-										loading={index === 0 ? 'eager' : 'lazy'}
-										sizes="(max-width: 700px) 100vw, (max-width: 1100px) 50vw, 33vw"
-										widths={[360, 480, 640, 800, 960]}
-									/>
+									<img src={`${base}images/${image.src}.webp`} alt={image.alt} loading={index === 0 ? 'eager' : 'lazy'} />
 								</figure>
 							</a>
 						))}
