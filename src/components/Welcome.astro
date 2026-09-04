@@ -2,7 +2,7 @@
 import Footer from '@/components/Footer.astro';
 import { BRAND_NAME, SHOP_ENABLED } from '@/consts';
 import { t, normalizeLocale, locales } from '@/i18n';
-import { works, workImageFiles, getSlug } from '@/data/works';
+import { works, getSlug } from '@/lib/content';
 import { getRelativeLocaleUrl } from 'astro:i18n';
 
 const locale = normalizeLocale(Astro.currentLocale);
@@ -14,13 +14,13 @@ const featured = works.find((work) => work.id === 'peces-descacs')!;
 const images = [
 	{
 		slug: getSlug(works[0], locale),
-		src: workImageFiles[works[0].imageKeys[0]],
+		src: works[0].images[0].file,
 		alt: t(locale, 'art.plate'),
 	},
 	{
 		slug: getSlug(featured, locale),
-		src: workImageFiles[featured.imageKeys[0]],
-		alt: t(locale, `work.${featured.imageKeys[0]}.alt` as Parameters<typeof t>[1]),
+		src: featured.images[0].file,
+		alt: featured.images[0].alt[locale],
 	},
 ];
 

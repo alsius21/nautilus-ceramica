@@ -1,0 +1,28 @@
+[
+  {
+    "slug": "argilla-2026",
+    "url": "https://argilla.cat/",
+    "venue": { "ca": "Argentona", "es": "Argentona", "en": "Argentona" },
+    "title": { "ca": "Argillà", "es": "Argillà", "en": "Argillà" },
+    "description": {
+      "ca": "Presentada al festival Argillà d’Argentona (2026), la carbassa forma part de la collita de la Llotja: una tria de peces que surten del taller cap a la llum pública.",
+      "es": "Presentada en el festival Argillà de Argentona (2026), la calabaza forma parte de la collita de la Llotja: una selección de piezas que salen del taller hacia la luz pública.",
+      "en": "Shown at the Argillà festival in Argentona (2026), the pumpkin is part of the Llotja harvest: a selection of pieces that leave the studio for the public light."
+    },
+    "meta": {
+      "ca": "La collita de la Llotja al festival Argillà d’Argentona 2026: ceràmica que surt del taller cap a la llum pública.",
+      "es": "La collita de la Llotja en el festival Argillà de Argentona 2026: cerámica que sale del taller hacia la luz pública.",
+      "en": "The Llotja harvest at the Argillà festival in Argentona 2026: ceramics leaving the studio for the public light."
+    },
+    "images": [
+      {
+        "file": "exhibitions/exposicion_calabaza_en_llotja",
+        "alt": {
+          "ca": "Peça ceràmica de la collita de la Llotja al festival Argillà d’Argentona",
+          "es": "Pieza cerámica de la collita de la Llotja en el festival Argillà de Argentona",
+          "en": "Ceramic piece from the Llotja harvest at the Argillà festival in Argentona"
+        }
+      }
+    ]
+  }
+]

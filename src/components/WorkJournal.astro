@@ -1,6 +1,6 @@
 ---
 import Footer from '@/components/Footer.astro';
-import { type Work, workImageFiles, getSlug } from '@/data/works';
+import { type Work, getSlug } from '@/lib/content';
 import { t, normalizeLocale, locales } from '@/i18n';
 import { getRelativeLocaleUrl } from 'astro:i18n';
 
@@ -11,11 +11,10 @@ interface Props {
 const { work } = Astro.props;
 const locale = normalizeLocale(Astro.currentLocale);
 const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
-const copyKey = (part: 'title' | 'description') => `work.${work.titleKey}.${part}` as Parameters<typeof t>[1];
-const title = t(locale, copyKey('title'));
-const images = work.imageKeys.map((imageKey) => ({
-	src: workImageFiles[imageKey],
-	alt: t(locale, `work.${imageKey}.alt` as Parameters<typeof t>[1]),
+const title = work.title[locale];
+const images = work.images.map((image) => ({
+	src: image.file,
+	alt: image.alt[locale],
 }));
 
 const shop = (work as { shop?: { available: boolean } }).shop;
@@ -43,7 +42,7 @@ const shopHref = getRelativeLocaleUrl(locale, `/${t(locale, 'shop.path')}/${t(lo
 	<article class="entry">
 		<div class="entry-intro">
 			<h1>{title}</h1>
-			<p class="description">{t(locale, copyKey('description'))}</p>
+			<p class="description">{work.description[locale]}</p>
 
 			{shopAvailable && (
 				<div class="shop-detail">

@@ -1,7 +1,7 @@
 ---
 import ExhibitionJournal from '@/components/ExhibitionJournal.astro';
 import Layout from '@/layouts/Layout.astro';
-import { exhibitionImageFiles, exhibitions } from '@/data/exhibitions';
+import { exhibitions, exhibitionOgImage } from '@/lib/content';
 import { normalizeLocale, t } from '@/i18n';
 
 export function getStaticPaths() {
@@ -10,9 +10,9 @@ export function getStaticPaths() {
 
 const { exhibition } = Astro.props;
 const locale = normalizeLocale(Astro.currentLocale);
-const title = t(locale, `exhibit.${exhibition.slug}.title` as Parameters<typeof t>[1]);
-const description = t(locale, `exhibit.${exhibition.slug}.meta` as Parameters<typeof t>[1]);
-const ogImage = `images/${exhibitionImageFiles[exhibition.imageKeys[0]]}.webp`;
+const title = exhibition.title[locale];
+const description = exhibition.meta[locale];
+const ogImage = exhibitionOgImage(exhibition);
 ---
 
 <Layout title={title} path={`/${t(locale, 'exhibitions.path')}/${exhibition.slug}`} description={description} image={ogImage}>

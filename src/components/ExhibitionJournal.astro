@@ -1,6 +1,6 @@
 ---
 import Footer from '@/components/Footer.astro';
-import { type Exhibition, exhibitionImageFiles } from '@/data/exhibitions';
+import { type Exhibition } from '@/lib/content';
 import { t, normalizeLocale, locales } from '@/i18n';
 import { getRelativeLocaleUrl } from 'astro:i18n';
 
@@ -11,12 +11,11 @@ interface Props {
 const { exhibition } = Astro.props;
 const locale = normalizeLocale(Astro.currentLocale);
 const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
-const copyKey = (part: 'venue' | 'title' | 'description' | 'alt') => `exhibit.${exhibition.slug}.${part}` as Parameters<typeof t>[1];
-const venue = t(locale, copyKey('venue'));
-const title = t(locale, copyKey('title'));
-const images = exhibition.imageKeys.map((imageKey) => ({
-	src: exhibitionImageFiles[imageKey],
-	alt: t(locale, copyKey('alt')),
+const venue = exhibition.venue[locale];
+const title = exhibition.title[locale];
+const images = exhibition.images.map((image) => ({
+	src: image.file,
+	alt: image.alt[locale],
 }));
 ---
 
@@ -41,7 +40,7 @@ const images = exhibition.imageKeys.map((imageKey) => ({
 		<div class="entry-intro">
 			<p class="eyebrow">{venue}</p>
 			<h1>{title}</h1>
-			<p class="description">{t(locale, copyKey('description'))}</p>
+			<p class="description">{exhibition.description[locale]}</p>
 			{exhibition.url && (
 				<a class="visit" href={exhibition.url} target="_blank" rel="noopener noreferrer">
 					{t(locale, 'exhibit.visit')} ↗

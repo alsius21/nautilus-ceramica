@@ -1,7 +1,7 @@
 ---
 import Footer from '@/components/Footer.astro';
 import { BRAND_NAME, SHOP_ENABLED } from '@/consts';
-import { works, workImageFiles, getSlug } from '@/data/works';
+import { works, getSlug } from '@/lib/content';
 import { t, normalizeLocale, locales } from '@/i18n';
 import { getRelativeLocaleUrl } from 'astro:i18n';
 
@@ -14,8 +14,8 @@ const images = works
 	.filter((work) => work.id !== 'calabaza-a-la-llotja')
 	.map((work) => ({
 		slug: getSlug(work, locale),
-		src: workImageFiles[work.imageKeys[0]],
-		alt: t(locale, `work.${work.imageKeys[0]}.alt` as Parameters<typeof t>[1]),
+		src: work.images[0].file,
+		alt: work.images[0].alt[locale],
 	}));
 ---
 

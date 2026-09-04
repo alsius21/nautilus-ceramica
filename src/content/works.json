@@ -1,0 +1,258 @@
+[
+  {
+    "id": "plat-de-taller",
+    "slugs": { "ca": "plat-de-taller", "es": "plato-de-taller", "en": "workshop-plate" },
+    "title": { "ca": "Plat granadí", "es": "Plato granadino", "en": "Granadan plate" },
+    "description": {
+      "ca": "Una peça inspirada en la ceràmica andalusa, treballada a mà al taller Hoji.",
+      "es": "Una pieza inspirada en la cerámica andaluza, trabajada a mano en el taller Hoji.",
+      "en": "A piece inspired by Andalusian ceramics, made by hand at the Hoji workshop."
+    },
+    "meta": {
+      "ca": "Plat granadí de ceràmica, inspirat en la tradició andalusa i treballat a mà al taller Hoji.",
+      "es": "Plato granadino de cerámica, inspirado en la tradición andaluza y trabajado a mano en el taller Hoji.",
+      "en": "Granadan ceramic plate, inspired by Andalusian tradition and made by hand at the Hoji workshop."
+    },
+    "made": "hoji",
+    "images": [
+      {
+        "file": "gallery/plato_en_taller_de_hoji",
+        "alt": {
+          "ca": "Plat de ceràmica treballat a mà al taller Hoji",
+          "es": "Plato de cerámica trabajado a mano en el taller Hoji",
+          "en": "Handmade ceramic plate in the Hoji workshop"
+        }
+      }
+    ],
+    "shop": { "available": false, "status": "sold" }
+  },
+  {
+    "id": "calabaza-a-la-llotja",
+    "slugs": { "ca": "carabassa-a-la-llotja", "es": "calabaza-a-la-llotja", "en": "pumpkin-at-llotja" },
+    "title": { "ca": "Calabaza", "es": "Calabaza", "en": "Calabaza" },
+    "description": {
+      "ca": "Aquesta forma parteix d’una carabassa i en reté el moviment orgànic. Presentada al festival Argillà d’Argentona com a part de la collita de la Llotja, el volum parla de la tensió entre allò trobat, allò modelat i el temps lent de l’assecat.",
+      "es": "Esta forma parte de una calabaza y conserva su movimiento orgánico. Presentada en el festival Argillà de Argentona como parte de la collita de la Llotja, el volumen habla de la tensión entre lo encontrado, lo modelado y el tiempo lento del secado.",
+      "en": "This form begins with a pumpkin and keeps its organic movement. Shown at the Argillà festival in Argentona as part of the Llotja harvest, the volume speaks to the tension between what is found, what is shaped, and the slow time of drying."
+    },
+    "meta": {
+      "ca": "Calabaza: peça orgànica de ceràmica presentada al festival Argillà d’Argentona com a part de la collita de la Llotja.",
+      "es": "Calabaza: pieza orgánica de cerámica presentada en el festival Argillà de Argentona como parte de la collita de la Llotja.",
+      "en": "Calabaza: an organic ceramic piece shown at the Argillà festival in Argentona as part of the Llotja harvest."
+    },
+    "made": "llotja",
+    "images": [
+      {
+        "file": "exhibitions/exposicion_calabaza_en_llotja",
+        "alt": {
+          "ca": "Peça ceràmica Calabaza presentada al festival Argillà d’Argentona",
+          "es": "Pieza cerámica Calabaza presentada en el festival Argillà de Argentona",
+          "en": "Calabaza ceramic piece shown at the Argillà festival in Argentona"
+        }
+      }
+    ],
+    "shop": { "available": false, "status": "sold" }
+  },
+  {
+    "id": "bol-de-taller",
+    "slugs": { "ca": "bol-de-taller", "es": "cuenco-de-taller", "en": "workshop-bowl" },
+    "title": { "ca": "Bol de taller", "es": "Cuenco de taller", "en": "Workshop bowl" },
+    "description": {
+      "ca": "Un bol girat a mà al taller Hoji. Les parets conserven la pressió dels dits i una vora que no busca la perfecció, sinó l’equilibri de la matèria.",
+      "es": "Un cuenco torneado a mano en el taller Hoji. Las paredes conservan la presión de los dedos y un borde que no busca la perfección, sino el equilibrio de la materia.",
+      "en": "A bowl thrown by hand at the Hoji workshop. The walls keep the pressure of the fingers and a rim that seeks not perfection but the balance of the material."
+    },
+    "meta": {
+      "ca": "Bol de ceràmica girat a mà al taller Hoji, amb les parets marcades pels dits i una vora que busca l’equilibri de la matèria.",
+      "es": "Cuenco de cerámica torneado a mano en el taller Hoji, con las paredes marcadas por los dedos y un borde que busca el equilibrio de la materia.",
+      "en": "Ceramic bowl thrown by hand at the Hoji workshop, walls marked by the fingers and a rim that seeks the balance of the material."
+    },
+    "made": "hoji",
+    "images": [
+      {
+        "file": "gallery/bol_en_taller_de_hoji",
+        "alt": {
+          "ca": "Bol de ceràmica treballat a mà al taller Hoji",
+          "es": "Cuenco de cerámica trabajado a mano en el taller Hoji",
+          "en": "Handmade ceramic bowl in the Hoji workshop"
+        }
+      }
+    ],
+    "shop": { "available": false, "status": "sold" }
+  },
+  {
+    "id": "peces-descacs",
+    "slugs": { "ca": "peces-descacs", "es": "piezas-de-ajedrez", "en": "chess-pieces" },
+    "title": { "ca": "Peces d’escacs", "es": "Piezas de ajedrez", "en": "Chess pieces" },
+    "description": {
+      "ca": "Una família de figures d’escacs modelades a mà, entre el taller Hoji i la Llotja.",
+      "es": "Una familia de figuras de ajedrez modeladas a mano, entre el taller Hoji y la Llotja.",
+      "en": "A family of chess pieces modelled by hand, between the Hoji workshop and the Llotja."
+    },
+    "meta": {
+      "ca": "Peces d’escacs de ceràmica modelades a mà, entre el taller Hoji i la Llotja: la família completa de figures.",
+      "es": "Piezas de ajedrez de cerámica modeladas a mano, entre el taller Hoji y la Llotja: la familia completa de figuras.",
+      "en": "Handmade ceramic chess pieces, between the Hoji workshop and the Llotja: the complete family of figures."
+    },
+    "made": "llotja",
+    "images": [
+      {
+        "file": "chess/proyecto-dama_en_taller-de-hoji",
+        "alt": {
+          "ca": "Dama del projecte d’escacs, al taller Hoji",
+          "es": "Dama del proyecto de ajedrez, en el taller Hoji",
+          "en": "Queen from the chess project, at the Hoji workshop"
+        }
+      },
+      {
+        "file": "chess/proyecto-alfil-negro_en_taller-de-hoji",
+        "alt": {
+          "ca": "Alfil negre del projecte d’escacs, a la Llotja",
+          "es": "Alfil negro del proyecto de ajedrez, en la Llotja",
+          "en": "Black bishop from the chess project, at the Llotja"
+        }
+      }
+    ],
+    "shop": { "available": false, "status": "sold" }
+  },
+  {
+    "id": "jarron",
+    "slugs": { "ca": "gerro", "es": "jarron", "en": "vase" },
+    "title": { "ca": "Gerro", "es": "Jarrón", "en": "Vase" },
+    "description": {
+      "ca": "Un gerro tornat a mà al taller Hoji, amb una vora que recull la matèria mentre el torn marca un ritme propi.",
+      "es": "Un jarrón torneado a mano en el taller Hoji, con un borde que recoge la materia mientras el torno marca un ritmo propio.",
+      "en": "A vase thrown by hand at the Hoji workshop, its rim gathering the material while the wheel sets its own rhythm."
+    },
+    "meta": {
+      "ca": "Gerro de ceràmica tornat a mà al taller Hoji: la matèria recollida a la vora mentre el torn marca un ritme propi.",
+      "es": "Jarrón de cerámica torneado a mano en el taller Hoji: la materia recogida en el borde mientras el torno marca un ritmo propio.",
+      "en": "Ceramic vase thrown by hand at the Hoji workshop: the material gathered at the rim while the wheel sets its own rhythm."
+    },
+    "made": "hoji",
+    "images": [
+      {
+        "file": "jarron/jarron-08-26_01",
+        "alt": {
+          "ca": "Gerro de ceràmica tornat al taller Hoji",
+          "es": "Jarrón de cerámica torneado en el taller Hoji",
+          "en": "Ceramic vase thrown in the Hoji workshop"
+        }
+      },
+      {
+        "file": "jarron/jarron-08-26_02",
+        "alt": {
+          "ca": "Gerro tornat al taller Hoji, vist des d’un altre angle",
+          "es": "Jarrón torneado en el taller Hoji, visto desde otro ángulo",
+          "en": "Vase thrown in the Hoji workshop, seen from another angle"
+        }
+      },
+      {
+        "file": "jarron/jarron-08-26_03",
+        "alt": {
+          "ca": "Detall del gerro de ceràmica tornat al taller Hoji",
+          "es": "Detalle del jarrón de cerámica torneado en el taller Hoji",
+          "en": "Detail of the ceramic vase thrown in the Hoji workshop"
+        }
+      }
+    ],
+    "shop": { "available": false, "status": "sold" }
+  },
+  {
+    "id": "aceitera",
+    "slugs": { "ca": "setrillera", "es": "aceitera", "en": "oil-cruet" },
+    "title": { "ca": "Setrillera", "es": "Aceitera", "en": "Oil cruet" },
+    "description": {
+      "ca": "Setrillera de gres, pensada per a l’ús diari. Coll estret, bec dosificador i esmalt mat que deixa respirar la terra.",
+      "es": "Aceitera de gres, pensada para el uso diario. Cuello estrecho, pico dosificador y esmalte mate que deja respirar la tierra.",
+      "en": "Stoneware oil cruet, made for daily use. Narrow neck, pouring spout and matte glaze that lets the clay breathe."
+    },
+    "meta": {
+      "ca": "Setrillera de ceràmica de Zara Castillo Martínez, feta a mà al taller Hoji.",
+      "es": "Aceitera de cerámica de Zara Castillo Martínez, hecha a mano en el taller Hoji.",
+      "en": "Ceramic oil cruet by Zara Castillo Martínez, handmade at the Hoji workshop."
+    },
+    "made": "hoji",
+    "images": [
+      {
+        "file": "aceitera/aceitera_taller-de-hoji",
+        "alt": {
+          "ca": "Setrillera de ceràmica al taller Hoji",
+          "es": "Aceitera de cerámica en el taller Hoji",
+          "en": "Ceramic oil cruet at the Hoji workshop"
+        }
+      },
+      {
+        "file": "aceitera/aceitera_taller-de-hoji-02",
+        "alt": {
+          "ca": "Detall de la setrillera, boca i nansa",
+          "es": "Detalle de la aceitera, boca y asa",
+          "en": "Detail of the oil cruet, spout and handle"
+        }
+      }
+    ],
+    "shop": { "available": false, "status": "sold", "price": 45, "dimensions": "Ø 8 · 14 cm" }
+  },
+  {
+    "id": "jarron-alt",
+    "slugs": { "ca": "gerro-alt", "es": "jarron-alto", "en": "tall-vase" },
+    "title": { "ca": "Gerro alt", "es": "Jarrón alto", "en": "Tall vase" },
+    "description": {
+      "ca": "Gerro alt i esvelt, pensat per a branques llargues. Tornat a mà al taller Hoji, amb coll que allarga el gest del torn.",
+      "es": "Jarrón alto y esbelto, pensado para ramas largas. Torneado a mano en el taller Hoji, con cuello que alarga el gesto del torno.",
+      "en": "Tall, slender vase for long branches. Thrown by hand at the Hoji workshop, its neck extends the wheel’s gesture."
+    },
+    "meta": {
+      "ca": "Gerro alt de ceràmica, tornat a mà al taller Hoji.",
+      "es": "Jarrón alto de cerámica, torneado a mano en el taller Hoji.",
+      "en": "Tall ceramic vase, thrown by hand at the Hoji workshop."
+    },
+    "made": "hoji",
+    "images": [
+      {
+        "file": "jarron-alt/jarron-alto_taller-de-hoji",
+        "alt": {
+          "ca": "Gerro alt de ceràmica al taller Hoji",
+          "es": "Jarrón alto de cerámica en el taller Hoji",
+          "en": "Tall ceramic vase at the Hoji workshop"
+        }
+      },
+      {
+        "file": "jarron-alt/jarron-alto_taller-de-hoji-02",
+        "alt": {
+          "ca": "Detall del gerro alt",
+          "es": "Detalle del jarrón alto",
+          "en": "Detail of the tall vase"
+        }
+      }
+    ],
+    "shop": { "available": false, "status": "sold" }
+  },
+  {
+    "id": "jarron-pf",
+    "slugs": { "ca": "gerro-pf", "es": "jarron-pf", "en": "pf-vase" },
+    "title": { "ca": "Gerro PF", "es": "Jarrón PF", "en": "PF vase" },
+    "description": {
+      "ca": "Gerro de perfil baix, boca ampla i peu marcat. Gres mat per a centre de taula.",
+      "es": "Jarrón de perfil bajo, boca ancha y pie marcado. Gres mate para centro de mesa.",
+      "en": "Low-profile vase, wide mouth and defined foot. Matte stoneware for the table centre."
+    },
+    "meta": {
+      "ca": "Gerro PF de ceràmica, tornat a mà al taller Hoji.",
+      "es": "Jarrón PF de cerámica, torneado a mano en el taller Hoji.",
+      "en": "PF ceramic vase, thrown by hand at the Hoji workshop."
+    },
+    "made": "hoji",
+    "images": [
+      {
+        "file": "jarron-pf/jarron-pf",
+        "alt": {
+          "ca": "Gerro PF al taller Hoji",
+          "es": "Jarrón PF en el taller Hoji",
+          "en": "PF vase at the Hoji workshop"
+        }
+      }
+    ],
+    "shop": { "available": false, "status": "sold" }
+  }
+]

@@ -1,6 +1,6 @@
 ---
 import { t, normalizeLocale } from '@/i18n';
-import { works, getSlug } from '@/data/works';
+import { works, getSlug } from '@/lib/content';
 
 interface Props {
   preselectedSlug?: string;
@@ -21,8 +21,8 @@ const pieceOptions = works
   .filter((w) => w.shop.available)
   .map((w) => ({
     slug: w.id,
-    label: t(locale, `work.${w.titleKey}.title` as Parameters<typeof t>[1]),
-    value: `${t(locale, `work.${w.titleKey}.title` as Parameters<typeof t>[1])} — ${getSlug(w, locale)}`,
+    label: w.title[locale],
+    value: `${w.title[locale]} — ${getSlug(w, locale)}`,
   }));
 
 const preselectedValue = preselectedSlug

@@ -1,7 +1,7 @@
 ---
 import Footer from '@/components/Footer.astro';
 import { BRAND_NAME, SHOP_ENABLED } from '@/consts';
-import { exhibitions, exhibitionImageFiles } from '@/data/exhibitions';
+import { exhibitions } from '@/lib/content';
 import { t, normalizeLocale, locales } from '@/i18n';
 import { getRelativeLocaleUrl } from 'astro:i18n';
 
@@ -12,12 +12,12 @@ const items = exhibitions.map((exhibition) => ({
 	slug: exhibition.slug,
 	url: exhibition.url,
 	detail: getRelativeLocaleUrl(locale, `/${t(locale, 'exhibitions.path')}/${exhibition.slug}`),
-	venue: t(locale, `exhibit.${exhibition.slug}.venue` as Parameters<typeof t>[1]),
-	title: t(locale, `exhibit.${exhibition.slug}.title` as Parameters<typeof t>[1]),
-	description: t(locale, `exhibit.${exhibition.slug}.description` as Parameters<typeof t>[1]),
-	images: exhibition.imageKeys.map((imageKey) => ({
-		src: exhibitionImageFiles[imageKey],
-		alt: t(locale, `exhibit.${exhibition.slug}.alt` as Parameters<typeof t>[1]),
+	venue: exhibition.venue[locale],
+	title: exhibition.title[locale],
+	description: exhibition.description[locale],
+	images: exhibition.images.map((image) => ({
+		src: image.file,
+		alt: image.alt[locale],
 	})),
 }));
 ---

@@ -1,7 +1,7 @@
 ---
 import ShopJournal from '@/components/ShopJournal.astro';
 import Layout from '@/layouts/Layout.astro';
-import { workImageFiles, works, getSlug } from '@/data/works';
+import { works, getSlug, workOgImage } from '@/lib/content';
 import { normalizeLocale, t } from '@/i18n';
 
 export function getStaticPaths() {
@@ -15,9 +15,9 @@ export function getStaticPaths() {
 
 const { work } = Astro.props;
 const locale = normalizeLocale(Astro.currentLocale);
-const title = t(locale, `work.${work.titleKey}.title` as Parameters<typeof t>[1]);
-const description = t(locale, `work.${work.titleKey}.meta` as Parameters<typeof t>[1]);
-const ogImage = `images/${workImageFiles[work.imageKeys[0]]}.webp`;
+const title = work.title[locale];
+const description = work.meta[locale];
+const ogImage = workOgImage(work);
 ---
 
 <Layout title={title} path={`/${t(locale, 'shop.path')}/${t(locale, 'shop.article.path')}/${getSlug(work, locale)}`} description={description} image={ogImage}>

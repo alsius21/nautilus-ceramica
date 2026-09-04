@@ -1,9 +1,11 @@
 ---
 import Footer from '@/components/Footer.astro';
+import { getAbout } from '@/lib/content';
 import { t, normalizeLocale, locales } from '@/i18n';
 import { getRelativeLocaleUrl } from 'astro:i18n';
 
 const locale = normalizeLocale(Astro.currentLocale);
+const about = getAbout(locale);
 ---
 
 <main class="about">
@@ -25,37 +27,37 @@ const locale = normalizeLocale(Astro.currentLocale);
 
   <article class="entry">
     <div class="entry-intro">
-      {t(locale, 'about.eyebrow') && <p class="eyebrow">{t(locale, 'about.eyebrow')}</p>}
-      <h1>{t(locale, 'about.title')}</h1>
-      <p class="description">{t(locale, 'about.lead')}</p>
+      {about.eyebrow && <p class="eyebrow">{about.eyebrow}</p>}
+      <h1>{about.title}</h1>
+      <p class="description">{about.lead}</p>
     </div>
 
     <div class="statement">
       <section class="clause">
-        <h2>{t(locale, 'about.s1.title')}</h2>
-        <p>{t(locale, 'about.s1.body')}</p>
+        <h2>{about.s1.title}</h2>
+        <p>{about.s1.body}</p>
       </section>
       <section class="clause">
-        <h2>{t(locale, 'about.s2.title')}</h2>
+        <h2>{about.s2.title}</h2>
         <p>
-          {t(locale, 'about.s2.body')}
-          {' '}<a href="https://www.instagram.com/eltallerdehoji/" target="_blank" rel="noopener noreferrer" class="external">{t(locale, 'about.s2.link')}</a>{t(locale, 'about.s2.body2')}
+          {about.s2.body}
+          {' '}<a href={about.s2.link.url} target="_blank" rel="noopener noreferrer" class="external">{about.s2.link.label}</a>{about.s2.after}
         </p>
       </section>
       <section class="clause">
-        <h2>{t(locale, 'about.s3.title')}</h2>
+        <h2>{about.s3.title}</h2>
         <p>
-          {t(locale, 'about.s3.body')}
-          {' '}<a href="https://www.instagram.com/ceramica_llotja/" target="_blank" rel="noopener noreferrer" class="external">{t(locale, 'about.s3.link')}</a>{t(locale, 'about.s3.body2')}
+          {about.s3.body}
+          {' '}<a href={about.s3.link.url} target="_blank" rel="noopener noreferrer" class="external">{about.s3.link.label}</a>{about.s3.after}
         </p>
       </section>
       <section class="clause">
-        <h2>{t(locale, 'about.s4.title')}</h2>
-        <p>{t(locale, 'about.s4.body')}</p>
+        <h2>{about.s4.title}</h2>
+        <p>{about.s4.body}</p>
       </section>
       <section class="clause">
-        <h2>{t(locale, 'about.s5.title')}</h2>
-        <p>{t(locale, 'about.s5.body')}</p>
+        <h2>{about.s5.title}</h2>
+        <p>{about.s5.body}</p>
         <p style="margin-top:0.75rem"><a href="https://www.instagram.com/nautilceramica/" target="_blank" rel="noopener noreferrer" class="external">Instagram →</a></p>
       </section>
     </div>

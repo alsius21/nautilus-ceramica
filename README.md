@@ -94,6 +94,12 @@ src/
 ├── components/
 │   ├── Footer.astro       # Copyright i enllaç a Instagram
 │   └── Welcome.astro      # Composició de la pàgina d'inici, galeria i selector d'idioma
+├── content/
+│   ├── works.json         # Obres: títols, descripcions, slugs, imatges i botiga (ca/es/en)
+│   ├── exhibitions.json   # Exposicions (ca/es/en)
+│   └── about.json          # Pàgina «Sobre mi» (ca/es/en)
+├── lib/
+│   └── content.ts         # Capa de contingut: tipus, validació i accés a les dades
 ├── i18n/
 │   └── index.ts           # Diccionari de textos: català, castellà, anglès
 ├── layouts/
@@ -113,11 +119,24 @@ public/
 └── apple-touch-icon.png    # Icona per a dispositius Apple (180 px)
 ```
 
-## Actualitzar la galeria
+## Actualitzar el contingut (sense tocar codi)
 
-1. Afegeix una imatge optimitzada a `public/images/instagram/`.
-2. Afegeix-ne la ruta a l'array `images` de `src/components/Welcome.astro` i el text alternatiu a les tres llengües a `src/i18n/index.ts`.
-3. Executa `pnpm build` per verificar la sortida de producció.
+Tot el contingut editorial viu a `src/content/` com a JSON versionats, amb
+textos en català, castellà i anglès. `src/lib/content.ts` els valida en cada
+build: si falta un idioma, un slug o un text alternatiu, el build falla dient
+exactament on.
+
+- **Obres** (`src/content/works.json`): títol, descripció, meta (SEO),
+  slugs per idioma, taller (`hoji` | `llotja`), imatges (`file` = ruta sota
+  `public/images` sense extensió + `alt` per idioma) i botiga (`available`,
+  `status`, `price`, `dimensions`).
+- **Exposicions** (`src/content/exhibitions.json`): mateixa idea + `url` opcional.
+- **Sobre mi** (`src/content/about.json`): titular, entradeta i seccions.
+
+Per afegir una peça: puja la imatge optimitzada (WebP) a `public/images/`,
+afegeix una entrada a `works.json` amb els tres idiomes i executa
+`pnpm build` per verificar. Els textos d'interfície (navegació, botons,
+formularis) segueixen a `src/i18n/index.ts` i no cal tocar-los.
 
 El perfil d'Instagram enllaçat al lloc és [@nautilceramica](https://www.instagram.com/nautilceramica/).
 

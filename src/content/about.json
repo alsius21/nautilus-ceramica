@@ -1,0 +1,89 @@
+{
+  "ca": {
+    "eyebrow": "",
+    "title": "Sobre mi",
+    "lead": "Sóc la Zara, rere Nautilus Ceràmica. Un projecte lent, de mans i matèria, entre el taller i l’escola.",
+    "s1": {
+      "title": "Nautilus Ceràmica",
+      "body": "El nom Nautilus ve de la forma que m’agrada i de la mar, que m’apassiona. Vaig cursar el CFGM de Navegació i Pesca de Litoral i aquesta connexió amb el mar travessa el projecte."
+    },
+    "s2": {
+      "title": "Taller Hoji",
+      "body": "Les primeres passes van ser a",
+      "link": { "label": "El Taller de Hoji", "url": "https://www.instagram.com/eltallerdehoji/" },
+      "after": ", on el coworking m’ha permès començar a produir. Allà vaig aprendre a centrar i a aixecar parets fines."
+    },
+    "s3": {
+      "title": "Formació · La Llotja",
+      "body": "Ara cursa el CFGS de Ceràmica Artística a",
+      "link": { "label": "la Llotja", "url": "https://www.instagram.com/ceramica_llotja/" },
+      "after": ", on treballo l’esmalt, el motlle i la repetició. El pas de l’ofici de taller a l’escola m’ha donat mètode sense treure calidesa."
+    },
+    "s4": {
+      "title": "Matèria i procés",
+      "body": "M’agrada fer peces úniques i estic explorant formes, esmalts i textures. Cada peça neix com a prova, sense repetir motlle, buscant el gest propi. De moment no tinc taller propi; treballo entre El Taller de Hoji i els forns de l’escola."
+    },
+    "s5": {
+      "title": "Contacte",
+      "body": "Per a encàrrecs o disponibilitat, escriu per Instagram. Responc personalment i sense pressa."
+    }
+  },
+  "es": {
+    "eyebrow": "",
+    "title": "Sobre mí",
+    "lead": "Soy Zara, detrás de Nautilus Ceràmica. Un proyecto lento, de manos y materia, entre el taller y la escuela.",
+    "s1": {
+      "title": "Nautilus Ceràmica",
+      "body": "El nombre Nautilus viene de la forma que me gusta y del mar, que me apasiona. Cursé el CFGM de Navegación y Pesca de Litoral y esa conexión con el mar atraviesa el proyecto."
+    },
+    "s2": {
+      "title": "Taller Hoji",
+      "body": "Los primeros pasos fueron en",
+      "link": { "label": "El Taller de Hoji", "url": "https://www.instagram.com/eltallerdehoji/" },
+      "after": ", donde el coworking me ha permitido empezar a producir. Allí aprendí a centrar y a levantar paredes finas."
+    },
+    "s3": {
+      "title": "Formación · La Llotja",
+      "body": "Ahora curso el CFGS de Cerámica Artística en",
+      "link": { "label": "la Llotja", "url": "https://www.instagram.com/ceramica_llotja/" },
+      "after": ", donde trabajo el esmalte, el molde y la repetición. El paso del oficio de taller a la escuela me ha dado método sin quitar calidez."
+    },
+    "s4": {
+      "title": "Materia y proceso",
+      "body": "Me gusta hacer piezas únicas y estoy explorando formas, esmaltes y texturas. Cada pieza nace como prueba, sin repetir molde, buscando el gesto propio. De momento no tengo taller propio; trabajo entre El Taller de Hoji y los hornos de la escuela."
+    },
+    "s5": {
+      "title": "Contacto",
+      "body": "Para encargos o disponibilidad, escribe por Instagram. Respondo personalmente y sin prisa."
+    }
+  },
+  "en": {
+    "eyebrow": "",
+    "title": "About me",
+    "lead": "I’m Zara, behind Nautilus Ceràmica. A slow project of hands and matter, between workshop and school.",
+    "s1": {
+      "title": "Nautilus Ceràmica",
+      "body": "The name Nautilus comes from the shape I love and the sea, which I’m passionate about. I studied the CFGM in Navigation and Coastal Fishing, and that connection to the sea runs through the project."
+    },
+    "s2": {
+      "title": "Hoji Workshop",
+      "body": "The first steps were at",
+      "link": { "label": "El Taller de Hoji", "url": "https://www.instagram.com/eltallerdehoji/" },
+      "after": ", where coworking has allowed me to start producing. There I learned to centre and to lift thin walls."
+    },
+    "s3": {
+      "title": "Training · La Llotja",
+      "body": "I’m now studying the CFGS in Artistic Ceramics at",
+      "link": { "label": "La Llotja", "url": "https://www.instagram.com/ceramica_llotja/" },
+      "after": ", where I work on glaze, mould and repetition. Moving from workshop craft to school has given me method without removing warmth."
+    },
+    "s4": {
+      "title": "Matter and process",
+      "body": "I like making one-of-a-kind pieces and I’m exploring forms, glazes and textures. Each piece is a test, without repeating moulds, seeking its own gesture. For now I don’t have my own studio; I work between El Taller de Hoji and the school kilns."
+    },
+    "s5": {
+      "title": "Contact",
+      "body": "For commissions or availability, write on Instagram. I reply personally and without rush."
+    }
+  }
+}

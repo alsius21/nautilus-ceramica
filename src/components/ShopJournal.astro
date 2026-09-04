@@ -1,7 +1,7 @@
 ---
 import Footer from '@/components/Footer.astro';
 import { SHOP_ENABLED } from '@/consts';
-import { works, workImageFiles, type Work, getSlug } from '@/data/works';
+import { works, type Work, getSlug } from '@/lib/content';
 import { t, normalizeLocale, locales } from '@/i18n';
 import { getRelativeLocaleUrl } from 'astro:i18n';
 
@@ -12,12 +12,11 @@ interface Props {
 const { work } = Astro.props;
 const locale = normalizeLocale(Astro.currentLocale);
 const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
-const copyKey = (part: 'title' | 'description') => `work.${work.titleKey}.${part}` as Parameters<typeof t>[1];
-const title = t(locale, copyKey('title'));
-const description = t(locale, copyKey('description'));
-const images = work.imageKeys.map((imageKey) => ({
-  src: workImageFiles[imageKey],
-  alt: t(locale, `work.${imageKey}.alt` as Parameters<typeof t>[1]),
+const title = work.title[locale];
+const description = work.description[locale];
+const images = work.images.map((image) => ({
+  src: image.file,
+  alt: image.alt[locale],
 }));
 
 const shop = work.shop;
@@ -32,7 +31,7 @@ const availableWorksData = works
   .filter((w) => w.shop.available)
   .map((w) => ({
     slug: w.id,
-    title: t(locale, `work.${w.titleKey}.title` as Parameters<typeof t>[1]),
+    title: w.title[locale],
     price: w.shop.price ?? null,
     priceLabel: typeof w.shop.price === 'number' ? `${w.shop.price} ${t(locale, 'shop.price.suffix')}` : t(locale, 'shop.price.inquiry'),
     hasPrice: typeof w.shop.price === 'number',

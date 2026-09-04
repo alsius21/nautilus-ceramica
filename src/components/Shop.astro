@@ -1,7 +1,7 @@
 ---
 import Footer from '@/components/Footer.astro';
 import { BRAND_NAME, SHOP_ENABLED } from '@/consts';
-import { works, workImageFiles, getSlug } from '@/data/works';
+import { works, getSlug } from '@/lib/content';
 import { t, normalizeLocale, locales } from '@/i18n';
 import { getRelativeLocaleUrl } from 'astro:i18n';
 
@@ -12,7 +12,7 @@ const contactHref = getRelativeLocaleUrl(locale, `/${t(locale, 'order.path')}/${
 const availableWorks = works.filter((w) => w.shop.available);
 
 const cards = availableWorks.map((work) => {
-  const title = t(locale, `work.${work.titleKey}.title` as Parameters<typeof t>[1]);
+  const title = work.title[locale];
   const statusLabel = t(locale, `shop.status.${work.shop.status}` as Parameters<typeof t>[1]);
   const priceLabel = work.shop.price
     ? `${work.shop.price} ${t(locale, 'shop.price.suffix')}`
@@ -28,8 +28,8 @@ const cards = availableWorks.map((work) => {
     hasPrice: typeof work.shop.price === 'number',
     dimensions: work.shop.dimensions ?? null,
     href: getRelativeLocaleUrl(locale, `/${t(locale, 'shop.path')}/${t(locale, 'shop.article.path')}/${getSlug(work, locale)}`),
-    src: workImageFiles[work.imageKeys[0]],
-    alt: t(locale, `work.${work.imageKeys[0]}.alt` as Parameters<typeof t>[1]),
+    src: work.images[0].file,
+    alt: work.images[0].alt[locale],
   };
 });
 ---
