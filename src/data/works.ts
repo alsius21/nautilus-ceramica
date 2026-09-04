@@ -67,7 +67,7 @@ export const works = [
 		slugs: { ca: 'setrillera', es: 'aceitera', en: 'oil-cruet' } as LocalizedSlugs,
 		imageKeys: ['aceitera-1', 'aceitera-2'],
 		made: 'hoji',
-		shop: { available: true, status: 'available', price: 45, dimensions: 'Ø 8 · 14 cm' } as ShopInfo,
+		shop: { available: false, status: 'sold', price: 45, dimensions: 'Ø 8 · 14 cm' } as ShopInfo,
 	},
 	{
 		id: 'jarron-alt',
