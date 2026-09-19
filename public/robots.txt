@@ -1,4 +1,9 @@
 User-agent: *
 Allow: /
 
+# Editor de contingut (només desenvolupament): no s'ha de rastrejar.
+Disallow: /nautilus-ceramica/contingut/
+Disallow: /nautilus-ceramica/es/contenido/
+Disallow: /nautilus-ceramica/en/content/
+
 Sitemap: https://alsius21.github.io/nautilus-ceramica/sitemap-index.xml
