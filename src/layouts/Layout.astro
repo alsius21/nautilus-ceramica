@@ -11,9 +11,11 @@ interface Props {
 	/** Relative path of this page without locale prefix (e.g. '/', '/galeria', '/galeria/plat-de-taller'). */
 	path?: string;
 	image?: string;
+	/** Exclude from search engines and omit canonical/hreflang (used by the 404 page). */
+	noindex?: boolean;
 }
 
-const { title: pageTitle, description: pageDescription, path = '/', image } = Astro.props;
+const { title: pageTitle, description: pageDescription, path = '/', image, noindex = false } = Astro.props;
 
 const locale = normalizeLocale(Astro.currentLocale);
 const description = pageDescription ?? t(locale, 'meta.description');
@@ -86,11 +88,16 @@ const alternates = locales.map((code) => ({ code, href: pageUrl(code) }));
 		<meta name="generator" content={Astro.generator} />
 		<title>{pageTitle ? `${title} · ${BRAND_NAME}` : BRAND_NAME}</title>
 		<meta name="description" content={description} />
-		<link rel="canonical" href={pageUrl(locale)} />
-		{alternates.map((alt) => (
-			<link rel="alternate" hreflang={alt.code} href={alt.href} />
-		))}
-		<link rel="alternate" hreflang="x-default" href={pageUrl('ca')} />
+		{noindex && <meta name="robots" content="noindex, follow" />}
+		{!noindex && (
+			<>
+				<link rel="canonical" href={pageUrl(locale)} />
+				{alternates.map((alt) => (
+					<link rel="alternate" hreflang={alt.code} href={alt.href} />
+				))}
+				<link rel="alternate" hreflang="x-default" href={pageUrl('ca')} />
+			</>
+		)}
 		<!-- Open Graph / Twitter cards -->
 		<meta property="og:site_name" content={BRAND_NAME} />
 		<meta property="og:type" content="website" />

@@ -9,6 +9,10 @@ export type Locale = (typeof locales)[number];
 const ca = {
 	'home.title': 'Inici',
 	'meta.description': 'Ceràmica artesanal de Zara Castillo Martínez. Peces úniques fetes a mà, del taller a l’exposició.',
+	'notfound.eyebrow': 'Error 404',
+	'notfound.title': 'Aquesta pàgina no existeix',
+	'notfound.body': 'Potser l’enllaç és antic o la pàgina s’ha mogut. Pots tornar a l’inici o donar un cop d’ull a la galeria.',
+	'notfound.home': 'Torna a l’inici',
 	'gallery.label': 'Obra seleccionada',
 	'nav.label': 'Navegació principal',
 	'nav.gallery': 'Galeria',
@@ -148,6 +152,10 @@ const ca = {
 const es: Record<keyof typeof ca, string> = {
 	'home.title': 'Inicio',
 	'meta.description': 'Cerámica artesanal de Zara Castillo Martínez. Piezas únicas hechas a mano, del taller a la exposición.',
+	'notfound.eyebrow': 'Error 404',
+	'notfound.title': 'Esta página no existe',
+	'notfound.body': 'Quizá el enlace sea antiguo o la página se haya movido. Puedes volver al inicio o echar un vistazo a la galería.',
+	'notfound.home': 'Volver al inicio',
 	'gallery.label': 'Obra seleccionada',
 	'nav.label': 'Navegación principal',
 	'nav.gallery': 'Galería',
@@ -284,6 +292,10 @@ const es: Record<keyof typeof ca, string> = {
 const en: Record<keyof typeof ca, string> = {
 	'home.title': 'Home',
 	'meta.description': 'Handmade ceramics by Zara Castillo Martínez. One-of-a-kind pieces, from the workshop to the exhibition.',
+	'notfound.eyebrow': 'Error 404',
+	'notfound.title': 'This page doesn’t exist',
+	'notfound.body': 'The link may be old or the page may have moved. You can go back home or take a look at the gallery.',
+	'notfound.home': 'Back to home',
 	'gallery.label': 'Selected work',
 	'nav.label': 'Main navigation',
 	'nav.gallery': 'Gallery',
