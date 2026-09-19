@@ -1,0 +1,1584 @@
+---
+// Editor de contingut — només s'usa a les pàgines de desenvolupament
+// (`/contingut/peces/afegir`, `/contingut/peces/editar/<id>`, i les versions es/en).
+import { works, type Work } from '@/lib/content';
+import { t, normalizeLocale } from '@/i18n';
+import { editorStrings } from '@/dev/editor-i18n';
+import { getRelativeLocaleUrl } from 'astro:i18n';
+
+interface Props {
+	work?: Work;
+}
+
+const { work } = Astro.props;
+const editing = Boolean(work);
+
+const locale = normalizeLocale(Astro.currentLocale);
+const s = editorStrings[locale];
+const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
+const galleryBase = getRelativeLocaleUrl(locale, `/${t(locale, 'gallery.path')}`);
+
+const existing = works.map((entry) => ({
+	id: entry.id,
+	title: entry.title.ca,
+	slug: entry.slugs.ca,
+	images: entry.images.length,
+}));
+
+const statusOptions = ['inquiry', 'available', 'made_to_order', 'reserved', 'sold'] as const;
+const statusLabel = (status: (typeof statusOptions)[number]) =>
+	t(locale, `shop.status.${status}` as Parameters<typeof t>[1]);
+
+const values = {
+	title: {
+		ca: work?.title.ca ?? '',
+		es: work?.title.es ?? '',
+		en: work?.title.en ?? '',
+	},
+	description: {
+		ca: work?.description.ca ?? '',
+		es: work?.description.es ?? '',
+		en: work?.description.en ?? '',
+	},
+	slug: work?.slugs.ca ?? '',
+	made: work?.made ?? 'hoji',
+	madeAt: work?.madeAt ?? '',
+	shop: work?.shop,
+};
+
+const clientStrings = {
+	editing,
+	altLabel: s.altLabel,
+	badgeCover: s.badgeCover,
+	badgeCropped: s.badgeCropped,
+	crop: s.crop,
+	cropAgain: s.cropAgain,
+	cropApplied: s.cropApplied,
+	revert: s.revert,
+	moveUp: s.moveUp,
+	moveDown: s.moveDown,
+	remove: s.remove,
+	errorTitle: s.errorTitle,
+	errorPhoto: s.errorPhoto,
+	submit: s.submit,
+	submitEdit: s.submitEdit,
+	submitting: s.submitting,
+	statusConverting: s.statusConverting,
+	statusSaved: s.statusSaved,
+	viewIt: s.viewIt,
+	reloadNote: s.reloadNote,
+	errorCrop: s.errorCrop,
+	errorSave: s.errorSave,
+	errorGeneric: s.errorGeneric,
+	galleryBase,
+	imagesBase: `${base}images/`,
+	existingImages: work ? work.images.map((image) => ({ file: image.file, alt: image.alt.ca })) : [],
+};
+---
+
+<main class="editor">
+	<div class="editor-inner">
+		<header class="topline">
+			<a class="brand" href={getRelativeLocaleUrl(locale, '/')}>nautilusceramica</a>
+			<div class="topline-meta">
+				<span class="tag">{s.tag}</span>
+				<a class="quiet-link" href={galleryBase}>{s.back}</a>
+			</div>
+		</header>
+
+		<div class="intro">
+			<p class="eyebrow">{s.eyebrow}</p>
+			<h1>{editing ? s.headingEdit : s.heading}</h1>
+			<p class="lead">{editing ? s.leadEdit : s.lead}</p>
+		</div>
+
+		<div class="columns">
+			<form id="piece-form" class="sheet" novalidate>
+				{editing && <input id="piece-id" type="hidden" value={work?.id} />}
+				<fieldset class="section">
+					<legend class="section-title">{s.sectionPiece}</legend>
+					<label class="field">
+						<span class="label">{s.titleLabel} <em>{s.noteCa}</em></span>
+						<input id="title-ca" name="title-ca" type="text" autocomplete="off" required placeholder="Gerro de tardor" value={values.title.ca} />
+					</label>
+					<div class="field-row">
+						<label class="field">
+							<span class="label">{s.slugLabel} <em>{s.optional}</em></span>
+							<input id="slug-ca" name="slug-ca" type="text" autocomplete="off" placeholder={s.slugPlaceholder} value={values.slug} />
+						</label>
+						<label class="field">
+							<span class="label">{s.madeLabel}</span>
+							<select id="made" name="made">
+								<option value="hoji" selected={values.made === 'hoji'}>{t(locale, 'work.made.hoji')}</option>
+								<option value="llotja" selected={values.made === 'llotja'}>{t(locale, 'work.made.llotja')}</option>
+							</select>
+						</label>
+					</div>
+					<div class="field-row">
+						<label class="field">
+							<span class="label">{s.madeAtLabel} <em>{s.optional}</em></span>
+							<input id="made-at" type="date" value={values.madeAt} />
+						</label>
+						<p class="field-note">{s.datesNote}</p>
+					</div>
+				</fieldset>
+
+				<fieldset class="section">
+					<legend class="section-title">{s.sectionDescription}</legend>
+					<label class="field">
+						<span class="label">{s.textLabel} <em>{s.noteCa}</em></span>
+						<textarea id="description-ca" name="description-ca" rows="6" placeholder={s.textPlaceholder}>{values.description.ca}</textarea>
+					</label>
+				</fieldset>
+
+				<fieldset class="section">
+					<legend class="section-title">{s.sectionPhotos}</legend>
+					<p class="hint">{s.photosHint}</p>
+					<label class="dropzone" id="dropzone">
+						<input id="file-input" type="file" accept="image/*" multiple hidden />
+						<span class="dropzone-title">{s.dropTitle}</span>
+						<span class="dropzone-sub">{s.dropSub}</span>
+					</label>
+					<ul class="shots" id="shot-list"></ul>
+				</fieldset>
+
+				<details class="section collapsible">
+					<summary class="section-title">{s.sectionI18n} <span>{s.optional}</span></summary>
+					<div class="collapsible-body">
+						<p class="hint">{s.i18nHint}</p>
+						<div class="field-row">
+							<label class="field">
+								<span class="label">{s.titleEs}</span>
+								<input id="title-es" type="text" autocomplete="off" value={values.title.es} />
+							</label>
+							<label class="field">
+								<span class="label">{s.titleEn}</span>
+								<input id="title-en" type="text" autocomplete="off" value={values.title.en} />
+							</label>
+						</div>
+						<label class="field">
+							<span class="label">{s.descEs}</span>
+							<textarea id="description-es" rows="3">{values.description.es}</textarea>
+						</label>
+						<label class="field">
+							<span class="label">{s.descEn}</span>
+							<textarea id="description-en" rows="3">{values.description.en}</textarea>
+						</label>
+					</div>
+				</details>
+
+				<details class="section collapsible">
+					<summary class="section-title">{s.sectionShop} <span>{s.optional}</span></summary>
+					<div class="collapsible-body">
+						<label class="check">
+							<input id="shop-available" type="checkbox" checked={values.shop?.available === true} />
+							<span>{s.shopAvailable}</span>
+						</label>
+						<div class="field-row">
+							<label class="field">
+								<span class="label">{s.statusLabel}</span>
+								<select id="shop-status">
+									{statusOptions.map((status) => (
+										<option value={status} selected={values.shop?.status === status}>{statusLabel(status)}</option>
+									))}
+								</select>
+							</label>
+							<label class="field">
+								<span class="label">{s.priceLabel}</span>
+								<input id="shop-price" type="number" min="0" step="1" inputmode="numeric" value={values.shop?.price ?? ''} />
+							</label>
+						</div>
+						<label class="field">
+							<span class="label">{t(locale, 'shop.detail.dimensions')}</span>
+							<input id="shop-dimensions" type="text" placeholder="Ø 8 · 14 cm" value={values.shop?.dimensions ?? ''} />
+						</label>
+					</div>
+				</details>
+
+				<div class="actions">
+					<button class="submit" type="submit" id="submit">{editing ? s.submitEdit : s.submit}</button>
+					<p class="status" id="form-status" role="status" aria-live="polite"></p>
+				</div>
+			</form>
+
+			<aside class="sidebar">
+				<section class="panel">
+					<h2 class="panel-title">{s.panelExisting} <span>{existing.length}</span></h2>
+					<ul class="work-list">
+						{existing.map((work) => (
+							<li>
+								<a href={`${galleryBase}/${work.slug}`}>
+									<span class="work-title">{work.title}</span>
+									<span class="work-meta">{work.images} {work.images === 1 ? s.imageSingular : s.imagePlural}</span>
+								</a>
+							</li>
+						))}
+					</ul>
+				</section>
+				<section class="panel">
+					<h2 class="panel-title">{s.panelWhere}</h2>
+					<ul class="path-list">
+						<li><code>src/content/works.json</code><span>{s.whereJson}</span></li>
+						<li><code>public/images/works/&lt;slug&gt;/</code><span>{s.whereImages}</span></li>
+					</ul>
+					<p class="hint">{s.whereHint}</p>
+				</section>
+			</aside>
+		</div>
+	</div>
+
+	<div class="crop-layer" id="crop-layer" hidden>
+		<div class="crop-dialog" role="dialog" aria-modal="true" aria-labelledby="crop-title">
+			<header class="crop-header">
+				<h2 id="crop-title">{s.cropTitle}</h2>
+				<div class="crop-presets" id="crop-presets" role="group" aria-label={s.cropTitle}>
+					<button type="button" data-aspect="0" class="is-active">{s.cropFree}</button>
+					<button type="button" data-aspect="1">1:1</button>
+					<button type="button" data-aspect="0.8">4:5</button>
+					<button type="button" data-aspect="0.75">3:4</button>
+					<button type="button" data-aspect="1.7778">16:9</button>
+				</div>
+			</header>
+			<div class="crop-stage">
+				<div class="crop-frame" id="crop-frame">
+					<img id="crop-image" alt="" />
+					<div class="crop-box" id="crop-box">
+						<span class="crop-h" data-handle="nw"></span>
+						<span class="crop-h" data-handle="ne"></span>
+						<span class="crop-h" data-handle="sw"></span>
+						<span class="crop-h" data-handle="se"></span>
+					</div>
+				</div>
+			</div>
+			<footer class="crop-footer">
+				<p class="hint">{s.cropHint}<br />{s.cropNote}</p>
+				<div class="crop-actions">
+					<button type="button" class="ghost" id="crop-cancel">{s.cropCancel}</button>
+					<button type="button" class="submit" id="crop-apply">{s.cropApply}</button>
+				</div>
+			</footer>
+		</div>
+	</div>
+
+	<script is:inline type="application/json" id="editor-strings" set:html={JSON.stringify(clientStrings)}></script>
+
+	<script>
+		const S = JSON.parse(document.getElementById('editor-strings').textContent);
+
+		const base = import.meta.env.BASE_URL.endsWith('/')
+			? import.meta.env.BASE_URL
+			: `${import.meta.env.BASE_URL}/`;
+
+		const form = document.getElementById('piece-form');
+		const dropzone = document.getElementById('dropzone');
+		const fileInput = document.getElementById('file-input');
+		const list = document.getElementById('shot-list');
+		const status = document.getElementById('form-status');
+		const submit = document.getElementById('submit');
+		const titleInput = document.getElementById('title-ca');
+
+		const cropLayer = document.getElementById('crop-layer');
+		const cropImage = document.getElementById('crop-image');
+		const cropBox = document.getElementById('crop-box');
+		const cropPresets = document.getElementById('crop-presets');
+		const cropApply = document.getElementById('crop-apply');
+		const cropCancel = document.getElementById('crop-cancel');
+
+		const MIN = 36;
+		const MAX_EXPORT = 2400;
+
+		let items = [];
+		let busy = false;
+		let crop = null;
+		let drag = null;
+
+		const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+
+		function setStatus(message, tone) {
+			status.textContent = message;
+			status.dataset.tone = tone ?? '';
+		}
+
+		function iconButton(label, glyph) {
+			const button = document.createElement('button');
+			button.type = 'button';
+			button.className = 'icon-button';
+			button.setAttribute('aria-label', label);
+			button.title = label;
+			button.textContent = glyph;
+			return button;
+		}
+
+		function textButton(label) {
+			const button = document.createElement('button');
+			button.type = 'button';
+			button.className = 'text-button';
+			button.textContent = label;
+			return button;
+		}
+
+		function badge(label, className) {
+			const span = document.createElement('span');
+			span.className = className;
+			span.textContent = label;
+			return span;
+		}
+
+		function render() {
+			list.textContent = '';
+			items.forEach((item, index) => {
+				const row = document.createElement('li');
+				row.className = 'shot';
+				row.dataset.index = String(index);
+
+				const thumb = document.createElement('div');
+				thumb.className = 'shot-thumb';
+				const image = document.createElement('img');
+				image.src = item.url;
+				image.alt = '';
+				thumb.append(image);
+
+				const body = document.createElement('div');
+				body.className = 'shot-body';
+					const name = document.createElement('p');
+					name.className = 'shot-name';
+					name.textContent = item.name;
+					if (index === 0) name.append(' ', badge(S.badgeCover, 'cover'));
+					if (item.cropped) {
+						name.append(' ', badge(S.badgeCropped, 'cover is-crop'));
+						if (item.width) name.append(' ', badge(`${item.width}×${item.height}`, 'cover is-size'));
+					}
+
+				const altLabel = document.createElement('label');
+				altLabel.className = 'shot-alt';
+				altLabel.textContent = S.altLabel;
+				const altInput = document.createElement('input');
+				altInput.type = 'text';
+				altInput.value = item.alt;
+				altInput.autocomplete = 'off';
+				altInput.addEventListener('input', () => {
+					item.alt = altInput.value;
+				});
+				altLabel.append(altInput);
+
+				const tools = document.createElement('div');
+				tools.className = 'shot-tools';
+				const cropButton = textButton(item.cropped ? S.cropAgain : S.crop);
+				cropButton.dataset.crop = 'true';
+				tools.append(cropButton);
+				if (item.cropped) {
+					const revertButton = textButton(S.revert);
+					revertButton.classList.add('is-quiet');
+					revertButton.dataset.revert = 'true';
+					tools.append(revertButton);
+				}
+
+				body.append(name, altLabel, tools);
+
+				const actions = document.createElement('div');
+				actions.className = 'shot-actions';
+				const up = iconButton(S.moveUp, '↑');
+				up.dataset.move = '-1';
+				up.disabled = index === 0;
+				const down = iconButton(S.moveDown, '↓');
+				down.dataset.move = '1';
+				down.disabled = index === items.length - 1;
+				const remove = iconButton(S.remove, '×');
+				remove.dataset.remove = 'true';
+				actions.append(up, down, remove);
+
+				row.append(thumb, body, actions);
+				list.append(row);
+			});
+		}
+
+		if (S.editing && Array.isArray(S.existingImages)) {
+			items = S.existingImages.map((image) => {
+				const url = `${S.imagesBase}${image.file}.webp`;
+				return {
+					name: `${image.file.split('/').pop()}.webp`,
+					source: null,
+					file: null,
+					existingFile: image.file,
+					sourceUrl: url,
+					url,
+					alt: image.alt ?? '',
+					cropped: false,
+				};
+			});
+			render();
+		}
+
+		function addFiles(files) {
+			const incoming = Array.from(files).filter((file) => file.type.startsWith('image/'));
+			if (incoming.length === 0) return;
+			for (const file of incoming) {
+				const url = URL.createObjectURL(file);
+				items.push({ name: file.name, source: file, file, existingFile: null, sourceUrl: url, url, alt: '', cropped: false });
+			}
+			render();
+			setStatus('', '');
+		}
+
+		function revert(index) {
+			const item = items[index];
+			if (!item || !item.cropped) return;
+			URL.revokeObjectURL(item.url);
+			if (item.source) {
+				item.file = item.source;
+				item.url = URL.createObjectURL(item.source);
+			} else {
+				item.file = null;
+				item.url = item.sourceUrl;
+			}
+			item.cropped = false;
+			render();
+		}
+
+		list.addEventListener('click', (event) => {
+			const button = event.target.closest('button');
+			if (!button) return;
+			const index = Number(button.closest('.shot')?.dataset.index);
+			if (Number.isNaN(index)) return;
+
+			if (button.dataset.remove) {
+				URL.revokeObjectURL(items[index].url);
+				URL.revokeObjectURL(items[index].sourceUrl);
+				items.splice(index, 1);
+				render();
+				return;
+			}
+			if (button.dataset.crop) {
+				openCrop(index);
+				return;
+			}
+			if (button.dataset.revert) {
+				revert(index);
+				return;
+			}
+			const move = Number(button.dataset.move);
+			const next = index + move;
+			if (!move || next < 0 || next >= items.length) return;
+			[items[index], items[next]] = [items[next], items[index]];
+			render();
+		});
+
+		fileInput.addEventListener('change', () => {
+			addFiles(fileInput.files);
+			fileInput.value = '';
+		});
+
+		['dragenter', 'dragover'].forEach((type) => {
+			dropzone.addEventListener(type, (event) => {
+				event.preventDefault();
+				dropzone.classList.add('is-over');
+			});
+		});
+		['dragleave', 'drop'].forEach((type) => {
+			dropzone.addEventListener(type, (event) => {
+				event.preventDefault();
+				dropzone.classList.remove('is-over');
+			});
+		});
+		dropzone.addEventListener('drop', (event) => {
+			if (event.dataTransfer?.files) addFiles(event.dataTransfer.files);
+		});
+
+		/* — Retall — */
+
+		function setActiveAspect(aspect) {
+			cropPresets.querySelectorAll('button').forEach((button) => {
+				button.classList.toggle('is-active', Number(button.dataset.aspect) === aspect);
+			});
+		}
+
+		function resetBox() {
+			if (!crop || !crop.imgW || !crop.imgH) return;
+			let width = crop.imgW;
+			let height = crop.imgH;
+			if (crop.aspect) {
+				if (crop.imgW / crop.imgH > crop.aspect) {
+					height = crop.imgH * 0.92;
+					width = height * crop.aspect;
+				} else {
+					width = crop.imgW * 0.92;
+					height = width / crop.aspect;
+				}
+			}
+			crop.box = {
+				x: (crop.imgW - width) / 2,
+				y: (crop.imgH - height) / 2,
+				w: width,
+				h: height,
+			};
+		}
+
+		function layoutBox() {
+			if (!crop) return;
+			cropBox.style.left = `${crop.box.x}px`;
+			cropBox.style.top = `${crop.box.y}px`;
+			cropBox.style.width = `${crop.box.w}px`;
+			cropBox.style.height = `${crop.box.h}px`;
+		}
+
+		function setAspect(aspect) {
+			if (!crop) return;
+			crop.aspect = aspect;
+			setActiveAspect(aspect);
+			resetBox();
+			layoutBox();
+		}
+
+		function openCrop(index) {
+			const item = items[index];
+			if (!item) return;
+			crop = { index, aspect: 0, imgW: 0, imgH: 0, box: { x: 0, y: 0, w: 0, h: 0 } };
+			cropLayer.hidden = false;
+			document.body.classList.add('is-cropping');
+			setActiveAspect(0);
+			const init = () => {
+				crop.imgW = cropImage.clientWidth;
+				crop.imgH = cropImage.clientHeight;
+				resetBox();
+				layoutBox();
+			};
+			cropImage.onload = init;
+			cropImage.src = item.sourceUrl;
+			if (cropImage.complete && cropImage.naturalWidth > 0) init();
+			cropCancel.focus();
+		}
+
+		function closeCrop() {
+			crop = null;
+			drag = null;
+			cropLayer.hidden = true;
+			document.body.classList.remove('is-cropping');
+		}
+
+		function resizeFromCorner(corner, start, dx, dy) {
+			const { aspect, imgW, imgH } = crop;
+			let left = start.x;
+			let top = start.y;
+			let right = start.x + start.w;
+			let bottom = start.y + start.h;
+
+			if (corner.includes('e')) right = clamp(right + dx, left + MIN, imgW);
+			if (corner.includes('w')) left = clamp(left + dx, 0, right - MIN);
+			if (corner.includes('s')) bottom = clamp(bottom + dy, top + MIN, imgH);
+			if (corner.includes('n')) top = clamp(top + dy, 0, bottom - MIN);
+
+			let width = right - left;
+			let height = bottom - top;
+
+			if (aspect) {
+				if (width / height > aspect) height = width / aspect;
+				else width = height * aspect;
+				if (corner.includes('w')) left = right - width;
+				if (corner.includes('n')) top = bottom - height;
+				if (left < 0) {
+					left = 0;
+					width = right;
+					height = width / aspect;
+					if (corner.includes('n')) top = bottom - height;
+				}
+				if (top < 0) {
+					top = 0;
+					height = bottom;
+					width = height * aspect;
+					if (corner.includes('w')) left = right - width;
+				}
+				if (left + width > imgW) {
+					width = imgW - left;
+					height = width / aspect;
+					if (corner.includes('n')) top = bottom - height;
+				}
+				if (top + height > imgH) {
+					height = imgH - top;
+					width = height * aspect;
+					if (corner.includes('w')) left = right - width;
+				}
+			}
+
+			crop.box = { x: left, y: top, w: Math.max(MIN, width), h: Math.max(MIN, height) };
+		}
+
+		cropBox.addEventListener('pointerdown', (event) => {
+			if (!crop) return;
+			const handle = event.target.dataset.handle;
+			drag = {
+				mode: handle ? 'resize' : 'move',
+				corner: handle ?? '',
+				startX: event.clientX,
+				startY: event.clientY,
+				box: { ...crop.box },
+			};
+			cropBox.setPointerCapture(event.pointerId);
+			event.preventDefault();
+		});
+
+		cropBox.addEventListener('pointermove', (event) => {
+			if (!drag || !crop) return;
+			const dx = event.clientX - drag.startX;
+			const dy = event.clientY - drag.startY;
+			if (drag.mode === 'move') {
+				crop.box.x = clamp(drag.box.x + dx, 0, crop.imgW - drag.box.w);
+				crop.box.y = clamp(drag.box.y + dy, 0, crop.imgH - drag.box.h);
+			} else {
+				resizeFromCorner(drag.corner, drag.box, dx, dy);
+			}
+			layoutBox();
+		});
+
+		const endDrag = (event) => {
+			if (!drag) return;
+			drag = null;
+			if (cropBox.hasPointerCapture?.(event.pointerId)) cropBox.releasePointerCapture(event.pointerId);
+		};
+		cropBox.addEventListener('pointerup', endDrag);
+		cropBox.addEventListener('pointercancel', endDrag);
+
+		cropPresets.addEventListener('click', (event) => {
+			const button = event.target.closest('button');
+			if (!button) return;
+			setAspect(Number(button.dataset.aspect));
+		});
+
+		function cropToBlob(source, rect) {
+			return new Promise((resolve) => {
+				const image = new Image();
+				image.onload = () => {
+					const naturalWidth = image.naturalWidth;
+					const naturalHeight = image.naturalHeight;
+					const sx = Math.round(rect.x * naturalWidth);
+					const sy = Math.round(rect.y * naturalHeight);
+					const sw = Math.max(1, Math.round(rect.w * naturalWidth));
+					const sh = Math.max(1, Math.round(rect.h * naturalHeight));
+					const scale = Math.min(1, MAX_EXPORT / Math.max(sw, sh));
+					const canvas = document.createElement('canvas');
+					canvas.width = Math.max(1, Math.round(sw * scale));
+					canvas.height = Math.max(1, Math.round(sh * scale));
+					const context = canvas.getContext('2d');
+					if (!context) return resolve(null);
+					context.drawImage(image, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+					canvas.toBlob(
+						(blob) => resolve(blob ? { blob, width: canvas.width, height: canvas.height } : null),
+						'image/png',
+					);
+				};
+				image.onerror = () => resolve(null);
+				image.src = source;
+			});
+		}
+
+		cropApply.addEventListener('click', async () => {
+			if (!crop || !crop.imgW || !crop.imgH) return;
+			const item = items[crop.index];
+			if (!item) {
+				closeCrop();
+				return;
+			}
+			const rect = {
+				x: crop.box.x / crop.imgW,
+				y: crop.box.y / crop.imgH,
+				w: crop.box.w / crop.imgW,
+				h: crop.box.h / crop.imgH,
+			};
+			cropApply.disabled = true;
+			let result = null;
+			try {
+				result = await cropToBlob(item.sourceUrl, rect);
+			} finally {
+				cropApply.disabled = false;
+			}
+			if (!result) {
+				closeCrop();
+				setStatus(S.errorCrop, 'error');
+				return;
+			}
+			URL.revokeObjectURL(item.url);
+			const baseName = (item.source?.name ?? item.name ?? 'retall').replace(/\.[^.]+$/, '') || 'retall';
+			item.file = new File([result.blob], `${baseName}.png`, { type: 'image/png' });
+			item.url = URL.createObjectURL(result.blob);
+			item.width = result.width;
+			item.height = result.height;
+			item.cropped = true;
+			closeCrop();
+			render();
+			setStatus(`${S.cropApplied} · ${result.width} × ${result.height} px`, 'progress');
+		});
+		cropCancel.addEventListener('click', closeCrop);
+		cropLayer.addEventListener('click', (event) => {
+			if (event.target === cropLayer) closeCrop();
+		});
+		document.addEventListener('keydown', (event) => {
+			if (event.key === 'Escape' && !cropLayer.hidden) closeCrop();
+		});
+		window.addEventListener('resize', () => {
+			if (!crop) return;
+			crop.imgW = cropImage.clientWidth;
+			crop.imgH = cropImage.clientHeight;
+			resetBox();
+			layoutBox();
+		});
+
+		/* — Desament — */
+
+		async function navigateWhenReady(pieceUrl, fallbackUrl) {
+			// En dev la ruta de la peça es regenera en desar; esperem que estigui
+			// a punt i, si no, anem a la galeria, on la peça ja hi apareix.
+			for (let attempt = 0; attempt < 12; attempt += 1) {
+				try {
+					const response = await fetch(pieceUrl, { method: 'GET', cache: 'no-store' });
+					if (response.ok) {
+						window.location.assign(pieceUrl);
+						return;
+					}
+				} catch {
+					// Encara no està a punt; tornem-ho a provar.
+				}
+				await new Promise((resolve) => setTimeout(resolve, 250));
+			}
+			window.location.assign(fallbackUrl);
+		}
+
+		form.addEventListener('submit', async (event) => {
+			event.preventDefault();
+			if (busy) return;
+
+			const titleCa = titleInput.value.trim();
+			if (!titleCa) {
+				setStatus(S.errorTitle, 'error');
+				titleInput.focus();
+				return;
+			}
+			if (items.length === 0) {
+				setStatus(S.errorPhoto, 'error');
+				dropzone.scrollIntoView({ behavior: 'smooth', block: 'center' });
+				return;
+			}
+
+			const idField = document.getElementById('piece-id');
+			const payload = {
+				...(idField ? { id: idField.value } : {}),
+				slug: { ca: document.getElementById('slug-ca').value },
+				title: {
+					ca: titleCa,
+					es: document.getElementById('title-es').value,
+					en: document.getElementById('title-en').value,
+				},
+				description: {
+					ca: document.getElementById('description-ca').value,
+					es: document.getElementById('description-es').value,
+					en: document.getElementById('description-en').value,
+				},
+				made: document.getElementById('made').value,
+				madeAt: document.getElementById('made-at').value,
+				images: items.map((item) =>
+					item.file
+						? { alt: { ca: item.alt }, upload: true }
+						: { alt: { ca: item.alt }, file: item.existingFile },
+				),
+				shop: {
+					available: document.getElementById('shop-available').checked,
+					status: document.getElementById('shop-status').value,
+					price: document.getElementById('shop-price').value,
+					dimensions: document.getElementById('shop-dimensions').value,
+				},
+			};
+
+			const body = new FormData();
+			body.append('payload', JSON.stringify(payload));
+			items.forEach((item, index) => {
+				if (item.file) body.append(`image-${index}`, item.file, item.file.name);
+			});
+
+			busy = true;
+			submit.disabled = true;
+			submit.textContent = S.submitting;
+			setStatus(S.statusConverting, 'progress');
+
+			try {
+				const response = await fetch(`${base}__content/works`, { method: 'POST', body });
+				const result = await response.json().catch(() => ({}));
+				if (!response.ok || !result.ok) {
+					throw new Error(result.error ?? S.errorSave);
+				}
+					const url = `${S.galleryBase}/${result.slug}`;
+					setStatus('', '');
+					status.append(`${S.statusSaved} `);
+					const link = document.createElement('a');
+					link.href = url;
+					link.textContent = S.viewIt;
+					link.className = 'success-link';
+					status.append(link);
+					await navigateWhenReady(url, S.galleryBase);
+				} catch (error) {
+					setStatus(error.message ?? S.errorGeneric, 'error');
+				} finally {
+					busy = false;
+					submit.disabled = false;
+					submit.textContent = S.editing ? S.submitEdit : S.submit;
+				}
+		});
+
+		titleInput.addEventListener('blur', () => {
+			const slugField = document.getElementById('slug-ca');
+			if (!slugField.value.trim() && titleInput.value.trim()) {
+				slugField.value = titleInput.value
+					.trim()
+					.normalize('NFD')
+					.replace(/[\u0300-\u036f]/g, '')
+					.toLowerCase()
+					.replace(/[^a-z0-9]+/g, '-')
+					.replace(/^-+|-+$/g, '');
+			}
+		});
+	</script>
+
+	<style is:global>
+		body.is-cropping {
+			overflow: hidden;
+		}
+
+		.editor {
+			--ink: #29251f;
+			--paper: #e8e5dc;
+			--line: color-mix(in srgb, var(--ink) 22%, transparent);
+			--muted: color-mix(in srgb, var(--ink) 62%, transparent);
+			display: flex;
+			flex-direction: column;
+			box-sizing: border-box;
+			min-height: 100dvh;
+			padding: clamp(1.5rem, 4vw, 4rem) clamp(1.25rem, 6vw, 7rem) 0;
+			background:
+				linear-gradient(115deg, rgba(217, 232, 222, 0.7), transparent 42%),
+				radial-gradient(ellipse at 82% 12%, rgba(191, 214, 200, 0.45), transparent 34%),
+				var(--paper);
+			color: var(--ink);
+			font-family: 'Archivo Variable', system-ui, sans-serif;
+			-webkit-font-smoothing: antialiased;
+		}
+
+		.editor * {
+			box-sizing: border-box;
+		}
+
+		.editor-inner {
+			width: 100%;
+			max-width: 82rem;
+			margin: 0 auto;
+			padding-bottom: clamp(2.5rem, 6vw, 5rem);
+		}
+
+		.editor .topline {
+			display: flex;
+			align-items: baseline;
+			justify-content: space-between;
+			gap: 1.5rem;
+			border-bottom: 1px solid var(--line);
+			padding-bottom: 1.1rem;
+		}
+
+		.editor .brand {
+			font-family: 'Fraunces Variable', Georgia, serif;
+			font-size: clamp(1.1rem, 2vw, 1.5rem);
+			font-weight: 400;
+			font-optical-sizing: auto;
+			font-variation-settings: 'SOFT' 40, 'WONK' 1;
+			letter-spacing: -0.05em;
+			color: inherit;
+			text-decoration: none;
+		}
+
+		.editor .topline-meta {
+			display: flex;
+			align-items: baseline;
+			gap: 1rem;
+			font-size: 0.68rem;
+			letter-spacing: 0.14em;
+			text-transform: uppercase;
+		}
+
+		.editor .tag {
+			color: var(--muted);
+			border: 1px dashed var(--line);
+			border-radius: 999px;
+			padding: 0.3rem 0.75rem;
+		}
+
+		.editor .quiet-link {
+			color: var(--muted);
+			text-decoration: none;
+			transition: color 200ms ease;
+		}
+		.editor .quiet-link:hover,
+		.editor .quiet-link:focus-visible {
+			color: var(--ink);
+		}
+
+		.editor .intro {
+			margin: clamp(2.5rem, 6vw, 5rem) 0 clamp(2rem, 5vw, 3.5rem);
+			max-width: 48rem;
+		}
+
+		.editor .eyebrow {
+			margin: 0 0 1.2rem;
+			font-size: 0.68rem;
+			letter-spacing: 0.18em;
+			text-transform: uppercase;
+		}
+
+		.editor h1 {
+			margin: 0;
+			font-family: 'Fraunces Variable', Georgia, serif;
+			font-size: clamp(2.75rem, 6vw, 5.5rem);
+			font-weight: 400;
+			font-optical-sizing: auto;
+			font-variation-settings: 'SOFT' 40, 'WONK' 1;
+			letter-spacing: -0.055em;
+			line-height: 0.9;
+		}
+
+		.editor .lead {
+			margin: 1.5rem 0 0;
+			max-width: 42rem;
+			font-size: clamp(0.95rem, 1.2vw, 1.1rem);
+			line-height: 1.65;
+			color: color-mix(in srgb, var(--ink) 80%, transparent);
+		}
+
+		.editor code {
+			font-family: ui-monospace, 'SFMono-Regular', Menlo, monospace;
+			font-size: 0.85em;
+			background: color-mix(in srgb, var(--ink) 7%, transparent);
+			border-radius: 3px;
+			padding: 0.1em 0.35em;
+		}
+
+		.editor .columns {
+			display: grid;
+			grid-template-columns: minmax(0, 1.65fr) minmax(16rem, 0.85fr);
+			gap: clamp(2rem, 5vw, 5rem);
+			align-items: start;
+		}
+
+		.editor .sheet {
+			display: block;
+		}
+
+		.editor .section {
+			border: 0;
+			border-top: 1px solid var(--line);
+			margin: 0;
+			padding: 1.75rem 0 2.25rem;
+		}
+		.editor .section:first-of-type {
+			border-top: 0;
+			padding-top: 0;
+		}
+
+		.editor .section-title {
+			display: block;
+			padding: 0;
+			margin: 0 0 1.25rem;
+			font-size: 0.68rem;
+			font-weight: 500;
+			letter-spacing: 0.18em;
+			text-transform: uppercase;
+		}
+
+		.editor .collapsible .section-title {
+			cursor: pointer;
+			list-style: none;
+			display: flex;
+			align-items: baseline;
+			gap: 0.6rem;
+		}
+		.editor .collapsible .section-title::-webkit-details-marker {
+			display: none;
+		}
+		.editor .collapsible .section-title::after {
+			content: '+';
+			margin-left: auto;
+			font-size: 1rem;
+			letter-spacing: 0;
+			color: var(--muted);
+		}
+		.editor .collapsible[open] .section-title::after {
+			content: '–';
+		}
+		.editor .collapsible .section-title span {
+			color: var(--muted);
+			letter-spacing: 0.1em;
+			text-transform: none;
+			font-weight: 400;
+		}
+		.editor .collapsible-body {
+			margin-top: 1.5rem;
+			display: grid;
+			gap: 1.25rem;
+		}
+
+		.editor .field {
+			display: grid;
+			gap: 0.5rem;
+		}
+		.editor .field-row {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 1.25rem;
+			margin-top: 1.25rem;
+		}
+		.editor .field-note {
+			align-self: end;
+			margin: 0;
+			padding-bottom: 0.75rem;
+			font-size: 0.78rem;
+			line-height: 1.6;
+			color: var(--muted);
+		}
+
+		.editor .label {
+			font-size: 0.7rem;
+			letter-spacing: 0.12em;
+			text-transform: uppercase;
+			color: color-mix(in srgb, var(--ink) 75%, transparent);
+		}
+		.editor .label em {
+			font-style: normal;
+			text-transform: none;
+			letter-spacing: 0.02em;
+			color: var(--muted);
+		}
+
+		.editor input[type='text'],
+		.editor input[type='number'],
+		.editor input[type='date'],
+		.editor select,
+		.editor textarea {
+			width: 100%;
+			font: inherit;
+			font-size: 0.95rem;
+			color: var(--ink);
+			background: color-mix(in srgb, #fff 55%, transparent);
+			border: 1px solid var(--line);
+			border-radius: 2px;
+			padding: 0.7rem 0.8rem;
+			transition:
+				border-color 200ms ease,
+				background 200ms ease;
+		}
+		.editor textarea {
+			resize: vertical;
+			line-height: 1.6;
+		}
+		.editor input:focus-visible,
+		.editor select:focus-visible,
+		.editor textarea:focus-visible {
+			outline: 1px solid var(--ink);
+			outline-offset: 1px;
+			border-color: var(--ink);
+		}
+
+		.editor .check {
+			display: flex;
+			align-items: center;
+			gap: 0.6rem;
+			font-size: 0.95rem;
+		}
+		.editor .check input {
+			width: 1rem;
+			height: 1rem;
+			accent-color: var(--ink);
+		}
+
+		.editor .hint {
+			margin: 0 0 1rem;
+			font-size: 0.82rem;
+			line-height: 1.6;
+			color: var(--muted);
+		}
+
+		.editor .dropzone {
+			display: grid;
+			gap: 0.25rem;
+			justify-items: center;
+			text-align: center;
+			padding: 1.75rem 1rem;
+			border: 1px dashed color-mix(in srgb, var(--ink) 35%, transparent);
+			border-radius: 3px;
+			cursor: pointer;
+			transition:
+				border-color 200ms ease,
+				background 200ms ease;
+		}
+		.editor .dropzone:hover,
+		.editor .dropzone:focus-within,
+		.editor .dropzone.is-over {
+			border-color: var(--ink);
+			background: color-mix(in srgb, var(--ink) 4%, transparent);
+		}
+		.editor .dropzone-title {
+			font-size: 0.95rem;
+		}
+		.editor .dropzone-sub {
+			font-size: 0.72rem;
+			letter-spacing: 0.08em;
+			text-transform: uppercase;
+			color: var(--muted);
+		}
+
+		.editor .shots {
+			list-style: none;
+			margin: 1.5rem 0 0;
+			padding: 0;
+			display: grid;
+			gap: 0.75rem;
+		}
+
+		.editor .shot {
+			display: grid;
+			grid-template-columns: 5rem minmax(0, 1fr) auto;
+			gap: 1rem;
+			align-items: center;
+			border: 1px solid var(--line);
+			border-radius: 3px;
+			padding: 0.6rem;
+			background: color-mix(in srgb, #fff 40%, transparent);
+		}
+		.editor .shot-thumb {
+			width: 5rem;
+			aspect-ratio: 1;
+			overflow: hidden;
+			background: #dcd5ca;
+			border-radius: 2px;
+		}
+		.editor .shot-thumb img {
+			width: 100%;
+			height: 100%;
+			object-fit: contain;
+			display: block;
+		}
+		.editor .shot-body {
+			display: grid;
+			gap: 0.4rem;
+			min-width: 0;
+		}
+		.editor .shot-name {
+			margin: 0;
+			font-size: 0.78rem;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			color: var(--muted);
+		}
+		.editor .cover {
+			display: inline-block;
+			font-size: 0.6rem;
+			letter-spacing: 0.12em;
+			text-transform: uppercase;
+			color: var(--ink);
+			border: 1px solid var(--line);
+			border-radius: 999px;
+			padding: 0.1rem 0.45rem;
+		}
+		.editor .cover.is-crop {
+			border-color: color-mix(in srgb, var(--ink) 45%, transparent);
+		}
+		.editor .cover.is-size {
+			border-color: transparent;
+			color: var(--muted);
+		}
+		.editor .shot-alt {
+			display: grid;
+			gap: 0.35rem;
+			font-size: 0.66rem;
+			letter-spacing: 0.12em;
+			text-transform: uppercase;
+			color: color-mix(in srgb, var(--ink) 70%, transparent);
+		}
+		.editor .shot-alt input {
+			font-size: 0.88rem;
+			padding: 0.5rem 0.6rem;
+		}
+		.editor .shot-tools {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.5rem;
+		}
+		.editor .text-button {
+			font: inherit;
+			font-size: 0.72rem;
+			letter-spacing: 0.12em;
+			text-transform: uppercase;
+			color: var(--ink);
+			background: transparent;
+			border: 1px solid var(--line);
+			border-radius: 999px;
+			padding: 0.4rem 0.85rem;
+			width: fit-content;
+			cursor: pointer;
+			transition:
+				border-color 200ms ease,
+				color 200ms ease;
+		}
+		.editor .text-button:hover,
+		.editor .text-button:focus-visible {
+			border-color: var(--ink);
+		}
+		.editor .text-button.is-quiet {
+			color: var(--muted);
+		}
+		.editor .shot-actions {
+			display: grid;
+			gap: 0.3rem;
+		}
+		.editor .icon-button {
+			width: 2rem;
+			height: 2rem;
+			line-height: 1;
+			font-size: 0.95rem;
+			color: var(--ink);
+			background: transparent;
+			border: 1px solid var(--line);
+			border-radius: 2px;
+			cursor: pointer;
+			transition:
+				border-color 200ms ease,
+				background 200ms ease;
+		}
+		.editor .icon-button:hover:not(:disabled),
+		.editor .icon-button:focus-visible {
+			border-color: var(--ink);
+			background: color-mix(in srgb, var(--ink) 6%, transparent);
+		}
+		.editor .icon-button:disabled {
+			opacity: 0.3;
+			cursor: default;
+		}
+
+		.editor .actions {
+			display: flex;
+			align-items: center;
+			gap: 1.25rem;
+			flex-wrap: wrap;
+			padding-top: 1.5rem;
+			border-top: 1px solid var(--line);
+		}
+		.editor .submit {
+			font: inherit;
+			font-size: 0.78rem;
+			letter-spacing: 0.14em;
+			text-transform: uppercase;
+			color: var(--paper);
+			background: var(--ink);
+			border: 1px solid var(--ink);
+			border-radius: 2px;
+			padding: 0.85rem 1.6rem;
+			cursor: pointer;
+			transition:
+				opacity 200ms ease,
+				transform 200ms ease;
+		}
+		.editor .submit:hover:not(:disabled),
+		.editor .submit:focus-visible {
+			opacity: 0.85;
+		}
+		.editor .submit:disabled {
+			opacity: 0.5;
+			cursor: wait;
+		}
+		.editor .ghost {
+			font: inherit;
+			font-size: 0.78rem;
+			letter-spacing: 0.14em;
+			text-transform: uppercase;
+			color: var(--ink);
+			background: transparent;
+			border: 1px solid var(--line);
+			border-radius: 2px;
+			padding: 0.85rem 1.4rem;
+			cursor: pointer;
+			transition:
+				border-color 200ms ease,
+				background 200ms ease;
+		}
+		.editor .ghost:hover,
+		.editor .ghost:focus-visible {
+			border-color: var(--ink);
+			background: color-mix(in srgb, var(--ink) 6%, transparent);
+		}
+
+		.editor .status {
+			margin: 0;
+			font-size: 0.85rem;
+			line-height: 1.5;
+			max-width: 30rem;
+		}
+		.editor .status[data-tone='error'] {
+			color: #8a2f22;
+		}
+		.editor .status[data-tone='progress'] {
+			color: var(--muted);
+		}
+		.editor .success-link {
+			color: var(--ink);
+			text-decoration: underline;
+			text-underline-offset: 0.2em;
+		}
+
+		.editor .sidebar {
+			display: grid;
+			gap: 2.5rem;
+			position: sticky;
+			top: 2rem;
+		}
+		.editor .panel-title {
+			display: flex;
+			justify-content: space-between;
+			align-items: baseline;
+			gap: 1rem;
+			margin: 0 0 1rem;
+			padding-bottom: 0.75rem;
+			border-bottom: 1px solid var(--line);
+			font-size: 0.68rem;
+			font-weight: 500;
+			letter-spacing: 0.18em;
+			text-transform: uppercase;
+		}
+		.editor .panel-title span {
+			color: var(--muted);
+		}
+
+		.editor .work-list,
+		.editor .path-list {
+			list-style: none;
+			margin: 0;
+			padding: 0;
+			display: grid;
+			gap: 0.1rem;
+		}
+		.editor .work-list a {
+			display: flex;
+			justify-content: space-between;
+			align-items: baseline;
+			gap: 1rem;
+			padding: 0.55rem 0;
+			border-bottom: 1px solid color-mix(in srgb, var(--ink) 10%, transparent);
+			color: inherit;
+			text-decoration: none;
+			font-size: 0.85rem;
+			transition: color 200ms ease;
+		}
+		.editor .work-list a:hover,
+		.editor .work-list a:focus-visible {
+			color: var(--muted);
+		}
+		.editor .work-meta {
+			font-size: 0.68rem;
+			letter-spacing: 0.08em;
+			text-transform: uppercase;
+			color: var(--muted);
+			white-space: nowrap;
+		}
+		.editor .path-list {
+			gap: 0.9rem;
+		}
+		.editor .path-list li {
+			display: grid;
+			gap: 0.3rem;
+			font-size: 0.8rem;
+			color: var(--muted);
+		}
+		.editor .path-list code {
+			width: fit-content;
+			color: var(--ink);
+		}
+
+		/* — Retall — */
+
+		.editor .crop-layer {
+			position: fixed;
+			inset: 0;
+			z-index: 50;
+			display: grid;
+			place-items: center;
+			padding: clamp(1rem, 4vw, 3rem);
+			background: color-mix(in srgb, #191712 74%, transparent);
+			backdrop-filter: blur(3px);
+		}
+		.editor .crop-layer[hidden] {
+			display: none;
+		}
+		.editor .crop-dialog {
+			width: min(62rem, 100%);
+			max-height: 100%;
+			overflow: auto;
+			display: grid;
+			gap: 1.25rem;
+			padding: clamp(1.25rem, 3vw, 2rem);
+			background: var(--paper);
+			border: 1px solid var(--line);
+			border-radius: 4px;
+		}
+		.editor .crop-header {
+			display: flex;
+			flex-wrap: wrap;
+			align-items: baseline;
+			justify-content: space-between;
+			gap: 1rem;
+		}
+		.editor .crop-header h2 {
+			margin: 0;
+			font-family: 'Fraunces Variable', Georgia, serif;
+			font-size: clamp(1.5rem, 3vw, 2.25rem);
+			font-weight: 400;
+			font-optical-sizing: auto;
+			font-variation-settings: 'SOFT' 40, 'WONK' 1;
+			letter-spacing: -0.035em;
+		}
+		.editor .crop-presets {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.4rem;
+		}
+		.editor .crop-presets button {
+			font: inherit;
+			font-size: 0.68rem;
+			letter-spacing: 0.12em;
+			text-transform: uppercase;
+			color: var(--muted);
+			background: transparent;
+			border: 1px solid var(--line);
+			border-radius: 999px;
+			padding: 0.35rem 0.7rem;
+			cursor: pointer;
+			transition:
+				color 200ms ease,
+				border-color 200ms ease,
+				background 200ms ease;
+		}
+		.editor .crop-presets button:hover,
+		.editor .crop-presets button:focus-visible {
+			color: var(--ink);
+			border-color: var(--ink);
+		}
+		.editor .crop-presets button.is-active {
+			color: var(--paper);
+			background: var(--ink);
+			border-color: var(--ink);
+		}
+		.editor .crop-stage {
+			display: grid;
+			place-items: center;
+		}
+		.editor .crop-frame {
+			position: relative;
+			overflow: hidden;
+			line-height: 0;
+			background: #dcd5ca;
+			user-select: none;
+			touch-action: none;
+		}
+		.editor .crop-frame img {
+			display: block;
+			max-width: 100%;
+			max-height: 62vh;
+			width: auto;
+			height: auto;
+			-webkit-user-drag: none;
+		}
+		.editor .crop-box {
+			position: absolute;
+			box-shadow: 0 0 0 9999px color-mix(in srgb, #191712 62%, transparent);
+			border: 1px solid #fff;
+			cursor: move;
+		}
+		.editor .crop-h {
+			position: absolute;
+			width: 14px;
+			height: 14px;
+			background: #fff;
+			border: 1px solid color-mix(in srgb, #191712 40%, transparent);
+		}
+		.editor .crop-h[data-handle='nw'] {
+			left: -7px;
+			top: -7px;
+			cursor: nwse-resize;
+		}
+		.editor .crop-h[data-handle='ne'] {
+			right: -7px;
+			top: -7px;
+			cursor: nesw-resize;
+		}
+		.editor .crop-h[data-handle='sw'] {
+			left: -7px;
+			bottom: -7px;
+			cursor: nesw-resize;
+		}
+		.editor .crop-h[data-handle='se'] {
+			right: -7px;
+			bottom: -7px;
+			cursor: nwse-resize;
+		}
+		.editor .crop-footer {
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			justify-content: space-between;
+			gap: 1rem;
+			border-top: 1px solid var(--line);
+			padding-top: 1.25rem;
+		}
+		.editor .crop-footer .hint {
+			margin: 0;
+			max-width: 32rem;
+		}
+		.editor .crop-actions {
+			display: flex;
+			gap: 0.75rem;
+		}
+
+		@media (max-width: 900px) {
+			.editor .columns {
+				grid-template-columns: minmax(0, 1fr);
+			}
+			.editor .sidebar {
+				position: static;
+			}
+			.editor .field-row {
+				grid-template-columns: 1fr;
+			}
+		}
+
+		@media (prefers-color-scheme: dark) {
+			.editor {
+				--ink: var(--nc-ink-dark);
+				--paper: var(--nc-paper-dark);
+				background:
+					linear-gradient(115deg, rgba(58, 92, 82, 0.4), transparent 42%),
+					radial-gradient(ellipse at 82% 12%, rgba(72, 112, 96, 0.3), transparent 34%),
+					var(--paper);
+			}
+			.editor input[type='text'],
+			.editor input[type='number'],
+			.editor input[type='date'],
+			.editor select,
+			.editor textarea {
+				background: color-mix(in srgb, #fff 6%, transparent);
+			}
+			.editor .shot {
+				background: color-mix(in srgb, #fff 5%, transparent);
+			}
+			.editor .status[data-tone='error'] {
+				color: #e0a094;
+			}
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+			.editor * {
+				transition: none !important;
+			}
+		}
+	</style>
+</main>

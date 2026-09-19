@@ -7,6 +7,10 @@ import { getRelativeLocaleUrl } from 'astro:i18n';
 
 const locale = normalizeLocale(Astro.currentLocale);
 const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
+const editorHref = getRelativeLocaleUrl(
+	locale,
+	`/${t(locale, 'editor.path')}/${t(locale, 'editor.pieces.path')}/${t(locale, 'editor.add.path')}`,
+);
 
 const images = works
 	// The pumpkin has its own exhibition feature (Argillà 2026); keep it out of
@@ -40,6 +44,9 @@ const images = works
 					</a>
 				))}
 			</nav>
+			{import.meta.env.DEV && (
+				<a class="dev-link" href={editorHref}>{t(locale, 'editor.add')}</a>
+			)}
 		</div>
 	</header>
 
@@ -142,6 +149,25 @@ const images = works
 	.lang-switcher {
 		display: flex;
 		gap: 1rem;
+	}
+
+	.dev-link {
+		color: color-mix(in srgb, var(--ink) 72%, transparent);
+		font-size: 0.68rem;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+		text-decoration: none;
+		border: 1px dashed color-mix(in srgb, var(--ink) 35%, transparent);
+		border-radius: 999px;
+		padding: 0.35rem 0.85rem;
+		transition:
+			color 240ms ease,
+			border-color 240ms ease;
+	}
+	.dev-link:hover,
+	.dev-link:focus-visible {
+		color: var(--ink);
+		border-color: var(--ink);
 	}
 
 	.entry {

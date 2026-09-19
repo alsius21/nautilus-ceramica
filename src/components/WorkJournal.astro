@@ -17,14 +17,27 @@ const images = work.images.map((image) => ({
 	alt: image.alt[locale],
 }));
 
+const madeAt = work.madeAt ? new Date(`${work.madeAt}T12:00:00`) : null;
+const madeAtLabel =
+	madeAt && !Number.isNaN(madeAt.getTime())
+		? new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'long', year: 'numeric' }).format(madeAt)
+		: null;
+
 const shop = (work as { shop?: { available: boolean } }).shop;
 const shopAvailable = shop?.available ?? false;
 const shopHref = getRelativeLocaleUrl(locale, `/${t(locale, 'shop.path')}/${t(locale, 'shop.article.path')}/${getSlug(work, locale)}`);
+const editHref = getRelativeLocaleUrl(
+	locale,
+	`/${t(locale, 'editor.path')}/${t(locale, 'editor.pieces.path')}/${t(locale, 'editor.edit.path')}/${work.id}`,
+);
 ---
 
 <main class="journal">
 	<header class="journal-header">
-		<a class="back-link" href={getRelativeLocaleUrl(locale, `/${t(locale, 'gallery.path')}`)}>← {t(locale, 'gallery.page.eyebrow')}</a>
+		<div class="header-left">
+			<a class="back-link" href={getRelativeLocaleUrl(locale, `/${t(locale, 'gallery.path')}`)}>← {t(locale, 'gallery.page.eyebrow')}</a>
+			{import.meta.env.DEV && <a class="edit-link" href={editHref}>{t(locale, 'editor.edit')}</a>}
+		</div>
 		<nav class="lang-switcher" aria-label={t(locale, 'lang.selector')}>
 			{locales.map((code) => (
 					<a
@@ -43,6 +56,7 @@ const shopHref = getRelativeLocaleUrl(locale, `/${t(locale, 'shop.path')}/${t(lo
 		<div class="entry-intro">
 			<h1>{title}</h1>
 			<p class="description">{work.description[locale]}</p>
+			{madeAtLabel && <p class="made-date">{t(locale, 'work.made_at')} {madeAtLabel}</p>}
 
 			{shopAvailable && (
 				<div class="shop-detail">
@@ -89,6 +103,12 @@ const shopHref = getRelativeLocaleUrl(locale, `/${t(locale, 'shop.path')}/${t(lo
 		padding-bottom: 1.25rem;
 	}
 
+	.header-left {
+		display: flex;
+		align-items: baseline;
+		gap: 1rem;
+	}
+
 	.back-link,
 	.lang-link {
 		color: color-mix(in srgb, var(--ink) 62%, transparent);
@@ -97,6 +117,25 @@ const shopHref = getRelativeLocaleUrl(locale, `/${t(locale, 'shop.path')}/${t(lo
 		text-decoration: none;
 		text-transform: uppercase;
 		transition: color 240ms ease;
+	}
+
+	.edit-link {
+		color: color-mix(in srgb, var(--ink) 72%, transparent);
+		font-size: 0.68rem;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+		text-decoration: none;
+		border: 1px dashed color-mix(in srgb, var(--ink) 35%, transparent);
+		border-radius: 999px;
+		padding: 0.3rem 0.8rem;
+		transition:
+			color 240ms ease,
+			border-color 240ms ease;
+	}
+	.edit-link:hover,
+	.edit-link:focus-visible {
+		color: var(--ink);
+		border-color: var(--ink);
 	}
 
 	.back-link:hover,
@@ -243,6 +282,14 @@ const shopHref = getRelativeLocaleUrl(locale, `/${t(locale, 'shop.path')}/${t(lo
 		margin: 2.5rem 0 0;
 		font-size: clamp(1rem, 1.5vw, 1.25rem);
 		line-height: 1.6;
+	}
+
+	.made-date {
+		margin: 1.75rem 0 0;
+		font-size: 0.68rem;
+		letter-spacing: 0.16em;
+		text-transform: uppercase;
+		color: color-mix(in srgb, var(--ink) 62%, transparent);
 	}
 
 	.work-gallery {

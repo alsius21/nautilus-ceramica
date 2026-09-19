@@ -99,9 +99,7 @@ src/
 │   ├── exhibitions.json   # Exposicions (ca/es/en)
 │   └── about.json          # Pàgina «Sobre mi» (ca/es/en)
 ├── dev/
-│   ├── content-editor.astro # Editor de contingut (només en desenvolupament)
-│   ├── editor-i18n.ts       # Textos de l'editor (ca/es/en)
-│   └── editor-routes.mjs    # Rutes localitzades de l'editor
+│   └── editor-i18n.ts       # Textos de l'editor (ca/es/en)
 ├── lib/
 │   └── content.ts         # Capa de contingut: tipus, validació i accés a les dades
 ├── i18n/
@@ -176,18 +174,22 @@ public/images/
 ### Editor de contingut (només en desenvolupament)
 
 Amb `pnpm dev` en marxa, la galeria mostra un botó **+ Nova peça** que obre
-l'editor a la ruta localitzada: `/contingut/peces/afegir`,
-`/es/contenido/piezas/crear` i `/en/content/pieces/add`. Des d'allà pots
-escriure el títol, la descripció, la data de fabricació opcional, afegir i
-**retallar** fotografies (marc arrossegable i relacions d'aspecte) i desar la
-peça:
+l'editor, una pàgina normal sota `src/pages/` amb la seva ruta localitzada:
+`/contingut/peces/afegir` (i `/es/contenido/piezas/crear`,
+`/en/content/pieces/add`). Per **editar**, cada pàgina de peça mostra un enllaç
+**Editar peça** cap a `/contingut/peces/editar/<id>` (i les versions es/en).
+Des d'allà pots escriure el títol, la descripció, la data de fabricació
+opcional, afegir i **retallar** fotografies (marc arrossegable i relacions
+d'aspecte) i desar:
 
-- les imatges es converteixen a WebP i es desen a `public/images/works/<slug>/`;
-- l'entrada s'afegeix a `src/content/works.json` amb les dates d'alta i
-  d'edició automàtiques.
+- les imatges es converteixen a WebP i es desen a `public/images/works/<id>/`;
+- l'entrada s'afegeix o s'actualitza a `src/content/works.json`, amb les dates
+  d'alta i d'edició automàtiques (`updatedAt` canvia en editar);
+- en desar, l'editor et porta a la pàgina de la peça perquè vegis com ha quedat.
 
-La ruta i el punt de desament només existeixen amb `astro dev`: `astro build`
-no els genera mai, així que no arriben a producció.
+L'editor és només per a desenvolupament: el punt de desament només existeix amb
+`astro dev` i `astro build` treu les pàgines de l'editor de `dist/` i del
+sitemap, així que no arriben a producció.
 
 El perfil d'Instagram enllaçat al lloc és [@nautilceramica](https://www.instagram.com/nautilceramica/).
 

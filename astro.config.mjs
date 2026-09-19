@@ -2,6 +2,7 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import { VitePWA } from 'vite-plugin-pwa';
+import contentEditor from './tools/content-editor.mjs';
 
 /**
  * Minimal re-implementation of `@vite-pwa/astro`'s build wiring.
@@ -73,7 +74,15 @@ export default defineConfig({
 	site: 'https://alsius21.github.io',
 	base,
 	integrations: [
-		sitemap(),
+		// Les pàgines de l'editor (dev) no han de sortir al sitemap.
+		sitemap({
+			filter: (page) =>
+				!/\/(contingut\/peces\/(afegir|editar)|es\/contenido\/piezas\/(crear|editar)|en\/content\/pieces\/(add|edit))(\/|$)/.test(
+					page,
+				),
+		}),
+		// Dev-only: `POST /__content/works` + neteja de les pàgines de l'editor a `dist/`.
+		contentEditor(),
 		astroPWA({
 			// Silently swap in new SW builds when the site is redeployed.
 			registerType: 'autoUpdate',
