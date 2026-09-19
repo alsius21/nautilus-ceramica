@@ -2,6 +2,7 @@
 import Footer from '@/components/Footer.astro';
 import { BRAND_NAME, SHOP_ENABLED } from '@/consts';
 import { works, getSlug } from '@/lib/content';
+import { PIECE_CATEGORIES, PIECE_SIZES, categoryLabel, sizeLabel, normalizeSearch } from '@/lib/shop-discovery';
 import { t, normalizeLocale, locales } from '@/i18n';
 import { getRelativeLocaleUrl } from 'astro:i18n';
 
@@ -10,9 +11,18 @@ const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL :
 const contactHref = getRelativeLocaleUrl(locale, `/${t(locale, 'order.path')}/${t(locale, 'shop.contact.path')}`);
 
 const availableWorks = works.filter((w) => w.shop.available);
+const initialQuery = '';
+const initialCategory = '';
+const initialSize = '';
+const presentCategories = PIECE_CATEGORIES.filter((category) => availableWorks.some((work) => work.category === category));
+const presentSizes = PIECE_SIZES.filter((size) => availableWorks.some((work) => work.size === size));
 
 const cards = availableWorks.map((work) => {
   const title = work.title[locale];
+  const description = work.description[locale];
+  const tags = work.tags?.[locale] ?? '';
+  const category = work.category ?? '';
+  const size = work.size ?? '';
   const statusLabel = t(locale, `shop.status.${work.shop.status}` as Parameters<typeof t>[1]);
   const priceLabel = work.shop.price
     ? `${work.shop.price} ${t(locale, 'shop.price.suffix')}`
@@ -30,6 +40,9 @@ const cards = availableWorks.map((work) => {
     href: getRelativeLocaleUrl(locale, `/${t(locale, 'shop.path')}/${t(locale, 'shop.article.path')}/${getSlug(work, locale)}`),
     src: work.images[0].file,
     alt: work.images[0].alt[locale],
+    category,
+    size,
+    search: normalizeSearch(`${title} ${description} ${tags} ${category ? categoryLabel(category, locale) : ''} ${size ? sizeLabel(size, locale) : ''}`),
   };
 });
 ---
@@ -63,9 +76,39 @@ const cards = availableWorks.map((work) => {
       {cards.length === 0 ? (
         <p class="empty">{t(locale, 'shop.empty')}</p>
       ) : (
-        <section class="shop-grid" aria-label={t(locale, 'shop.page.title')}>
+        <>
+          <div class="shop-filters" data-shop-filters hidden>
+            <form class="filter-form" data-filter-form role="search">
+              <label class="filter-search">
+                <span>{locale === 'ca' ? 'Cerca' : locale === 'es' ? 'Buscar' : 'Search'}</span>
+                <input type="search" name="q" data-filter-query value={initialQuery} placeholder={locale === 'ca' ? 'Nom, acabat o paraula clau' : locale === 'es' ? 'Nombre, acabado o palabra clave' : 'Name, finish or keyword'} autocomplete="off" />
+              </label>
+              <details class="filter-details">
+                <summary>{locale === 'ca' ? 'Filtra per tipus i mida' : locale === 'es' ? 'Filtrar por tipo y tamaño' : 'Filter by type and size'}</summary>
+                <div class="filter-selects">
+                <label>
+                  <span>{locale === 'ca' ? 'Tipus de peça' : locale === 'es' ? 'Tipo de pieza' : 'Piece type'}</span>
+                  <select name="category" data-filter-category>
+                    <option value="">{locale === 'ca' ? 'Tots els tipus' : locale === 'es' ? 'Todos los tipos' : 'All types'}</option>
+                    {presentCategories.map((category) => <option value={category} selected={category === initialCategory}>{categoryLabel(category, locale)}</option>)}
+                  </select>
+                </label>
+                <label>
+                  <span>{locale === 'ca' ? 'Mida' : locale === 'es' ? 'Tamaño' : 'Size'}</span>
+                  <select name="size" data-filter-size>
+                    <option value="">{locale === 'ca' ? 'Totes les mides' : locale === 'es' ? 'Todos los tamaños' : 'All sizes'}</option>
+                    {presentSizes.map((size) => <option value={size} selected={size === initialSize}>{sizeLabel(size, locale)}</option>)}
+                  </select>
+                </label>
+                </div>
+              </details>
+              <button type="button" class="filter-clear" data-filter-clear hidden>{locale === 'ca' ? 'Neteja filtres' : locale === 'es' ? 'Limpiar filtros' : 'Clear filters'}</button>
+            </form>
+          </div>
+          <p class="filter-empty" data-filter-empty hidden>{locale === 'ca' ? 'No hem trobat cap peça amb aquests criteris.' : locale === 'es' ? 'No hemos encontrado ninguna pieza con estos criterios.' : 'No pieces match these criteria.'}</p>
+          <section class="shop-grid" aria-label={t(locale, 'shop.page.title')}>
           {cards.map((card, index) => (
-            <article class="shop-card" data-card data-slug={card.id} data-price-label={card.priceLabel} data-has-price={String(card.hasPrice)} data-price={card.price ?? ''}>
+            <article class="shop-card" data-card data-slug={card.id} data-search={card.search} data-category={card.category} data-size={card.size} data-price-label={card.priceLabel} data-has-price={String(card.hasPrice)} data-price={card.price ?? ''}>
               <a class="card-link" href={card.href} aria-label={`${card.title} — ${t(locale, 'shop.card.view')}`}>
                 <figure>
                   <img src={`${base}images/${card.src}.webp`} alt={card.alt} loading={index === 0 ? 'eager' : 'lazy'} />
@@ -100,7 +143,9 @@ const cards = availableWorks.map((work) => {
               </div>
             </article>
           ))}
-        </section>
+          </section>
+          <p class="filter-count" data-filter-count aria-live="polite"></p>
+        </>
       )}
     </div>
 
@@ -145,6 +190,85 @@ const cards = availableWorks.map((work) => {
 
   <Footer />
 </main>
+
+<script>
+  import { normalizeSearch } from '@/lib/shop-discovery';
+  type Filters = { q: string; category: string; size: string };
+  const filterRoot = document.querySelector<HTMLElement>('[data-shop-filters]');
+  const filterForm = document.querySelector<HTMLFormElement>('[data-filter-form]');
+  const filterQuery = document.querySelector<HTMLInputElement>('[data-filter-query]');
+  const filterCategory = document.querySelector<HTMLSelectElement>('[data-filter-category]');
+  const filterSize = document.querySelector<HTMLSelectElement>('[data-filter-size]');
+  const filterClear = document.querySelector<HTMLButtonElement>('[data-filter-clear]');
+  const filterCount = document.querySelector<HTMLElement>('[data-filter-count]');
+  const filterEmpty = document.querySelector<HTMLElement>('[data-filter-empty]');
+  const filterDetails = document.querySelector<HTMLDetailsElement>('.filter-details');
+  const filterMobile = window.matchMedia('(max-width: 768px)');
+  const filterCards = [...document.querySelectorAll<HTMLElement>('[data-card]')];
+  const filterLabels: Record<string, (count: number) => string> = {
+    ca: (count: number) => `${count} ${count === 1 ? 'peça' : 'peces'}`,
+    es: (count: number) => `${count} ${count === 1 ? 'pieza' : 'piezas'}`,
+    en: (count: number) => `${count} ${count === 1 ? 'piece' : 'pieces'}`,
+  };
+  const filterLocale = document.documentElement.lang?.slice(0, 2) || 'ca';
+  const readFilters = (): Filters => {
+    const params = new URLSearchParams(window.location.search);
+    return { q: params.get('q') || '', category: params.get('category') || '', size: params.get('size') || '' };
+  };
+  const validOption = (select: HTMLSelectElement | null, value: string): string => {
+    return value && select && [...select.options].some((option) => option.value === value) ? value : '';
+  };
+  const sanitizeFilters = (filters: Filters): Filters => ({
+    q: filters.q,
+    category: validOption(filterCategory, filters.category),
+    size: validOption(filterSize, filters.size),
+  });
+  const writeFilters = (filters: Filters): void => {
+    const url = new URL(window.location.href);
+    for (const [key, value] of Object.entries(filters)) value ? url.searchParams.set(key, value) : url.searchParams.delete(key);
+    window.history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`);
+  };
+  const applyFilters = (rawFilters: Filters, updateUrl = true): void => {
+    if (!filterRoot) return;
+    const filters = sanitizeFilters(rawFilters);
+    if (filterQuery) filterQuery.value = filters.q;
+    if (filterCategory) filterCategory.value = filters.category;
+    if (filterSize) filterSize.value = filters.size;
+    const query = normalizeSearch(filters.q);
+    let visible = 0;
+    for (const card of filterCards) {
+      const matches = (!query || normalizeSearch(card.dataset.search || '').includes(query))
+        && (!filters.category || card.dataset.category === filters.category)
+        && (!filters.size || card.dataset.size === filters.size);
+      card.hidden = !matches;
+      if (matches) visible += 1;
+    }
+    const hasFilters = Boolean(query || filters.category || filters.size);
+    if (filterCount) filterCount.textContent = filterLabels[filterLocale]?.(visible) || `${visible} pieces`;
+    if (filterEmpty) filterEmpty.hidden = visible !== 0 || !hasFilters;
+    if (filterClear) filterClear.hidden = !hasFilters;
+    if (filterDetails && filterMobile.matches && (filters.category || filters.size)) filterDetails.open = true;
+    if (updateUrl || filters.category !== rawFilters.category || filters.size !== rawFilters.size) writeFilters(filters);
+  };
+  if (filterRoot && filterForm) {
+    const syncDisclosure = (): void => {
+      if (filterDetails) filterDetails.open = !filterMobile.matches || Boolean(filterCategory?.value || filterSize?.value);
+    };
+    syncDisclosure();
+    filterMobile.addEventListener('change', syncDisclosure);
+    filterRoot.hidden = false;
+    applyFilters(readFilters(), false);
+    filterForm.addEventListener('submit', (event) => event.preventDefault());
+    const currentFilters = (): Filters => ({ q: filterQuery?.value || '', category: filterCategory?.value || '', size: filterSize?.value || '' });
+    filterForm.addEventListener('input', () => applyFilters(currentFilters()));
+    filterForm.addEventListener('change', () => applyFilters(currentFilters()));
+    filterClear?.addEventListener('click', () => {
+      applyFilters({ q: '', category: '', size: '' });
+      filterQuery?.focus();
+    });
+    window.addEventListener('popstate', () => applyFilters(readFilters(), false));
+  }
+</script>
 
 <script>
   const STORAGE_KEY = 'nautilus-cart';
@@ -395,6 +519,7 @@ const cards = availableWorks.map((work) => {
   }
   .entry.is-shop-list {
     grid-template-columns: minmax(0, 1.9fr) minmax(16rem, 0.7fr);
+    margin-top: clamp(2rem, 4vw, 4rem);
   }
   .entry-intro { position: sticky; top: 2rem; }
   .eyebrow {
@@ -420,7 +545,30 @@ const cards = availableWorks.map((work) => {
     font-size: clamp(1rem, 1.5vw, 1.25rem);
     line-height: 1.6;
   }
-  .shop-main { min-width: 0; display: grid; gap: 2rem; }
+  /* Let the discovery controls span the full shop canvas while cards and the
+     optional cart keep their own columns below it. */
+  .shop-main { min-width: 0; display: contents; }
+  .shop-main > .empty,
+  .shop-filters,
+  .filter-empty { grid-column: 1 / -1; }
+  .shop-grid { grid-column: 1; }
+  .shop-filters { display: grid; gap: 1rem; padding: 0 0 1.25rem; border-bottom: 1px solid color-mix(in srgb, var(--ink) 12%, transparent); }
+  .filter-count { grid-column: 1 / -1; justify-self: stretch; margin: clamp(0.85rem, 1.5vw, 1.25rem) 0 0; text-align: center; font-size: 0.75rem; color: color-mix(in srgb, var(--ink) 54%, transparent); }
+  .filter-form { display: grid; grid-template-columns: minmax(12rem, 1.2fr) minmax(0, 1fr); align-items: end; gap: 0.9rem; }
+  .filter-details { display: contents; }
+  .filter-details summary { display: none; }
+  .filter-form label { display: grid; gap: 0.35rem; }
+  .filter-form label > span { font-size: 0.64rem; letter-spacing: 0.12em; text-transform: uppercase; color: color-mix(in srgb, var(--ink) 58%, transparent); }
+  .filter-form input, .filter-form select { width: 100%; min-height: 2.6rem; padding: 0.55rem 0.7rem; border: 1px solid color-mix(in srgb, var(--ink) 18%, transparent); border-radius: 0; background: transparent; color: var(--ink); font: inherit; font-size: 0.82rem; }
+  .filter-form input:focus-visible, .filter-form select:focus-visible { outline: 2px solid color-mix(in srgb, var(--ink) 55%, transparent); outline-offset: 2px; }
+  .filter-selects { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem; }
+  .filter-clear { min-height: 2.6rem; padding: 0.55rem 0.1rem; border: 0; border-bottom: 1px solid currentColor; background: none; color: color-mix(in srgb, var(--ink) 62%, transparent); font: inherit; font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; white-space: nowrap; }
+  .filter-clear { justify-self: start; grid-column: 1 / -1; }
+  .filter-clear:hover, .filter-clear:focus-visible { color: var(--ink); }
+  .filter-clear:focus-visible, .filter-details summary:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+  .filter-empty { margin: 0; padding: 1.8rem 0; color: color-mix(in srgb, var(--ink) 64%, transparent); font-size: 0.92rem; }
+  .shop-card[hidden] { display: none; }
+  .shop-filters[hidden], .filter-empty[hidden], .filter-clear[hidden] { display: none; }
   .empty {
     margin: 0;
     padding: 2rem;
@@ -759,7 +907,17 @@ const cards = availableWorks.map((work) => {
     .cart-fab:not([hidden]) { display: flex; }
     .cart-backdrop[hidden] { display: none; }
     /* add bottom padding to shop grid so FAB doesn't overlap last card */
-    .shop-main { padding-bottom: 5rem; }
+    .shop-main { display: block; padding-bottom: 5rem; }
+    .shop-filters { gap: 0.8rem; }
+    .filter-form { grid-template-columns: 1fr; gap: 0.75rem; }
+    .filter-details { display: block; }
+    .filter-details summary { display: block; cursor: pointer; list-style: none; padding: 0.2rem 0; font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: color-mix(in srgb, var(--ink) 64%, transparent); }
+    .filter-details summary::-webkit-details-marker { display: none; }
+    .filter-details summary::after { content: '+'; float: right; font-size: 1rem; line-height: 0.8; }
+    .filter-details[open] summary::after { content: '−'; }
+    .filter-details .filter-selects { margin-top: 0.65rem; }
+    .filter-selects { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .filter-clear { justify-self: start; }
   }
   @media (max-width: 700px) {
     .entry { display: block; margin-top: 3.5rem; }

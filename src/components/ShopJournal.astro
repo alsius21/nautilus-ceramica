@@ -2,6 +2,8 @@
 import Footer from '@/components/Footer.astro';
 import { SHOP_ENABLED } from '@/consts';
 import { works, type Work, getSlug } from '@/lib/content';
+import RelatedPieces from '@/components/RelatedPieces.astro';
+import { getRelatedWorks } from '@/lib/shop-discovery';
 import { t, normalizeLocale, locales } from '@/i18n';
 import { getRelativeLocaleUrl } from 'astro:i18n';
 
@@ -26,6 +28,7 @@ const hasPrice = typeof shop.price === 'number';
 const shopHref = getRelativeLocaleUrl(locale, `/${t(locale, 'shop.path')}`);
 const galleryHref = getRelativeLocaleUrl(locale, `/${t(locale, 'gallery.path')}/${getSlug(work, locale)}`);
 const contactHref = getRelativeLocaleUrl(locale, `/${t(locale, 'order.path')}/${t(locale, 'shop.contact.path')}`);
+const relatedPieces = getRelatedWorks(work, works);
 
 // Data for cart sidebar — all available works for price/title lookup
 const availableWorksData = works
@@ -56,7 +59,7 @@ const availableWorksData = works
     </nav>
   </header>
 
-  <article class="entry">
+  <article class:list={["entry", { "has-cart": SHOP_ENABLED }]}>
     <div class="entry-intro">
       <h1>{title}</h1>
       <p class="description">{description}</p>
@@ -130,6 +133,10 @@ const availableWorksData = works
       </aside>
     )}
   </article>
+
+  {relatedPieces.length > 0 && (
+    <RelatedPieces pieces={relatedPieces} category={work.category} locale={locale} base={base} />
+  )}
 
   <script type="application/json" id="shop-data" set:html={JSON.stringify(availableWorksData)} />
 
@@ -369,9 +376,10 @@ const availableWorksData = works
     align-items: start;
     max-width: 110rem;
     width: 100%;
-    margin: clamp(3rem, 9vw, 9rem) auto 0;
-    padding-bottom: clamp(3rem, 8vw, 6rem);
+    margin: clamp(2.5rem, 5vw, 5rem) auto 0;
+    padding-bottom: clamp(3rem, 6vw, 5rem);
   }
+  .entry:not(.has-cart) { grid-template-columns: minmax(14rem, 0.65fr) minmax(0, 1.35fr); }
   .entry-intro { position: sticky; top: 2rem; }
   .eyebrow { margin: 0 0 1.5rem; font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase; }
   h1 {
@@ -430,7 +438,7 @@ const availableWorksData = works
   .cart-btn.is-added { background: var(--ink); color: var(--paper); }
   .cart-btn.is-added:hover { background: transparent; color: var(--ink); }
   .shop-note { margin: 0.9rem 0 0; font-size: 0.78rem; line-height: 1.6; color: color-mix(in srgb, var(--ink) 58%, transparent); font-style: italic; }
-  .entry-main { min-width: 0; display: grid; gap: 2rem; }
+  .entry-main { min-width: 0; display: grid; gap: 1rem; }
   .work-gallery { display: grid; gap: clamp(1rem, 3vw, 3rem); }
   .work-gallery figure { margin: 0; overflow: hidden; background: #dcd5ca; }
   .work-gallery img { display: block; width: 100%; height: auto; transition: transform 700ms cubic-bezier(0.2, 0.7, 0.2, 1); }

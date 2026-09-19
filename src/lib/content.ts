@@ -2,6 +2,7 @@ import type { Locale } from '@/i18n';
 import worksData from '@/content/works.json';
 import exhibitionsData from '@/content/exhibitions.json';
 import aboutData from '@/content/about.json';
+import { PIECE_CATEGORIES, PIECE_SIZES, type PieceCategory, type PieceSize } from '@/lib/shop-discovery';
 
 /**
  * Capa de contingut — l'únic punt d'accés a les dades editorials.
@@ -47,6 +48,11 @@ export type WorkContent = {
 	description: LocalizedText;
 	meta: LocalizedText;
 	made: 'hoji' | 'llotja';
+	/** Category and size are optional so older catalogue entries remain valid. */
+	category?: PieceCategory;
+	size?: PieceSize;
+	/** Comma-separated discovery tags, translated per locale. */
+	tags?: LocalizedText;
 	/** Data de fabricació (AAAA-MM-DD), opcional. */
 	madeAt?: string;
 	/** Data d'alta al catàleg (ISO), opcional; l'omple l'editor. */
@@ -129,6 +135,23 @@ function checkShop(shop: unknown, path: string): asserts shop is ShopInfo {
 	}
 }
 
+function checkDiscovery(work: WorkContent, path: string): void {
+	if (work.category !== undefined && !PIECE_CATEGORIES.includes(work.category)) {
+		fail(`${path}.category invàlida`);
+	}
+	if (work.size !== undefined && !PIECE_SIZES.includes(work.size)) {
+		fail(`${path}.size invàlida`);
+	}
+	if (work.tags !== undefined) {
+		checkText(work.tags, `${path}.tags`);
+		for (const locale of LOCALES) {
+			if (work.tags[locale].split(',').some((tag) => tag.trim() === '')) {
+				fail(`${path}.tags.${locale} ha de contenir etiquetes separades per comes sense buits`);
+			}
+		}
+	}
+}
+
 function loadWorks(raw: unknown): WorkContent[] {
 	if (!Array.isArray(raw)) fail('works.json ha de ser una llista');
 	const ids = new Set<string>();
@@ -151,6 +174,7 @@ function loadWorks(raw: unknown): WorkContent[] {
 		if (work.made !== 'hoji' && work.made !== 'llotja') {
 			fail(`${path}.made ha de ser «hoji» o «llotja»`);
 		}
+		checkDiscovery(work, path);
 		for (const key of ['madeAt', 'addedAt', 'updatedAt'] as const) {
 			const value = (work as Record<string, unknown>)[key];
 			if (value !== undefined && typeof value !== 'string') fail(`${path}.${key} ha de ser text`);

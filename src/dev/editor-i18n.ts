@@ -19,6 +19,10 @@ export type EditorStrings = {
 	optional: string;
 	slugPlaceholder: string;
 	madeLabel: string;
+	categoryLabel: string;
+	sizeLabel: string;
+	tagsLabel: string;
+	tagsHint: string;
 	madeAtLabel: string;
 	datesNote: string;
 	sectionDescription: string;
@@ -92,6 +96,10 @@ export const editorStrings: Record<EditorLocale, EditorStrings> = {
 		optional: '(opcional)',
 		slugPlaceholder: 'gerro-de-tardor',
 		madeLabel: 'Taller',
+		categoryLabel: 'Categoria',
+		sizeLabel: 'Mida',
+		tagsLabel: 'Etiquetes',
+		tagsHint: 'Separa les etiquetes amb comes.',
 		madeAtLabel: 'Data de fabricació',
 		datesNote: 'Les dates d’alta i d’edició s’omplen automàticament en desar.',
 		sectionDescription: 'Descripció',
@@ -165,6 +173,10 @@ export const editorStrings: Record<EditorLocale, EditorStrings> = {
 		optional: '(opcional)',
 		slugPlaceholder: 'jarron-de-otono',
 		madeLabel: 'Taller',
+		categoryLabel: 'Categoría',
+		sizeLabel: 'Tamaño',
+		tagsLabel: 'Etiquetas',
+		tagsHint: 'Separa las etiquetas con comas.',
 		madeAtLabel: 'Fecha de fabricación',
 		datesNote: 'Las fechas de alta y edición se rellenan automáticamente al guardar.',
 		sectionDescription: 'Descripción',
@@ -238,6 +250,10 @@ export const editorStrings: Record<EditorLocale, EditorStrings> = {
 		optional: '(optional)',
 		slugPlaceholder: 'autumn-vase',
 		madeLabel: 'Workshop',
+		categoryLabel: 'Category',
+		sizeLabel: 'Size',
+		tagsLabel: 'Tags',
+		tagsHint: 'Separate tags with commas.',
 		madeAtLabel: 'Date made',
 		datesNote: 'Added and edited dates are filled in automatically on save.',
 		sectionDescription: 'Description',

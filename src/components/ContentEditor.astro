@@ -4,6 +4,7 @@
 import { works, type Work } from '@/lib/content';
 import { t, normalizeLocale } from '@/i18n';
 import { editorStrings } from '@/dev/editor-i18n';
+import { PIECE_CATEGORIES, PIECE_SIZES, categoryLabel, sizeLabel } from '@/lib/shop-discovery';
 import { getRelativeLocaleUrl } from 'astro:i18n';
 
 interface Props {
@@ -42,6 +43,13 @@ const values = {
 	},
 	slug: work?.slugs.ca ?? '',
 	made: work?.made ?? 'hoji',
+	category: work?.category ?? '',
+	size: work?.size ?? '',
+	tags: {
+		ca: work?.tags?.ca ?? '',
+		es: work?.tags?.es ?? '',
+		en: work?.tags?.en ?? '',
+	},
 	madeAt: work?.madeAt ?? '',
 	shop: work?.shop,
 };
@@ -114,6 +122,31 @@ const clientStrings = {
 							</select>
 						</label>
 					</div>
+					<label class="field">
+						<span class="label">{s.tagsLabel} (ca) <em>{s.optional}</em></span>
+						<input id="tags-ca" type="text" autocomplete="off" value={values.tags.ca} />
+						<span class="field-note">{s.tagsHint}</span>
+					</label>
+					<div class="field-row">
+						<label class="field">
+							<span class="label">{s.categoryLabel} <em>{s.optional}</em></span>
+							<select id="category" name="category">
+								<option value="" selected={!values.category}>{s.optional}</option>
+								{PIECE_CATEGORIES.map((category) => (
+									<option value={category} selected={values.category === category}>{categoryLabel(category, locale)}</option>
+								))}
+							</select>
+						</label>
+						<label class="field">
+							<span class="label">{s.sizeLabel} <em>{s.optional}</em></span>
+							<select id="size" name="size">
+								<option value="" selected={!values.size}>{s.optional}</option>
+								{PIECE_SIZES.map((size) => (
+									<option value={size} selected={values.size === size}>{sizeLabel(size, locale)}</option>
+								))}
+							</select>
+						</label>
+					</div>
 					<div class="field-row">
 						<label class="field">
 							<span class="label">{s.madeAtLabel} <em>{s.optional}</em></span>
@@ -164,6 +197,16 @@ const clientStrings = {
 							<span class="label">{s.descEn}</span>
 							<textarea id="description-en" rows="3">{values.description.en}</textarea>
 						</label>
+						<div class="field-row">
+							<label class="field">
+								<span class="label">{s.tagsLabel} (es)</span>
+								<input id="tags-es" type="text" autocomplete="off" value={values.tags.es} />
+							</label>
+							<label class="field">
+								<span class="label">{s.tagsLabel} (en)</span>
+								<input id="tags-en" type="text" autocomplete="off" value={values.tags.en} />
+							</label>
+						</div>
 					</div>
 				</details>
 
@@ -772,6 +815,13 @@ const clientStrings = {
 					en: document.getElementById('description-en').value,
 				},
 				made: document.getElementById('made').value,
+				category: document.getElementById('category').value,
+				size: document.getElementById('size').value,
+				tags: {
+					ca: document.getElementById('tags-ca').value,
+					es: document.getElementById('tags-es').value,
+					en: document.getElementById('tags-en').value,
+				},
 				madeAt: document.getElementById('made-at').value,
 				images: items.map((item) =>
 					item.file

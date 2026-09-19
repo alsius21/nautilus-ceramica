@@ -14,6 +14,7 @@
       "en": "Granadan ceramic plate, inspired by Andalusian tradition and made by hand at the Hoji workshop."
     },
     "made": "hoji",
+    "category": "plate",
     "images": [
       {
         "file": "works/plat-de-taller/plato_en_taller_de_hoji",
@@ -41,6 +42,7 @@
       "en": "Calabaza: an organic ceramic piece shown at the Argillà festival in Argentona as part of the Llotja harvest."
     },
     "made": "llotja",
+    "category": "sculpture",
     "images": [
       {
         "file": "exhibitions/exposicion_calabaza_en_llotja",
@@ -68,6 +70,7 @@
       "en": "Ceramic bowl thrown by hand at the Hoji workshop, walls marked by the fingers and a rim that seeks the balance of the material."
     },
     "made": "hoji",
+    "category": "bowl",
     "images": [
       {
         "file": "works/bol-de-taller/bol_en_taller_de_hoji",
@@ -95,6 +98,7 @@
       "en": "Handmade ceramic chess pieces, between the Hoji workshop and the Llotja: the complete family of figures."
     },
     "made": "llotja",
+    "category": "sculpture",
     "images": [
       {
         "file": "works/peces-descacs/proyecto-dama_en_taller-de-hoji",
@@ -130,6 +134,7 @@
       "en": "Ceramic vase thrown by hand at the Hoji workshop: the material gathered at the rim while the wheel sets its own rhythm."
     },
     "made": "hoji",
+    "category": "vase",
     "images": [
       {
         "file": "works/jarron/jarron-08-26_01",
@@ -173,6 +178,7 @@
       "en": "Ceramic oil cruet by Zara Castillo Martínez, handmade at the Hoji workshop."
     },
     "made": "hoji",
+    "category": "bottle",
     "images": [
       {
         "file": "works/aceitera/aceitera_taller-de-hoji",
@@ -208,6 +214,7 @@
       "en": "Tall ceramic vase, thrown by hand at the Hoji workshop."
     },
     "made": "hoji",
+    "category": "vase",
     "images": [
       {
         "file": "works/jarron-alt/jarron-alto_taller-de-hoji",
@@ -243,6 +250,7 @@
       "en": "PF ceramic vase, thrown by hand at the Hoji workshop."
     },
     "made": "hoji",
+    "category": "vase",
     "images": [
       {
         "file": "works/jarron-pf/jarron-pf",
@@ -270,6 +278,7 @@
       "en": "Ceramic lemon squeezer"
     },
     "made": "hoji",
+    "category": "juicer",
     "addedAt": "2026-09-19T23:05:40.914Z",
     "updatedAt": "2026-09-19T23:07:02.364Z",
     "images": [

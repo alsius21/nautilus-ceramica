@@ -21,6 +21,8 @@ import { fileURLToPath } from 'node:url';
 const LOCALES = ['ca', 'es', 'en'];
 const MADE = ['hoji', 'llotja'];
 const STATUSES = ['available', 'reserved', 'sold', 'made_to_order', 'inquiry'];
+const CATEGORIES = ['vase', 'cup', 'bowl', 'plate', 'bottle', 'juicer', 'sculpture', 'other'];
+const SIZES = ['small', 'medium', 'large'];
 
 const routePath = '/__content/works';
 
@@ -62,6 +64,14 @@ function localized(payload, key, fallback, slugFallback) {
 	return output;
 }
 
+function tagText(value) {
+	return clean(value)
+		.split(',')
+		.map((tag) => tag.trim())
+		.filter(Boolean)
+		.join(', ');
+}
+
 function buildText(payload) {
 	const titleCa = clean(payload?.title?.ca);
 	if (!titleCa) throw fail('Cal un títol en català.');
@@ -83,6 +93,34 @@ function buildText(payload) {
 	}
 
 	const made = MADE.includes(payload?.made) ? payload.made : 'hoji';
+	let category;
+	if (payload?.category !== undefined && payload.category !== '') {
+		if (!CATEGORIES.includes(payload.category)) throw fail('La categoria de la peça no és vàlida.');
+		category = payload.category;
+	}
+	let size;
+	if (payload?.size !== undefined && payload.size !== '') {
+		if (!SIZES.includes(payload.size)) throw fail('La mida de la peça no és vàlida.');
+		size = payload.size;
+	}
+	if (payload?.tags !== undefined && (payload.tags === null || typeof payload.tags !== 'object' || Array.isArray(payload.tags))) {
+		throw fail('Les etiquetes han de ser un objecte amb valors ca/es/en.');
+	}
+	const tagsSource = payload?.tags ?? {};
+	for (const locale of LOCALES) {
+		if (tagsSource[locale] !== undefined && typeof tagsSource[locale] !== 'string') {
+			throw fail(`Les etiquetes de ${locale} han de ser text.`);
+		}
+	}
+	const tagsCa = tagText(tagsSource.ca);
+	if (!tagsCa && LOCALES.some((locale) => tagText(tagsSource[locale]))) {
+		throw fail('Cal indicar les etiquetes en català abans dels altres idiomes.');
+	}
+	const localizedTags = tagsCa
+		? Object.fromEntries(
+				LOCALES.map((locale) => [locale, tagText(tagsSource[locale]) || tagsCa]),
+			)
+		: undefined;
 
 	const shopRaw = payload?.shop ?? {};
 	const shop = {
@@ -106,7 +144,7 @@ function buildText(payload) {
 		madeAt = madeAtRaw;
 	}
 
-	return { title, description, slugs, meta, made, madeAt, shop };
+	return { title, description, slugs, meta, made, madeAt, shop, category, size, tags: localizedTags };
 }
 
 function templateAlt(title, index) {
@@ -172,6 +210,9 @@ function formatWork(work) {
 	if (work.madeAt) lines.push(`    "madeAt": ${JSON.stringify(work.madeAt)},`);
 	if (work.addedAt) lines.push(`    "addedAt": ${JSON.stringify(work.addedAt)},`);
 	if (work.updatedAt) lines.push(`    "updatedAt": ${JSON.stringify(work.updatedAt)},`);
+	if (work.category) lines.push(`    "category": ${JSON.stringify(work.category)},`);
+	if (work.size) lines.push(`    "size": ${JSON.stringify(work.size)},`);
+	if (work.tags) lines.push(`    "tags": ${localizedInline(work.tags)},`);
 	lines.push('    "images": [', images, '    ],', `    "shop": ${shopInline(work.shop)}`, '  }');
 	return lines.join('\n');
 }
@@ -390,6 +431,12 @@ export default function contentEditor() {
 							made: text.made,
 						};
 						if (text.madeAt) work.madeAt = text.madeAt;
+						if (text.category) work.category = text.category;
+						else if (existing?.category && payload.category === undefined) work.category = existing.category;
+						if (text.size) work.size = text.size;
+						else if (existing?.size && payload.size === undefined) work.size = existing.size;
+						if (text.tags) work.tags = text.tags;
+						else if (existing?.tags && payload.tags === undefined) work.tags = existing.tags;
 						work.addedAt = addedAt;
 						work.updatedAt = now;
 						work.images = images;

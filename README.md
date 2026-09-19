@@ -148,6 +148,29 @@ idiomes i executa `pnpm build` per verificar. Els textos d'interfície
 (navegació, botons, formularis) segueixen a `src/i18n/index.ts` i no cal
 tocar-los.
 
+### Descoberta de peces a la botiga
+
+Pla implementat en tres parts: classificació a l'editor, cerca i filtres a la
+botiga, i connexions entre fitxes. La galeria conserva la seva presentació.
+
+- `category` és opcional: `vase`, `cup`, `bowl`, `plate`, `bottle`, `juicer`,
+  `sculpture` o `other`. Els noms es mostren traduïts en ca/es/en.
+- `size` és una classificació editorial opcional (`small`, `medium`, `large`),
+  independent del text de dimensions. No s'infereix de fotografies.
+- `tags` conté etiquetes separades per comes en ca/es/en per descriure acabats,
+  materials o col·leccions. Es gestionen des de l'editor.
+- La cerca ignora accents i majúscules. Els filtres es combinen i es poden
+  compartir amb `?q=...&category=vase&size=small`.
+- Les recomanacions mostren fins a tres peces publicades a la botiga amb
+  categoria o etiquetes compartides, prioritzant les que no estan venudes ni
+  reservades. La mida només ajuda a ordenar coincidències; no crea una relació
+  per si sola. Sense coincidències, no apareix la secció.
+- Sense JavaScript, el catàleg i els enllaços continuen accessibles; la cerca
+  i els filtres s'activen al navegador.
+
+Validació de la lògica: `node --experimental-strip-types --test tools/shop-discovery.test.mjs`
+(Node 22.12 o superior). Compilació completa: `pnpm build`.
+
 ### Convenció d'imatges
 
 El camp `file` és una ruta relativa sota `public/images/` **sense extensió**;
