@@ -16,7 +16,7 @@
     "made": "hoji",
     "images": [
       {
-        "file": "gallery/plato_en_taller_de_hoji",
+        "file": "works/plat-de-taller/plato_en_taller_de_hoji",
         "alt": {
           "ca": "Plat de ceràmica treballat a mà al taller Hoji",
           "es": "Plato de cerámica trabajado a mano en el taller Hoji",
@@ -70,7 +70,7 @@
     "made": "hoji",
     "images": [
       {
-        "file": "gallery/bol_en_taller_de_hoji",
+        "file": "works/bol-de-taller/bol_en_taller_de_hoji",
         "alt": {
           "ca": "Bol de ceràmica treballat a mà al taller Hoji",
           "es": "Cuenco de cerámica trabajado a mano en el taller Hoji",
@@ -97,7 +97,7 @@
     "made": "llotja",
     "images": [
       {
-        "file": "chess/proyecto-dama_en_taller-de-hoji",
+        "file": "works/peces-descacs/proyecto-dama_en_taller-de-hoji",
         "alt": {
           "ca": "Dama del projecte d’escacs, al taller Hoji",
           "es": "Dama del proyecto de ajedrez, en el taller Hoji",
@@ -105,7 +105,7 @@
         }
       },
       {
-        "file": "chess/proyecto-alfil-negro_en_taller-de-hoji",
+        "file": "works/peces-descacs/proyecto-alfil-negro_en_taller-de-hoji",
         "alt": {
           "ca": "Alfil negre del projecte d’escacs, a la Llotja",
           "es": "Alfil negro del proyecto de ajedrez, en la Llotja",
@@ -132,7 +132,7 @@
     "made": "hoji",
     "images": [
       {
-        "file": "jarron/jarron-08-26_01",
+        "file": "works/jarron/jarron-08-26_01",
         "alt": {
           "ca": "Gerro de ceràmica tornat al taller Hoji",
           "es": "Jarrón de cerámica torneado en el taller Hoji",
@@ -140,7 +140,7 @@
         }
       },
       {
-        "file": "jarron/jarron-08-26_02",
+        "file": "works/jarron/jarron-08-26_02",
         "alt": {
           "ca": "Gerro tornat al taller Hoji, vist des d’un altre angle",
           "es": "Jarrón torneado en el taller Hoji, visto desde otro ángulo",
@@ -148,7 +148,7 @@
         }
       },
       {
-        "file": "jarron/jarron-08-26_03",
+        "file": "works/jarron/jarron-08-26_03",
         "alt": {
           "ca": "Detall del gerro de ceràmica tornat al taller Hoji",
           "es": "Detalle del jarrón de cerámica torneado en el taller Hoji",
@@ -175,7 +175,7 @@
     "made": "hoji",
     "images": [
       {
-        "file": "aceitera/aceitera_taller-de-hoji",
+        "file": "works/aceitera/aceitera_taller-de-hoji",
         "alt": {
           "ca": "Setrillera de ceràmica al taller Hoji",
           "es": "Aceitera de cerámica en el taller Hoji",
@@ -183,7 +183,7 @@
         }
       },
       {
-        "file": "aceitera/aceitera_taller-de-hoji-02",
+        "file": "works/aceitera/aceitera_taller-de-hoji-02",
         "alt": {
           "ca": "Detall de la setrillera, boca i nansa",
           "es": "Detalle de la aceitera, boca y asa",
@@ -210,7 +210,7 @@
     "made": "hoji",
     "images": [
       {
-        "file": "jarron-alt/jarron-alto_taller-de-hoji",
+        "file": "works/jarron-alt/jarron-alto_taller-de-hoji",
         "alt": {
           "ca": "Gerro alt de ceràmica al taller Hoji",
           "es": "Jarrón alto de cerámica en el taller Hoji",
@@ -218,7 +218,7 @@
         }
       },
       {
-        "file": "jarron-alt/jarron-alto_taller-de-hoji-02",
+        "file": "works/jarron-alt/jarron-alto_taller-de-hoji-02",
         "alt": {
           "ca": "Detall del gerro alt",
           "es": "Detalle del jarrón alto",
@@ -245,7 +245,7 @@
     "made": "hoji",
     "images": [
       {
-        "file": "jarron-pf/jarron-pf",
+        "file": "works/jarron-pf/jarron-pf",
         "alt": {
           "ca": "Gerro PF al taller Hoji",
           "es": "Jarrón PF en el taller Hoji",
@@ -254,5 +254,32 @@
       }
     ],
     "shop": { "available": false, "status": "sold" }
+  },
+  {
+    "id": "exprimidor",
+    "slugs": { "ca": "exprimidor", "es": "exprimidor", "en": "exprimidor" },
+    "title": { "ca": "Exprimidor", "es": "Exprimidor", "en": "Ceramic Lemon Squeezer" },
+    "description": {
+      "ca": "Exprimidor esmaltat en blau clar.",
+      "es": "Exprimidor esmaltado en azul claro.",
+      "en": "Ceramic lemon squeezer"
+    },
+    "meta": {
+      "ca": "Exprimidor esmaltat en blau clar.",
+      "es": "Exprimidor esmaltado en azul claro.",
+      "en": "Ceramic lemon squeezer"
+    },
+    "made": "hoji",
+    "images": [
+      {
+        "file": "works/exprimidor/exprimidor-01",
+        "alt": {
+          "ca": "Exprimidor",
+          "es": "Exprimidor",
+          "en": "Ceramic Lemon Squeezer"
+        }
+      }
+    ],
+    "shop": { "available": true, "status": "inquiry" }
   }
 ]

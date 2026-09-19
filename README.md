@@ -10,7 +10,7 @@
 </div>
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/alsius21/nautilus-ceramica/main/public/images/gallery/plato_en_taller_de_hoji.webp" alt="Plat de ceràmica al taller Hoji" width="760">
+  <img src="https://raw.githubusercontent.com/alsius21/nautilus-ceramica/main/public/images/works/plat-de-taller/plato_en_taller_de_hoji.webp" alt="Plat de ceràmica al taller Hoji" width="760">
 </p>
 
 ## Sobre el projecte
@@ -30,7 +30,7 @@ El lloc és intencionadament petit i ràpid: sortida estàtica amb Astro, obra s
 - [vite-plugin-pwa](https://vite-pwa-org.netlify.app/) per al *service worker*, el manifest d'aplicació i l'ofuscació offline
 - [Fraunces](https://fonts.google.com/specimen/Fraunces) per a la tipografia de display
 - [Archivo](https://fonts.google.com/specimen/Archivo) per al text d'interfície
-- Imatges WebP a `public/images/instagram/`
+- Imatges WebP a `public/images/`
 
 ## Posada en marxa
 
@@ -95,9 +95,13 @@ src/
 │   ├── Footer.astro       # Copyright i enllaç a Instagram
 │   └── Welcome.astro      # Composició de la pàgina d'inici, galeria i selector d'idioma
 ├── content/
-│   ├── works.json         # Obres: títols, descripcions, slugs, imatges i botiga (ca/es/en)
+│   ├── works.json         # Obres: títols, descripcions, slugs, imatges, dates i botiga (ca/es/en)
 │   ├── exhibitions.json   # Exposicions (ca/es/en)
 │   └── about.json          # Pàgina «Sobre mi» (ca/es/en)
+├── dev/
+│   ├── content-editor.astro # Editor de contingut (només en desenvolupament)
+│   ├── editor-i18n.ts       # Textos de l'editor (ca/es/en)
+│   └── editor-routes.mjs    # Rutes localitzades de l'editor
 ├── lib/
 │   └── content.ts         # Capa de contingut: tipus, validació i accés a les dades
 ├── i18n/
@@ -112,11 +116,16 @@ src/
     └── en/
         └── index.astro    # Versió anglesa a `/en/`
 public/
-├── images/instagram/       # Obra del taller i d'exposicions
+├── images/
+│   ├── works/              # Imatges d'obres (galeria i botiga)
+│   ├── exhibitions/        # Imatges d'exposicions
+│   └── instagram/          # Àrea de tria, mai publicada
 ├── pwa-192x192.png         # Icona PWA (192 px)
 ├── pwa-512x512.png         # Icona PWA (512 px)
 ├── pwa-maskable-512x512.png# Icona maskable (512 px)
 └── apple-touch-icon.png    # Icona per a dispositius Apple (180 px)
+tools/
+└── content-editor.mjs      # Integració de desenvolupament: ruta i desament de peces
 ```
 
 ## Actualitzar el contingut (sense tocar codi)
@@ -127,16 +136,58 @@ build: si falta un idioma, un slug o un text alternatiu, el build falla dient
 exactament on.
 
 - **Obres** (`src/content/works.json`): títol, descripció, meta (SEO),
-  slugs per idioma, taller (`hoji` | `llotja`), imatges (`file` = ruta sota
-  `public/images` sense extensió + `alt` per idioma) i botiga (`available`,
-  `status`, `price`, `dimensions`).
+  slugs per idioma, taller (`hoji` | `llotja`), dates (`madeAt` de fabricació
+  opcional; `addedAt` i `updatedAt` automàtiques en desar), imatges (`file` =
+  ruta sota `public/images` sense extensió + `alt` per idioma; vegeu la
+  convenció d'imatges més avall) i botiga (`available`, `status`, `price`,
+  `dimensions`).
 - **Exposicions** (`src/content/exhibitions.json`): mateixa idea + `url` opcional.
 - **Sobre mi** (`src/content/about.json`): titular, entradeta i seccions.
 
-Per afegir una peça: puja la imatge optimitzada (WebP) a `public/images/`,
-afegeix una entrada a `works.json` amb els tres idiomes i executa
-`pnpm build` per verificar. Els textos d'interfície (navegació, botons,
-formularis) segueixen a `src/i18n/index.ts` i no cal tocar-los.
+Per afegir una peça: puja la imatge optimitzada (WebP) a
+`public/images/works/<slug>/`, afegeix una entrada a `works.json` amb els tres
+idiomes i executa `pnpm build` per verificar. Els textos d'interfície
+(navegació, botons, formularis) segueixen a `src/i18n/index.ts` i no cal
+tocar-los.
+
+### Convenció d'imatges
+
+El camp `file` és una ruta relativa sota `public/images/` **sense extensió**;
+l'extensió sempre és `.webp`. L'estructura és:
+
+```text
+public/images/
+├── works/            # Obres (galeria i botiga): works/<work.id>/<nom>
+├── exhibitions/      # Exposicions: exhibitions/<nom>
+└── instagram/        # Àrea de tria; mai referenciada al contingut
+```
+
+- **Obres:** `file` = `works/<work.id>/<nom-sense-extensió>`. L'editor genera
+  `<nom> = <id>-NN` (`01`, `02`…); les peces migrades conserven el nom original.
+- **Exposicions:** `file` = `exhibitions/<nom-sense-extensió>` (carpeta plana).
+- **Excepció:** l'obra `calabaza-a-la-llotja` reutilitza
+  `exhibitions/exposicion_calabaza_en_llotja`; no es duplica ni es mou.
+- **Galeria i botiga** comparteixen les imatges de `works/<id>/`; no hi ha
+  carpeta pròpia de botiga.
+- `src/lib/content.ts` valida la convenció en cada build: un `file` que no
+  comenci per `works/` o `exhibitions/`, que contingui `..` o que apunti a
+  `instagram/` fa fallar la compilació.
+
+### Editor de contingut (només en desenvolupament)
+
+Amb `pnpm dev` en marxa, la galeria mostra un botó **+ Nova peça** que obre
+l'editor a la ruta localitzada: `/contingut/peces/afegir`,
+`/es/contenido/piezas/crear` i `/en/content/pieces/add`. Des d'allà pots
+escriure el títol, la descripció, la data de fabricació opcional, afegir i
+**retallar** fotografies (marc arrossegable i relacions d'aspecte) i desar la
+peça:
+
+- les imatges es converteixen a WebP i es desen a `public/images/works/<slug>/`;
+- l'entrada s'afegeix a `src/content/works.json` amb les dates d'alta i
+  d'edició automàtiques.
+
+La ruta i el punt de desament només existeixen amb `astro dev`: `astro build`
+no els genera mai, així que no arriben a producció.
 
 El perfil d'Instagram enllaçat al lloc és [@nautilceramica](https://www.instagram.com/nautilceramica/).
 

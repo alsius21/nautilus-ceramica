@@ -20,7 +20,13 @@ export type ShopStatus = 'available' | 'reserved' | 'sold' | 'made_to_order' | '
 export type LocalizedText = Record<Locale, string>;
 
 export type ContentImage = {
-	/** Ruta relativa (dir + nom sense extensió) sota public/images. */
+	/**
+	 * Ruta relativa sense extensió sota `public/images/` (l'extensió sempre és
+	 * `.webp`). Convenció:
+	 * - obres: `works/<work.id>/<nom>`;
+	 * - exposicions: `exhibitions/<nom>`;
+	 * - `instagram/` és àrea de tria i no es pot publicar.
+	 */
 	file: string;
 	alt: LocalizedText;
 };
@@ -41,6 +47,12 @@ export type WorkContent = {
 	description: LocalizedText;
 	meta: LocalizedText;
 	made: 'hoji' | 'llotja';
+	/** Data de fabricació (AAAA-MM-DD), opcional. */
+	madeAt?: string;
+	/** Data d'alta al catàleg (ISO), opcional; l'omple l'editor. */
+	addedAt?: string;
+	/** Data de l'última edició (ISO), opcional; l'omple l'editor. */
+	updatedAt?: string;
 	images: ContentImage[];
 	shop: ShopInfo;
 };
@@ -94,6 +106,15 @@ function checkText(value: unknown, path: string): asserts value is LocalizedText
 function checkImage(image: unknown, path: string): asserts image is ContentImage {
 	const file = (image as ContentImage | null)?.file;
 	if (typeof file !== 'string' || file.trim() === '') fail(`falta «${path}.file»`);
+	if (file.includes('..') || file.startsWith('/')) {
+		fail(`«${path}.file» no pot contenir «..» ni començar per «/» («${file}»)`);
+	}
+	if (file.startsWith('instagram/')) {
+		fail(`«${path}.file» apunta a instagram/, que no és publicable («${file}»)`);
+	}
+	if (!file.startsWith('works/') && !file.startsWith('exhibitions/')) {
+		fail(`«${path}.file» ha de començar per «works/» o «exhibitions/» («${file}»)`);
+	}
 	checkText((image as ContentImage).alt, `${path}.alt`);
 }
 
@@ -129,6 +150,10 @@ function loadWorks(raw: unknown): WorkContent[] {
 		checkText(work.meta, `${path}.meta`);
 		if (work.made !== 'hoji' && work.made !== 'llotja') {
 			fail(`${path}.made ha de ser «hoji» o «llotja»`);
+		}
+		for (const key of ['madeAt', 'addedAt', 'updatedAt'] as const) {
+			const value = (work as Record<string, unknown>)[key];
+			if (value !== undefined && typeof value !== 'string') fail(`${path}.${key} ha de ser text`);
 		}
 		if (!Array.isArray(work.images) || work.images.length === 0) {
 			fail(`${path}: cal almenys una imatge`);
