@@ -9,6 +9,10 @@ import { getRelativeLocaleUrl } from 'astro:i18n';
 const locale = normalizeLocale(Astro.currentLocale);
 const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
 const contactHref = getRelativeLocaleUrl(locale, `/${t(locale, 'order.path')}/${t(locale, 'shop.contact.path')}`);
+const editorHref = getRelativeLocaleUrl(
+  locale,
+  `/${t(locale, 'editor.path')}/${t(locale, 'editor.pieces.path')}/${t(locale, 'editor.add.path')}`,
+);
 
 const availableWorks = works.filter((w) => w.shop.available);
 const initialQuery = '';
@@ -68,6 +72,9 @@ const cards = availableWorks.map((work) => {
           </a>
         ))}
       </nav>
+      {import.meta.env.DEV && (
+        <a class="dev-link" href={editorHref}>{t(locale, 'editor.add')}</a>
+      )}
     </div>
   </header>
 
@@ -507,6 +514,25 @@ const cards = availableWorks.map((work) => {
   .page-nav a:hover, .page-nav a:focus-visible, .page-nav a[aria-current="page"] { color: var(--ink); }
   .lang-switcher { display: flex; gap: 1rem; }
 
+  .dev-link {
+    color: color-mix(in srgb, var(--ink) 72%, transparent);
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: 1px dashed color-mix(in srgb, var(--ink) 35%, transparent);
+    border-radius: 999px;
+    padding: 0.35rem 0.85rem;
+    transition:
+      color 240ms ease,
+      border-color 240ms ease;
+  }
+  .dev-link:hover,
+  .dev-link:focus-visible {
+    color: var(--ink);
+    border-color: var(--ink);
+  }
+
   .entry {
     display: grid;
     grid-template-columns: minmax(14rem, 0.62fr) minmax(0, 1.1fr) minmax(16rem, 0.72fr);
@@ -580,7 +606,7 @@ const cards = availableWorks.map((work) => {
 
   .shop-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(19rem, 100%), 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: clamp(1rem, 3vw, 2.2rem);
     align-items: start;
   }
@@ -876,6 +902,7 @@ const cards = availableWorks.map((work) => {
   @media (max-width: 1100px) {
     .entry { grid-template-columns: minmax(14rem, 0.65fr) minmax(0, 1.35fr); }
     .cart-sidebar { grid-column: 1 / -1; position: static; }
+    .shop-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
   @media (max-width: 880px) {
     .journal-header { flex-direction: column; align-items: flex-start; gap: 0.9rem; }
@@ -922,6 +949,7 @@ const cards = availableWorks.map((work) => {
   @media (max-width: 700px) {
     .entry { display: block; margin-top: 3.5rem; }
     .entry-intro { position: static; margin-bottom: 2.5rem; }
+    .shop-grid { grid-template-columns: 1fr; }
     h1 { max-width: 12ch; }
   }
 

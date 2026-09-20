@@ -1,5 +1,6 @@
 ---
 import Footer from '@/components/Footer.astro';
+import ShareButton from '@/components/ShareButton.astro';
 import { type Work, getSlug } from '@/lib/content';
 import { t, normalizeLocale, locales } from '@/i18n';
 import { getRelativeLocaleUrl } from 'astro:i18n';
@@ -58,11 +59,12 @@ const editHref = getRelativeLocaleUrl(
 			<p class="description">{work.description[locale]}</p>
 			{madeAtLabel && <p class="made-date">{t(locale, 'work.made_at')} {madeAtLabel}</p>}
 
-			{shopAvailable && (
-				<div class="shop-detail">
-					<a class="shop-link" href={shopHref}>{t(locale, 'shop.view_in_shop')} →</a>
+			<div class="shop-detail">
+				<div class="detail-actions">
+					<ShareButton title={title} text={work.description[locale]} locale={locale} />
+					{shopAvailable && <a class="shop-link" href={shopHref}>{t(locale, 'shop.view_in_shop')} →</a>}
 				</div>
-			)}
+			</div>
 		</div>
 		<div class="entry-main">
 			<div class:list={["work-gallery", { 'is-gallery': images.length > 1 }]} aria-label={title}>
@@ -223,7 +225,6 @@ const editHref = getRelativeLocaleUrl(
 	.shop-note.muted { margin-top: 0.75rem; opacity: 0.9; }
 	.shop-link {
 		display: inline-block;
-		margin-top: 0.9rem;
 		font-size: 0.68rem;
 		letter-spacing: 0.12em;
 		text-transform: uppercase;
@@ -237,6 +238,13 @@ const editHref = getRelativeLocaleUrl(
 	.shop-link:focus-visible {
 		color: var(--ink);
 		border-color: var(--ink);
+	}
+	.detail-actions {
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: 1rem 1.25rem;
+		margin-top: 0.9rem;
 	}
 	.cta-interest {
 		display: inline-block;

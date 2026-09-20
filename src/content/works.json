@@ -278,9 +278,9 @@
       "en": "Ceramic lemon squeezer"
     },
     "made": "hoji",
-    "category": "juicer",
     "addedAt": "2026-09-19T23:05:40.914Z",
     "updatedAt": "2026-09-19T23:07:02.364Z",
+    "category": "juicer",
     "images": [
       {
         "file": "works/exprimidor/exprimidor-01",
@@ -292,5 +292,97 @@
       }
     ],
     "shop": { "available": true, "status": "inquiry" }
+  },
+  {
+    "id": "setrillera-terrosa",
+    "slugs": { "ca": "setrillera-terrosa", "es": "setrillera-terrosa", "en": "setrillera-terrosa" },
+    "title": { "ca": "Setrillera terrosa", "es": "Aceitera otoñal", "en": "Autumn Ceramic Oil Can" },
+    "description": {
+      "ca": "Setrillera esmaltada amb tons terrosos.",
+      "es": "Aceitera decorada con tonalidades de otoño",
+      "en": "Ceramic oil can perfect to match autumn decoration."
+    },
+    "meta": {
+      "ca": "Setrillera esmaltada amb tons terrosos.",
+      "es": "Aceitera decorada con tonalidades de otoño",
+      "en": "Ceramic oil can perfect to match autumn decoration."
+    },
+    "made": "hoji",
+    "addedAt": "2026-09-19T23:36:50.663Z",
+    "updatedAt": "2026-09-19T23:39:27.169Z",
+    "category": "bottle",
+    "images": [
+      {
+        "file": "works/setrillera-terrosa/setrillera-terrosa-01",
+        "alt": {
+          "ca": "Setrillera terrosa",
+          "es": "Aceitera otoñal",
+          "en": "Autumn Ceramic Oil Can"
+        }
+      },
+      {
+        "file": "works/setrillera-terrosa/setrillera-terrosa-02",
+        "alt": {
+          "ca": "Setrillera terrosa — detall 1",
+          "es": "Aceitera otoñal — detall 1",
+          "en": "Autumn Ceramic Oil Can — detall 1"
+        }
+      }
+    ],
+    "shop": { "available": true, "status": "available", "price": 40 }
+  },
+  {
+    "id": "setrillera-ergonomica-blava",
+    "slugs": { "ca": "setrillera-ergonomica-blava", "es": "setrillera-ergonomica-blava", "en": "setrillera-ergonomica-blava" },
+    "title": { "ca": "Setrillera ergonòmica blava", "es": "Aceitera azul ergonómica", "en": "Blue ergonomic oil can" },
+    "description": {
+      "ca": "Setrillera ergonòmica amb tons blavosos",
+      "es": "Aceitera azul ergonómica",
+      "en": "Blue ergonomic oil can"
+    },
+    "meta": {
+      "ca": "Setrillera ergonòmica amb tons blavosos",
+      "es": "Aceitera azul ergonómica",
+      "en": "Blue ergonomic oil can"
+    },
+    "made": "hoji",
+    "addedAt": "2026-09-19T23:46:56.097Z",
+    "updatedAt": "2026-09-19T23:46:56.097Z",
+    "category": "bottle",
+    "images": [
+      {
+        "file": "works/setrillera-ergonomica-blava/setrillera-ergonomica-blava-01",
+        "alt": {
+          "ca": "Setrillera ergonòmica blava",
+          "es": "Aceitera azul ergonómica",
+          "en": "Blue ergonomic oil can"
+        }
+      },
+      {
+        "file": "works/setrillera-ergonomica-blava/setrillera-ergonomica-blava-02",
+        "alt": {
+          "ca": "Setrillera ergonòmica blava — detall 1",
+          "es": "Aceitera azul ergonómica — detall 1",
+          "en": "Blue ergonomic oil can — detall 1"
+        }
+      },
+      {
+        "file": "works/setrillera-ergonomica-blava/setrillera-ergonomica-blava-03",
+        "alt": {
+          "ca": "Setrillera ergonòmica blava — detall 2",
+          "es": "Aceitera azul ergonómica — detall 2",
+          "en": "Blue ergonomic oil can — detall 2"
+        }
+      },
+      {
+        "file": "works/setrillera-ergonomica-blava/setrillera-ergonomica-blava-04",
+        "alt": {
+          "ca": "Setrillera ergonòmica blava — detall 3",
+          "es": "Aceitera azul ergonómica — detall 3",
+          "en": "Blue ergonomic oil can — detall 3"
+        }
+      }
+    ],
+    "shop": { "available": true, "status": "available", "price": 45 }
   }
 ]

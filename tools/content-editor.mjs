@@ -257,6 +257,7 @@ async function resolveImages({ form, payload, id, title, startIndex }) {
 
 	const images = [];
 	const uploads = [];
+	const migrations = [];
 	let counter = startIndex;
 
 	for (let index = 0; index < rawImages.length; index += 1) {
@@ -264,7 +265,13 @@ async function resolveImages({ form, payload, id, title, startIndex }) {
 		const alt = buildAlt(raw.alt, title, index);
 
 		if (raw.upload !== true && typeof raw.file === 'string' && raw.file.trim() !== '') {
-			images.push({ file: raw.file.trim(), alt });
+			const file = raw.file.trim();
+			const normalizedFile = file.startsWith(`${id}/`) ? `works/${file}` : file;
+			if (!normalizedFile.startsWith('works/') && !normalizedFile.startsWith('exhibitions/')) {
+				throw fail(`La ruta de la fotografia ${index + 1} ha de començar per «works/» o «exhibitions/».`);
+			}
+			images.push({ file: normalizedFile, alt });
+			if (normalizedFile !== file) migrations.push({ from: file, to: normalizedFile });
 			continue;
 		}
 
@@ -281,7 +288,7 @@ async function resolveImages({ form, payload, id, title, startIndex }) {
 		uploads.push({ file, upload });
 	}
 
-	return { images, uploads };
+	return { images, uploads, migrations };
 }
 
 async function convertToWebp(sharp, file) {
@@ -300,6 +307,20 @@ async function writeUploads(root, dir, uploads) {
 	for (const item of uploads) {
 		const buffer = await convertToWebp(sharp, item.upload);
 		await fs.writeFile(path.join(root, 'public', 'images', `${item.file}.webp`), buffer);
+	}
+}
+
+async function migrateImages(root, migrations) {
+	for (const migration of migrations) {
+		const from = path.join(root, 'public', 'images', `${migration.from}.webp`);
+		const to = path.join(root, 'public', 'images', `${migration.to}.webp`);
+		if (from === to) continue;
+		try {
+			await fs.mkdir(path.dirname(to), { recursive: true });
+			await fs.rename(from, to);
+		} catch (error) {
+			if (error?.code !== 'ENOENT') throw error;
+		}
 	}
 }
 
@@ -411,7 +432,7 @@ export default function contentEditor() {
 
 						const dir = path.join(root, 'public', 'images', 'works', id);
 						const startIndex = await nextImageIndex(dir, id);
-						const { images, uploads } = await resolveImages({
+						const { images, uploads, migrations } = await resolveImages({
 							form,
 							payload,
 							id,
@@ -420,6 +441,7 @@ export default function contentEditor() {
 						});
 
 						await writeUploads(root, dir, uploads);
+						await migrateImages(root, migrations);
 						await pruneImages(dir, id, images);
 
 						const work = {

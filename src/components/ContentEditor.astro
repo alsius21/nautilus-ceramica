@@ -18,6 +18,7 @@ const locale = normalizeLocale(Astro.currentLocale);
 const s = editorStrings[locale];
 const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
 const galleryBase = getRelativeLocaleUrl(locale, `/${t(locale, 'gallery.path')}`);
+const galleryRoot = galleryBase.replace(/\/+$/, '');
 
 const existing = works.map((entry) => ({
 	id: entry.id,
@@ -56,6 +57,7 @@ const values = {
 
 const clientStrings = {
 	editing,
+	locale,
 	altLabel: s.altLabel,
 	badgeCover: s.badgeCover,
 	badgeCropped: s.badgeCropped,
@@ -74,11 +76,18 @@ const clientStrings = {
 	statusConverting: s.statusConverting,
 	statusSaved: s.statusSaved,
 	viewIt: s.viewIt,
+	previewTitle: s.previewTitle,
+	previewHint: s.previewHint,
+	previewEmpty: s.previewEmpty,
+	previewUntitled: s.previewUntitled,
+	previewNoDescription: s.previewNoDescription,
+	previewShopAvailable: s.previewShopAvailable,
+	previewShopUnavailable: s.previewShopUnavailable,
 	reloadNote: s.reloadNote,
 	errorCrop: s.errorCrop,
 	errorSave: s.errorSave,
 	errorGeneric: s.errorGeneric,
-	galleryBase,
+	galleryBase: galleryRoot,
 	imagesBase: `${base}images/`,
 	existingImages: work ? work.images.map((image) => ({ file: image.file, alt: image.alt.ca })) : [],
 };
@@ -245,12 +254,34 @@ const clientStrings = {
 			</form>
 
 			<aside class="sidebar">
+				<section class="panel preview-panel" aria-live="polite">
+					<h2 class="panel-title">{s.previewTitle}<span>{locale.toUpperCase()}</span></h2>
+					<article class="preview-card">
+						<div class="preview-media">
+							<img id="preview-image" alt="" hidden />
+							<p id="preview-empty" class="preview-empty">{s.previewEmpty}</p>
+						</div>
+						<div class="preview-copy">
+							<p id="preview-kicker" class="preview-kicker"></p>
+							<h3 id="preview-title">{s.previewUntitled}</h3>
+							<p id="preview-description" class="preview-description">{s.previewNoDescription}</p>
+							<div class="preview-meta" id="preview-meta" hidden>
+								<span id="preview-category"></span>
+								<span id="preview-size"></span>
+								<span id="preview-dimensions"></span>
+								<span id="preview-price"></span>
+							</div>
+							<p id="preview-shop" class="preview-shop"></p>
+						</div>
+					</article>
+					<p class="hint preview-hint">{s.previewHint}</p>
+				</section>
 				<section class="panel">
 					<h2 class="panel-title">{s.panelExisting} <span>{existing.length}</span></h2>
 					<ul class="work-list">
 						{existing.map((work) => (
 							<li>
-								<a href={`${galleryBase}/${work.slug}`}>
+								<a href={`${galleryRoot}/${work.slug}`}>
 									<span class="work-title">{work.title}</span>
 									<span class="work-meta">{work.images} {work.images === 1 ? s.imageSingular : s.imagePlural}</span>
 								</a>
@@ -319,6 +350,17 @@ const clientStrings = {
 		const status = document.getElementById('form-status');
 		const submit = document.getElementById('submit');
 		const titleInput = document.getElementById('title-ca');
+		const previewImage = document.getElementById('preview-image');
+		const previewEmpty = document.getElementById('preview-empty');
+		const previewKicker = document.getElementById('preview-kicker');
+		const previewTitle = document.getElementById('preview-title');
+		const previewDescription = document.getElementById('preview-description');
+		const previewMeta = document.getElementById('preview-meta');
+		const previewCategory = document.getElementById('preview-category');
+		const previewSize = document.getElementById('preview-size');
+		const previewDimensions = document.getElementById('preview-dimensions');
+		const previewPrice = document.getElementById('preview-price');
+		const previewShop = document.getElementById('preview-shop');
 
 		const cropLayer = document.getElementById('crop-layer');
 		const cropImage = document.getElementById('crop-image');
@@ -336,6 +378,56 @@ const clientStrings = {
 		let drag = null;
 
 		const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+
+		function fieldValue(id) {
+			return document.getElementById(id)?.value?.trim() ?? '';
+		}
+
+		function selectedLabel(id) {
+			const select = document.getElementById(id);
+			if (!select?.value) return '';
+			return select?.selectedOptions?.[0]?.textContent?.trim() ?? '';
+		}
+
+		function updatePreview() {
+			const localeField = S.locale === 'es' ? 'es' : S.locale === 'en' ? 'en' : 'ca';
+			const title = fieldValue(`title-${localeField}`) || fieldValue('title-ca') || S.previewUntitled;
+			const description = fieldValue(`description-${localeField}`) || fieldValue('description-ca');
+			const category = selectedLabel('category');
+			const size = selectedLabel('size');
+			const dimensions = fieldValue('shop-dimensions');
+			const price = fieldValue('shop-price');
+			const available = document.getElementById('shop-available')?.checked ?? false;
+			const first = items[0];
+
+			previewTitle.textContent = title;
+			previewDescription.textContent = description || S.previewNoDescription;
+			previewDescription.classList.toggle('is-empty', !description);
+			previewKicker.textContent = selectedLabel('made');
+			previewCategory.textContent = category;
+			previewSize.textContent = size;
+			previewDimensions.textContent = dimensions;
+			previewPrice.textContent = price ? `${price} €` : '';
+			previewMeta.hidden = !category && !size && !dimensions && !price;
+			previewCategory.hidden = !category;
+			previewSize.hidden = !size;
+			previewDimensions.hidden = !dimensions;
+			previewPrice.hidden = !price;
+			previewShop.textContent = available ? S.previewShopAvailable : S.previewShopUnavailable;
+			previewShop.dataset.available = available ? 'true' : 'false';
+
+			if (first) {
+				previewImage.src = first.url;
+				previewImage.alt = first.alt || title;
+				previewImage.hidden = false;
+				previewEmpty.hidden = true;
+			} else {
+				previewImage.removeAttribute('src');
+				previewImage.alt = '';
+				previewImage.hidden = true;
+				previewEmpty.hidden = false;
+			}
+		}
 
 		function setStatus(message, tone) {
 			status.textContent = message;
@@ -433,6 +525,7 @@ const clientStrings = {
 				row.append(thumb, body, actions);
 				list.append(row);
 			});
+			updatePreview();
 		}
 
 		if (S.editing && Array.isArray(S.existingImages)) {
@@ -510,6 +603,8 @@ const clientStrings = {
 			addFiles(fileInput.files);
 			fileInput.value = '';
 		});
+		form.addEventListener('input', updatePreview);
+		form.addEventListener('change', updatePreview);
 
 		['dragenter', 'dragover'].forEach((type) => {
 			dropzone.addEventListener(type, (event) => {
@@ -1399,6 +1494,93 @@ const clientStrings = {
 		.editor .panel-title span {
 			color: var(--muted);
 		}
+		.editor .preview-card {
+			display: grid;
+			gap: 1rem;
+			border: 1px solid var(--line);
+			padding: 0.65rem;
+			background: color-mix(in srgb, #fff 38%, transparent);
+		}
+		.editor .preview-media {
+			position: relative;
+			display: grid;
+			place-items: center;
+			aspect-ratio: 4 / 5;
+			overflow: hidden;
+			background: #dcd5ca;
+		}
+		.editor .preview-media img {
+			display: block;
+			width: 100%;
+			height: 100%;
+			object-fit: contain;
+		}
+		.editor .preview-empty {
+			max-width: 13rem;
+			margin: 1rem;
+			font-size: 0.78rem;
+			line-height: 1.5;
+			text-align: center;
+			color: var(--muted);
+		}
+		.editor .preview-copy {
+			display: grid;
+			gap: 0.55rem;
+			padding: 0.3rem 0.35rem 0.4rem;
+		}
+		.editor .preview-kicker,
+		.editor .preview-shop {
+			margin: 0;
+			font-size: 0.63rem;
+			letter-spacing: 0.13em;
+			line-height: 1.4;
+			text-transform: uppercase;
+			color: var(--muted);
+		}
+		.editor .preview-title {
+			margin: 0;
+			font-family: 'Fraunces Variable', Georgia, serif;
+			font-size: clamp(1.45rem, 3vw, 2rem);
+			font-weight: 400;
+			font-optical-sizing: auto;
+			font-variation-settings: 'SOFT' 40, 'WONK' 1;
+			letter-spacing: -0.04em;
+			line-height: 0.98;
+		}
+		.editor .preview-description {
+			margin: 0;
+			font-size: 0.82rem;
+			line-height: 1.55;
+			color: color-mix(in srgb, var(--ink) 78%, transparent);
+			display: -webkit-box;
+			-webkit-box-orient: vertical;
+			-webkit-line-clamp: 4;
+			overflow: hidden;
+		}
+		.editor .preview-description.is-empty {
+			color: var(--muted);
+			font-style: italic;
+		}
+		.editor .preview-meta {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.4rem 0.7rem;
+			font-size: 0.66rem;
+			letter-spacing: 0.08em;
+			text-transform: uppercase;
+			color: var(--muted);
+		}
+		.editor .preview-meta span:not(:last-child)::after {
+			content: '·';
+			margin-left: 0.7rem;
+			color: var(--line);
+		}
+		.editor .preview-shop[data-available='true'] {
+			color: var(--ink);
+		}
+		.editor .preview-hint {
+			margin: 0.8rem 0 0;
+		}
 
 		.editor .work-list,
 		.editor .path-list {
@@ -1618,6 +1800,9 @@ const clientStrings = {
 				background: color-mix(in srgb, #fff 6%, transparent);
 			}
 			.editor .shot {
+				background: color-mix(in srgb, #fff 5%, transparent);
+			}
+			.editor .preview-card {
 				background: color-mix(in srgb, #fff 5%, transparent);
 			}
 			.editor .status[data-tone='error'] {

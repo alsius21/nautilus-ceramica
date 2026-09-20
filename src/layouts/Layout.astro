@@ -11,11 +11,31 @@ interface Props {
 	/** Relative path of this page without locale prefix (e.g. '/', '/galeria', '/galeria/plat-de-taller'). */
 	path?: string;
 	image?: string;
+	imageAlt?: string;
+	imageWidth?: number;
+	imageHeight?: number;
+	ogType?: 'website' | 'article' | 'product';
+	product?: {
+		price?: number;
+		availability?: 'InStock' | 'OutOfStock' | 'PreOrder';
+		sku?: string;
+	};
 	/** Exclude from search engines and omit canonical/hreflang (used by the 404 page). */
 	noindex?: boolean;
 }
 
-const { title: pageTitle, description: pageDescription, path = '/', image, noindex = false } = Astro.props;
+const {
+	title: pageTitle,
+	description: pageDescription,
+	path = '/',
+	image,
+	imageAlt,
+	imageWidth,
+	imageHeight,
+	ogType = 'website',
+	product,
+	noindex = false,
+} = Astro.props;
 
 const locale = normalizeLocale(Astro.currentLocale);
 const description = pageDescription ?? t(locale, 'meta.description');
@@ -72,9 +92,41 @@ const pageUrl = (code: Locale) => {
 
 // Social share image: per-page override or the default card in public/.
 const ogImage = new URL(image ? `${base}${image}` : `${base}og-image.jpg`, origin).href;
+const fullTitle = pageTitle ? `${title} · ${BRAND_NAME}` : BRAND_NAME;
 
 // hreflang set: every locale variant plus x-default pointing at the Catalan entry.
 const alternates = locales.map((code) => ({ code, href: pageUrl(code) }));
+const structuredData = product
+	? {
+			'@context': 'https://schema.org',
+			'@type': 'Product',
+			name: title,
+			description,
+			image: [ogImage],
+			url: pageUrl(locale),
+			sku: product.sku,
+			brand: { '@type': 'Brand', name: BRAND_NAME },
+			offers:
+				product.price !== undefined
+					? {
+							'@type': 'Offer',
+							url: pageUrl(locale),
+							price: product.price,
+							priceCurrency: 'EUR',
+							availability: `https://schema.org/${product.availability ?? 'InStock'}`,
+						}
+					: undefined,
+		}
+	: {
+			'@context': 'https://schema.org',
+			'@type': 'WebSite',
+			name: BRAND_NAME,
+			url: baseUrl,
+			inLanguage: locale,
+			description,
+			image: ogImage,
+			author: { '@type': 'Person', name: 'Zara Castillo Martínez' },
+		};
 ---
 
 <!doctype html>
@@ -100,11 +152,14 @@ const alternates = locales.map((code) => ({ code, href: pageUrl(code) }));
 		)}
 		<!-- Open Graph / Twitter cards -->
 		<meta property="og:site_name" content={BRAND_NAME} />
-		<meta property="og:type" content="website" />
-		<meta property="og:title" content={pageTitle ? `${title} · ${BRAND_NAME}` : BRAND_NAME} />
+		<meta property="og:type" content={ogType} />
+		<meta property="og:title" content={fullTitle} />
 		<meta property="og:description" content={description} />
 		<meta property="og:url" content={pageUrl(locale)} />
 		<meta property="og:image" content={ogImage} />
+		{imageAlt && <meta property="og:image:alt" content={imageAlt} />}
+		{imageWidth && <meta property="og:image:width" content={String(imageWidth)} />}
+		{imageHeight && <meta property="og:image:height" content={String(imageHeight)} />}
 		{!image && (
 			<>
 				<meta property="og:image:width" content="1200" />
@@ -116,19 +171,11 @@ const alternates = locales.map((code) => ({ code, href: pageUrl(code) }));
 			<meta property="og:locale:alternate" content={alt.code} />
 		))}
 		<meta name="twitter:card" content="summary_large_image" />
-		<meta name="twitter:title" content={pageTitle ? `${title} · ${BRAND_NAME}` : BRAND_NAME} />
+		<meta name="twitter:title" content={fullTitle} />
 		<meta name="twitter:description" content={description} />
 		<meta name="twitter:image" content={ogImage} />
-		<script is:inline type="application/ld+json" set:html={JSON.stringify({
-			'@context': 'https://schema.org',
-			'@type': 'WebSite',
-			name: BRAND_NAME,
-			url: baseUrl,
-			inLanguage: locale,
-			description,
-			image: ogImage,
-			author: { '@type': 'Person', name: 'Zara Castillo Martínez' },
-		})} />
+		{imageAlt && <meta name="twitter:image:alt" content={imageAlt} />}
+		<script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData)} />
 		<!-- PWA: installability, theme and iOS standalone chrome -->
 		<link rel="manifest" href={`${base}manifest.webmanifest`} />
 		<meta name="theme-color" content="#eee9e1" />

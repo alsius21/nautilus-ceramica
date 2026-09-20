@@ -3,6 +3,7 @@ import ShopJournal from '@/components/ShopJournal.astro';
 import Layout from '@/layouts/Layout.astro';
 import { works, getSlug, workOgImage } from '@/lib/content';
 import { normalizeLocale, t } from '@/i18n';
+import sharp from 'sharp';
 
 export function getStaticPaths() {
   return works.filter((w) => w.shop.available).flatMap((work) => {
@@ -18,8 +19,20 @@ const locale = normalizeLocale(Astro.currentLocale);
 const title = work.title[locale];
 const description = work.meta[locale];
 const ogImage = workOgImage(work);
+const imageMetadata = await sharp(`public/${ogImage}`).metadata();
+const availability = work.shop.status === 'available' ? 'InStock' : work.shop.status === 'made_to_order' ? 'PreOrder' : 'OutOfStock';
 ---
 
-<Layout title={title} path={`/${t(locale, 'shop.path')}/${t(locale, 'shop.article.path')}/${getSlug(work, locale)}`} description={description} image={ogImage}>
+<Layout
+  title={title}
+  path={`/${t(locale, 'shop.path')}/${t(locale, 'shop.article.path')}/${getSlug(work, locale)}`}
+  description={description}
+  image={ogImage}
+  imageAlt={work.images[0].alt[locale]}
+  imageWidth={imageMetadata.width}
+  imageHeight={imageMetadata.height}
+  ogType="product"
+  product={{ price: work.shop.price, availability, sku: work.id }}
+>
   <ShopJournal work={work} />
 </Layout>

@@ -12,6 +12,13 @@ export type EditorStrings = {
 	headingEdit: string;
 	lead: string;
 	leadEdit: string;
+	previewTitle: string;
+	previewHint: string;
+	previewEmpty: string;
+	previewUntitled: string;
+	previewNoDescription: string;
+	previewShopAvailable: string;
+	previewShopUnavailable: string;
 	sectionPiece: string;
 	titleLabel: string;
 	noteCa: string;
@@ -89,6 +96,13 @@ export const editorStrings: Record<EditorLocale, EditorStrings> = {
 		headingEdit: 'Edita la peça',
 		lead: 'Escriu el títol i la descripció, afegeix les fotografies, retalla-les si cal i desa la peça.',
 		leadEdit: 'Canvia els textos, les fotografies o les dades de la peça i desa els canvis.',
+		previewTitle: 'Vista prèvia',
+		previewHint: 'Així es veurà la peça amb les dades actuals.',
+		previewEmpty: 'Afegeix una fotografia per veure-la aquí.',
+		previewUntitled: 'Peça sense títol',
+		previewNoDescription: 'Encara no hi ha descripció.',
+		previewShopAvailable: 'Disponible a la botiga',
+		previewShopUnavailable: 'No disponible a la botiga',
 		sectionPiece: 'La peça',
 		titleLabel: 'Títol',
 		noteCa: '(català)',
@@ -166,6 +180,13 @@ export const editorStrings: Record<EditorLocale, EditorStrings> = {
 		headingEdit: 'Edita la pieza',
 		lead: 'Escribe el título y la descripción, añade las fotografías, recórtalas si hace falta y guarda la pieza.',
 		leadEdit: 'Cambia los textos, las fotografías o los datos de la pieza y guarda los cambios.',
+		previewTitle: 'Vista previa',
+		previewHint: 'Así se verá la pieza con los datos actuales.',
+		previewEmpty: 'Añade una fotografía para verla aquí.',
+		previewUntitled: 'Pieza sin título',
+		previewNoDescription: 'Todavía no hay descripción.',
+		previewShopAvailable: 'Disponible en la tienda',
+		previewShopUnavailable: 'No disponible en la tienda',
 		sectionPiece: 'La pieza',
 		titleLabel: 'Título',
 		noteCa: '(catalán)',
@@ -243,6 +264,13 @@ export const editorStrings: Record<EditorLocale, EditorStrings> = {
 		headingEdit: 'Edit piece',
 		lead: 'Write the title and description, add the photos, crop them if needed and save the piece.',
 		leadEdit: 'Change the text, photos or details of the piece and save your changes.',
+		previewTitle: 'Preview',
+		previewHint: 'This is how the piece will look with the current data.',
+		previewEmpty: 'Add a photo to see it here.',
+		previewUntitled: 'Untitled piece',
+		previewNoDescription: 'No description yet.',
+		previewShopAvailable: 'Available in the shop',
+		previewShopUnavailable: 'Not available in the shop',
 		sectionPiece: 'The piece',
 		titleLabel: 'Title',
 		noteCa: '(Catalan)',

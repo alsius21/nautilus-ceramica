@@ -1,5 +1,6 @@
 ---
 import Footer from '@/components/Footer.astro';
+import ShareButton from '@/components/ShareButton.astro';
 import { SHOP_ENABLED } from '@/consts';
 import { works, type Work, getSlug } from '@/lib/content';
 import RelatedPieces from '@/components/RelatedPieces.astro';
@@ -83,7 +84,10 @@ const availableWorksData = works
             </div>
           )}
         </dl>
-        <a class="gallery-link" href={galleryHref}>{t(locale, 'gallery.view_in_gallery')} →</a>
+        <div class="detail-actions">
+          <ShareButton title={title} text={description} locale={locale} />
+          <a class="gallery-link" href={galleryHref}>{t(locale, 'gallery.view_in_gallery')} →</a>
+        </div>
         {SHOP_ENABLED ? (
           <>
             <div class="shop-actions">
@@ -334,6 +338,7 @@ const availableWorksData = works
   window.addEventListener('storage', () => render());
   // sync if cart changed from other tab or shop index
   document.addEventListener('inquiry-success', () => setCart([]));
+
 </script>
 
 <style>
@@ -409,11 +414,12 @@ const availableWorksData = works
   .badge-made_to_order { background: #d9e8de; color: #2a3d33; }
   .price.is-inquiry { font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase; color: color-mix(in srgb, var(--ink) 62%, transparent); }
   .dims { color: color-mix(in srgb, var(--ink) 64%, transparent); }
+  .detail-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 1rem 1.25rem; margin-top: 1.1rem; }
   .gallery-link {
     display: inline-block;
-    margin-top: 1.1rem;
     font-size: 0.68rem;
     letter-spacing: 0.12em;
+    line-height: 1.4;
     text-transform: uppercase;
     color: color-mix(in srgb, var(--ink) 78%, transparent);
     text-decoration: none;
@@ -542,8 +548,18 @@ const availableWorksData = works
     .cart-backdrop[hidden] { display: none; }
   }
   @media (max-width: 700px) {
-    .entry { display: block; margin-top: 3.5rem; }
-    .entry-intro { position: static; margin-bottom: 2.5rem; }
+    .entry {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      row-gap: 0;
+      margin-top: 3.5rem;
+    }
+    .entry:not(.has-cart) { grid-template-columns: minmax(0, 1fr); }
+    .entry-intro { display: contents; }
+    .entry-intro h1 { grid-row: 1; }
+    .entry-main { grid-row: 2; margin-top: 2rem; }
+    .entry-intro .description { grid-row: 3; margin-top: 2.5rem; }
+    .entry-intro .shop-detail { grid-row: 4; margin-top: 2rem; }
     h1 { max-width: 12ch; }
   }
   @media (prefers-color-scheme: dark) {
