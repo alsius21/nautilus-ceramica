@@ -2,6 +2,8 @@ import type { Locale } from '@/i18n';
 import worksData from '@/content/works.json';
 import exhibitionsData from '@/content/exhibitions.json';
 import aboutData from '@/content/about.json';
+import legalData from '@/content/legal.json';
+import cookiesData from '@/content/cookies.json';
 import { PIECE_CATEGORIES, PIECE_SIZES, type PieceCategory, type PieceSize } from '@/lib/shop-discovery';
 
 /**
@@ -93,11 +95,43 @@ export type AboutContent = {
 	s5: AboutPlainSection;
 };
 
+/** Text editable des de l'editor de pàgines: cada apartat té títol i cos. */
+export type PageSection = { title: string; body: string };
+
+export type LegalContent = {
+	eyebrow: string;
+	title: string;
+	lead: string;
+	s2: PageSection;
+	s3: PageSection;
+	/** L'apartat de privadesa enllaça a la pàgina de cookies. */
+	s4: PageSection & { linkLabel: string };
+	s5: PageSection;
+	s6: PageSection;
+	updated: string;
+};
+
+export type CookiesContent = {
+	eyebrow: string;
+	title: string;
+	lead: string;
+	s1: PageSection;
+	s2: PageSection;
+	s3: PageSection;
+	s4: PageSection;
+	s5: PageSection;
+	updated: string;
+};
+
 const LOCALES: Locale[] = ['ca', 'es', 'en'];
 const SHOP_STATUSES: ShopStatus[] = ['available', 'reserved', 'sold', 'made_to_order', 'inquiry'];
 
 function fail(msg: string): never {
 	throw new Error(`[content] ${msg}`);
+}
+
+function checkString(value: unknown, path: string): asserts value is string {
+	if (typeof value !== 'string') fail(`«${path}» ha de ser text`);
 }
 
 function checkText(value: unknown, path: string): asserts value is LocalizedText {
@@ -227,11 +261,47 @@ function loadAbout(raw: unknown): Record<Locale, AboutContent> {
 	return raw as Record<Locale, AboutContent>;
 }
 
+function checkSections(entry: Record<string, unknown>, locale: string, keys: readonly string[], file: string): void {
+	for (const key of keys) {
+		const section = entry[key] as PageSection | undefined;
+		if (!section || typeof section.title !== 'string' || typeof section.body !== 'string') {
+			fail(`${file}: falta «${locale}.${key}» (title/body)`);
+		}
+	}
+}
+
+function loadLegal(raw: unknown): Record<Locale, LegalContent> {
+	for (const locale of LOCALES) {
+		const entry = (raw as Record<string, unknown> | null)?.[locale] as LegalContent | undefined;
+		if (!entry || typeof entry.title !== 'string' || typeof entry.lead !== 'string') {
+			fail(`legal.json: falta l'entrada «${locale}» (title/lead/sections)`);
+		}
+		checkSections(entry as unknown as Record<string, unknown>, locale, ['s2', 's3', 's4', 's5', 's6'], 'legal.json');
+		checkString(entry.s4?.linkLabel, `${locale}.s4.linkLabel`);
+		checkString(entry.updated, `${locale}.updated`);
+	}
+	return raw as Record<Locale, LegalContent>;
+}
+
+function loadCookies(raw: unknown): Record<Locale, CookiesContent> {
+	for (const locale of LOCALES) {
+		const entry = (raw as Record<string, unknown> | null)?.[locale] as CookiesContent | undefined;
+		if (!entry || typeof entry.title !== 'string' || typeof entry.lead !== 'string') {
+			fail(`cookies.json: falta l'entrada «${locale}» (title/lead/sections)`);
+		}
+		checkSections(entry as unknown as Record<string, unknown>, locale, ['s1', 's2', 's3', 's4', 's5'], 'cookies.json');
+		checkString(entry.updated, `${locale}.updated`);
+	}
+	return raw as Record<Locale, CookiesContent>;
+}
+
 function loadLocal() {
 	return {
 		works: loadWorks(worksData),
 		exhibitions: loadExhibitions(exhibitionsData),
 		about: loadAbout(aboutData),
+		legal: loadLegal(legalData),
+		cookies: loadCookies(cookiesData),
 	};
 }
 
@@ -255,9 +325,22 @@ export const exhibitions: ExhibitionContent[] = store.exhibitions;
 export type Work = WorkContent;
 export type WorkId = Work['id'];
 export type Exhibition = ExhibitionContent;
+export type Legal = LegalContent;
+export type Cookies = CookiesContent;
+
+/** Claus de les pàgines editables des de l'editor de contingut. */
+export type EditablePageKey = 'about' | 'legal' | 'cookies';
 
 export function getAbout(locale: Locale): AboutContent {
 	return store.about[locale] ?? store.about.ca;
+}
+
+export function getLegal(locale: Locale): LegalContent {
+	return store.legal[locale] ?? store.legal.ca;
+}
+
+export function getCookies(locale: Locale): CookiesContent {
+	return store.cookies[locale] ?? store.cookies.ca;
 }
 
 export function getSlug(work: Work, locale: Locale): string {

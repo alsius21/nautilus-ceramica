@@ -1,0 +1,16 @@
+---
+import LegalNotice from '@/components/LegalNotice.astro';
+import PageEditor from '@/components/PageEditor.astro';
+import Layout from '@/layouts/Layout.astro';
+import { getLegal } from '@/lib/content';
+import { normalizeLocale, t } from '@/i18n';
+
+const locale = normalizeLocale(Astro.currentLocale);
+const legal = getLegal(locale);
+const path = `/${t(locale, 'legal.path')}`;
+---
+
+<Layout title={legal.title} path={path} description={legal.lead}>
+	<LegalNotice editable />
+	<PageEditor page="legal" locale={locale} publishedPath={path} />
+</Layout>

@@ -1,0 +1,541 @@
+---
+// Barra i comportament de l'editor de pàgines (només desenvolupament).
+// S'afegeix a les pàgines de `contingut/pagines`, `es/contenido/paginas` i
+// `en/content/pages`, que renderitzen la pàgina publicada amb `editable`.
+import { pageEditorStrings } from '@/dev/editor-i18n';
+import type { EditablePageKey } from '@/lib/content';
+import { locales, type Locale } from '@/i18n';
+import { getRelativeLocaleUrl } from 'astro:i18n';
+
+interface Props {
+	page: EditablePageKey;
+	locale: Locale;
+	/** Ruta relativa sense prefix d'idioma de la pàgina publicada (p. ex. '/sobre'). */
+	publishedPath: string;
+}
+
+const { page, locale, publishedPath } = Astro.props;
+const s = pageEditorStrings[locale];
+const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
+
+const editRoutes: Record<EditablePageKey, Record<Locale, string>> = {
+	about: {
+		ca: 'contingut/pagines/sobre',
+		es: 'es/contenido/paginas/sobre-mi',
+		en: 'en/content/pages/about',
+	},
+	legal: {
+		ca: 'contingut/pagines/avis-legal',
+		es: 'es/contenido/paginas/aviso-legal',
+		en: 'en/content/pages/legal-notice',
+	},
+	cookies: {
+		ca: 'contingut/pagines/cookies',
+		es: 'es/contenido/paginas/cookies',
+		en: 'en/content/pages/cookies',
+	},
+};
+
+const publishedUrl = getRelativeLocaleUrl(locale, publishedPath);
+const data = { page, locale, saveUrl: `${base}__content/pages`, strings: s };
+---
+
+<div class="page-editor">
+	<div class="page-editor__bar">
+		<div class="page-editor__lead">
+			<p class="page-editor__tag">{s.tag}</p>
+			<p class="page-editor__hint">{s.editing}</p>
+		</div>
+		<p class="page-editor__status" id="page-editor-status" role="status" aria-live="polite"></p>
+		<div class="page-editor__actions">
+			<nav class="page-editor__langs" aria-label={s.localeSwitcher}>
+				{locales.map((code) => (
+					<a
+						href={`${base}${editRoutes[page][code]}`}
+						class:list={['page-editor__lang', { 'is-current': code === locale }]}
+						aria-current={code === locale ? 'page' : null}
+						title={code.toUpperCase()}
+					>
+						{code}
+					</a>
+				))}
+			</nav>
+			<a class="page-editor__view" href={publishedUrl}>{s.view}</a>
+			<button type="button" class="page-editor__discard" id="page-editor-discard">{s.discard}</button>
+			<button type="button" class="page-editor__save" id="page-editor-save">{s.save}</button>
+		</div>
+	</div>
+</div>
+
+<div class="page-editor__popover" id="page-editor-link" hidden>
+	<label class="page-editor__popover-label" for="page-editor-link-url">{s.linkUrl}</label>
+	<input id="page-editor-link-url" type="text" autocomplete="off" spellcheck="false" />
+	<div class="page-editor__popover-actions">
+		<button type="button" class="page-editor__ghost" id="page-editor-link-cancel">{s.linkCancel}</button>
+		<button type="button" class="page-editor__save" id="page-editor-link-apply">{s.linkApply}</button>
+	</div>
+</div>
+
+<script is:inline type="application/json" id="page-editor-data" set:html={JSON.stringify(data)}></script>
+
+<script>
+	const dataNode = document.getElementById('page-editor-data');
+	if (dataNode) {
+		const data = JSON.parse(dataNode.textContent ?? '{}');
+		const S = data.strings;
+		const fields = Array.from(document.querySelectorAll('[data-edit]'));
+
+		if (fields.length > 0) {
+			const statusEl = document.getElementById('page-editor-status');
+			const saveBtn = document.getElementById('page-editor-save');
+			const discardBtn = document.getElementById('page-editor-discard');
+			const popover = document.getElementById('page-editor-link');
+			const linkInput = document.getElementById('page-editor-link-url');
+			const linkApply = document.getElementById('page-editor-link-apply');
+			const linkCancel = document.getElementById('page-editor-link-cancel');
+
+			let dirty = false;
+			let currentAnchor = null;
+
+			const setStatus = (message, tone) => {
+				statusEl.textContent = message;
+				statusEl.dataset.tone = tone ?? '';
+			};
+
+			const markDirty = () => {
+				dirty = true;
+				setStatus(S.unsaved, 'dirty');
+			};
+
+			/* — Construcció del contingut a partir del DOM — */
+
+			const setPath = (target, path, value) => {
+				const keys = path.split('.');
+				let current = target;
+				for (let i = 0; i < keys.length - 1; i += 1) {
+					if (typeof current[keys[i]] !== 'object' || current[keys[i]] === null) current[keys[i]] = {};
+					current = current[keys[i]];
+				}
+				current[keys[keys.length - 1]] = value;
+			};
+
+			const textOf = (element) => (element.textContent ?? '').replace(/\s+/g, ' ').trim();
+
+			const buildContent = () => {
+				const content = {};
+				document.querySelectorAll('[data-edit]').forEach((element) => {
+					setPath(content, element.dataset.edit, textOf(element));
+				});
+				document.querySelectorAll('[data-link-url]').forEach((anchor) => {
+					setPath(content, anchor.dataset.linkUrl, anchor.getAttribute('href') ?? '');
+				});
+				return content;
+			};
+
+			/* — Popover per editar l'URL dels enllaços — */
+
+			const closePopover = () => {
+				popover.hidden = true;
+				currentAnchor = null;
+			};
+
+			const openPopover = (anchor, trigger) => {
+				currentAnchor = anchor;
+				linkInput.value = anchor.getAttribute('href') ?? '';
+				popover.hidden = false;
+				const rect = trigger.getBoundingClientRect();
+				popover.style.top = `${Math.min(rect.bottom + 8, window.innerHeight - 150)}px`;
+				popover.style.left = `${Math.max(8, Math.min(rect.left, window.innerWidth - popover.offsetWidth - 8))}px`;
+				linkInput.focus();
+				linkInput.select();
+			};
+
+			linkApply.addEventListener('click', () => {
+				if (!currentAnchor) return;
+				currentAnchor.setAttribute('href', linkInput.value.trim());
+				markDirty();
+				closePopover();
+			});
+			linkCancel.addEventListener('click', closePopover);
+			document.addEventListener('keydown', (event) => {
+				if (event.key === 'Escape' && !popover.hidden) closePopover();
+			});
+			document.addEventListener('pointerdown', (event) => {
+				if (popover.hidden) return;
+				if (popover.contains(event.target)) return;
+				if (event.target.closest?.('.page-editor__chip')) return;
+				closePopover();
+			});
+
+			/* — Economia dels enllaços: xip per editar-ne l'URL — */
+
+			document.querySelectorAll('[data-link-url]').forEach((anchor) => {
+				const chip = document.createElement('button');
+				chip.type = 'button';
+				chip.className = 'page-editor__chip';
+				chip.textContent = 'url';
+				chip.title = S.linkUrl;
+				chip.setAttribute('aria-label', S.linkUrl);
+				chip.addEventListener('click', (event) => {
+					event.preventDefault();
+					openPopover(anchor, chip);
+				});
+				anchor.after(chip);
+			});
+
+			/* — Edició de text — */
+
+			document.addEventListener('input', (event) => {
+				if (event.target.closest?.('[data-edit]')) markDirty();
+			});
+			document.addEventListener('keydown', (event) => {
+				if (event.key === 'Enter' && event.target.closest?.('[data-edit]')) event.preventDefault();
+			});
+			document.addEventListener('paste', (event) => {
+				const field = event.target.closest?.('[data-edit]');
+				if (!field) return;
+				event.preventDefault();
+				const text = (event.clipboardData?.getData('text/plain') ?? '').replace(/\s+/g, ' ');
+				document.execCommand('insertText', false, text);
+			});
+			document.addEventListener('click', (event) => {
+				const anchor = event.target.closest?.('a');
+				if (!anchor) return;
+				if (anchor.dataset.linkUrl || anchor.querySelector('[data-edit]')) event.preventDefault();
+			});
+
+			/* — Desament — */
+
+			window.addEventListener('beforeunload', (event) => {
+				if (!dirty) return;
+				event.preventDefault();
+				event.returnValue = '';
+			});
+
+			discardBtn.addEventListener('click', () => {
+				if (dirty && !window.confirm(S.discardConfirm)) return;
+				dirty = false;
+				window.location.reload();
+			});
+
+			saveBtn.addEventListener('click', async () => {
+				saveBtn.disabled = true;
+				const label = saveBtn.textContent;
+				saveBtn.textContent = S.saving;
+				setStatus(S.saving, 'progress');
+				try {
+					const response = await fetch(data.saveUrl, {
+						method: 'POST',
+						headers: { 'content-type': 'application/json' },
+						body: JSON.stringify({ page: data.page, locale: data.locale, content: buildContent() }),
+					});
+					const result = await response.json().catch(() => ({}));
+					if (!response.ok || !result.ok) throw new Error(result.error ?? S.errorSave);
+					dirty = false;
+					setStatus(S.saved, 'ok');
+					window.setTimeout(() => window.location.reload(), 400);
+				} catch (error) {
+					setStatus(error.message ?? S.errorGeneric, 'error');
+				} finally {
+					saveBtn.disabled = false;
+					saveBtn.textContent = label;
+				}
+			});
+		}
+	}
+</script>
+
+<style is:global>
+	body:has(.page-editor) {
+		padding-bottom: 6.5rem;
+	}
+
+	[data-edit] {
+		transition:
+			outline-color 160ms ease,
+			background 160ms ease;
+		border-radius: 2px;
+	}
+	[data-edit]:hover:not(:focus) {
+		outline: 1px dashed color-mix(in srgb, currentColor 40%, transparent);
+		outline-offset: 3px;
+	}
+	[data-edit]:focus {
+		outline: 1px solid currentColor;
+		outline-offset: 3px;
+		background: color-mix(in srgb, currentColor 5%, transparent);
+	}
+	[data-edit][data-placeholder]:empty::before {
+		content: attr(data-placeholder);
+		color: color-mix(in srgb, currentColor 45%, transparent);
+		font-style: italic;
+	}
+
+	.page-editor__chip {
+		font: inherit;
+		font-size: 0.58rem;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		vertical-align: super;
+		margin-left: 0.3rem;
+		padding: 0 0.35rem;
+		color: inherit;
+		background: transparent;
+		border: 1px solid color-mix(in srgb, currentColor 40%, transparent);
+		border-radius: 999px;
+		opacity: 0.55;
+		cursor: pointer;
+	}
+	.page-editor__chip:hover,
+	.page-editor__chip:focus-visible {
+		opacity: 1;
+		border-color: currentColor;
+	}
+
+	.page-editor__bar {
+		position: fixed;
+		right: 0;
+		bottom: 0;
+		left: 0;
+		z-index: 50;
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem 1.5rem;
+		padding: 0.85rem clamp(1rem, 4vw, 3rem);
+		background: color-mix(in srgb, #eee9e1 88%, transparent);
+		backdrop-filter: blur(8px);
+		border-top: 1px solid color-mix(in srgb, #29251f 20%, transparent);
+		color: #29251f;
+		font-family: 'Archivo Variable', system-ui, sans-serif;
+	}
+
+	.page-editor__lead {
+		display: grid;
+		gap: 0.15rem;
+	}
+
+	.page-editor__tag {
+		margin: 0;
+		font-size: 0.66rem;
+		font-weight: 500;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+	}
+
+	.page-editor__hint {
+		margin: 0;
+		font-size: 0.72rem;
+		color: color-mix(in srgb, #29251f 60%, transparent);
+	}
+
+	.page-editor__status {
+		flex: 1 1 12rem;
+		margin: 0;
+		font-size: 0.75rem;
+		text-align: center;
+	}
+	.page-editor__status[data-tone='error'] {
+		color: #8a2f22;
+	}
+	.page-editor__status[data-tone='dirty'],
+	.page-editor__status[data-tone='progress'] {
+		color: color-mix(in srgb, #29251f 65%, transparent);
+	}
+	.page-editor__status[data-tone='ok'] {
+		color: #2f6a4f;
+	}
+
+	.page-editor__actions {
+		display: flex;
+		align-items: center;
+		gap: 0.85rem;
+	}
+
+	.page-editor__langs {
+		display: flex;
+		gap: 0.6rem;
+		margin-right: 0.4rem;
+		font-size: 0.66rem;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+	}
+
+	.page-editor__lang {
+		color: color-mix(in srgb, #29251f 55%, transparent);
+		text-decoration: none;
+	}
+	.page-editor__lang:hover,
+	.page-editor__lang:focus-visible,
+	.page-editor__lang.is-current {
+		color: #29251f;
+	}
+
+	.page-editor__view {
+		font-size: 0.68rem;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		color: color-mix(in srgb, #29251f 70%, transparent);
+		text-decoration: none;
+	}
+	.page-editor__view:hover,
+	.page-editor__view:focus-visible {
+		color: #29251f;
+	}
+
+	.page-editor__save,
+	.page-editor__discard,
+	.page-editor__ghost {
+		font: inherit;
+		font-size: 0.68rem;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		border-radius: 2px;
+		padding: 0.6rem 1.1rem;
+		cursor: pointer;
+		transition:
+			opacity 160ms ease,
+			border-color 160ms ease;
+	}
+
+	.page-editor__save {
+		color: #eee9e1;
+		background: #29251f;
+		border: 1px solid #29251f;
+	}
+	.page-editor__save:hover:not(:disabled),
+	.page-editor__save:focus-visible {
+		opacity: 0.85;
+	}
+	.page-editor__save:disabled {
+		opacity: 0.5;
+		cursor: wait;
+	}
+
+	.page-editor__discard,
+	.page-editor__ghost {
+		color: #29251f;
+		background: transparent;
+		border: 1px solid color-mix(in srgb, #29251f 30%, transparent);
+	}
+	.page-editor__discard:hover,
+	.page-editor__discard:focus-visible,
+	.page-editor__ghost:hover,
+	.page-editor__ghost:focus-visible {
+		border-color: #29251f;
+	}
+
+	.page-editor__popover {
+		position: fixed;
+		z-index: 60;
+		width: min(22rem, calc(100vw - 2rem));
+		display: grid;
+		gap: 0.55rem;
+		padding: 0.85rem;
+		background: #f4f1ea;
+		border: 1px solid color-mix(in srgb, #29251f 25%, transparent);
+		border-radius: 4px;
+		box-shadow: 0 18px 40px rgba(25, 23, 18, 0.18);
+		color: #29251f;
+		font-family: 'Archivo Variable', system-ui, sans-serif;
+	}
+	.page-editor__popover[hidden] {
+		display: none;
+	}
+	.page-editor__popover-label {
+		font-size: 0.62rem;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+		color: color-mix(in srgb, #29251f 60%, transparent);
+	}
+	.page-editor__popover input {
+		width: 100%;
+		font: inherit;
+		font-size: 0.85rem;
+		padding: 0.55rem 0.65rem;
+		color: #29251f;
+		background: #fff;
+		border: 1px solid color-mix(in srgb, #29251f 25%, transparent);
+		border-radius: 2px;
+	}
+	.page-editor__popover input:focus-visible {
+		outline: 1px solid #29251f;
+		outline-offset: 1px;
+	}
+	.page-editor__popover-actions {
+		display: flex;
+		justify-content: flex-end;
+		gap: 0.5rem;
+	}
+
+	@media (prefers-color-scheme: dark) {
+		.page-editor__bar {
+			background: color-mix(in srgb, #191712 88%, transparent);
+			border-top-color: color-mix(in srgb, #e8e3d9 22%, transparent);
+			color: #e8e3d9;
+		}
+		.page-editor__hint,
+		.page-editor__status[data-tone='dirty'],
+		.page-editor__status[data-tone='progress'] {
+			color: color-mix(in srgb, #e8e3d9 62%, transparent);
+		}
+		.page-editor__status[data-tone='error'] {
+			color: #e2a294;
+		}
+		.page-editor__status[data-tone='ok'] {
+			color: #93caae;
+		}
+		.page-editor__lang {
+			color: color-mix(in srgb, #e8e3d9 55%, transparent);
+		}
+		.page-editor__lang:hover,
+		.page-editor__lang:focus-visible,
+		.page-editor__lang.is-current,
+		.page-editor__view:hover,
+		.page-editor__view:focus-visible {
+			color: #e8e3d9;
+		}
+		.page-editor__view {
+			color: color-mix(in srgb, #e8e3d9 70%, transparent);
+		}
+		.page-editor__save {
+			color: #191712;
+			background: #e8e3d9;
+			border-color: #e8e3d9;
+		}
+		.page-editor__discard,
+		.page-editor__ghost {
+			color: #e8e3d9;
+			border-color: color-mix(in srgb, #e8e3d9 30%, transparent);
+		}
+		.page-editor__discard:hover,
+		.page-editor__discard:focus-visible,
+		.page-editor__ghost:hover,
+		.page-editor__ghost:focus-visible {
+			border-color: #e8e3d9;
+		}
+		.page-editor__popover {
+			background: #211e19;
+			border-color: color-mix(in srgb, #e8e3d9 25%, transparent);
+			color: #e8e3d9;
+		}
+		.page-editor__popover-label {
+			color: color-mix(in srgb, #e8e3d9 60%, transparent);
+		}
+		.page-editor__popover input {
+			color: #e8e3d9;
+			background: #191712;
+			border-color: color-mix(in srgb, #e8e3d9 25%, transparent);
+		}
+		.page-editor__popover input:focus-visible {
+			outline-color: #e8e3d9;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		[data-edit] {
+			transition: none;
+		}
+	}
+</style>

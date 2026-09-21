@@ -2,10 +2,12 @@
 import CookiePolicy from '@/components/CookiePolicy.astro';
 import Layout from '@/layouts/Layout.astro';
 import { normalizeLocale, t } from '@/i18n';
+import { getCookies } from '@/lib/content';
 
 const locale = normalizeLocale(Astro.currentLocale);
-const title = t(locale, 'cookie.title');
-const description = t(locale, 'cookie.lead');
+const cookies = getCookies(locale);
+const title = cookies.title;
+const description = cookies.lead;
 ---
 
 <Layout title={title} path={`/${t(locale, 'cookie.path')}`} description={description}>

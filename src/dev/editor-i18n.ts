@@ -3,6 +3,79 @@
 
 export type EditorLocale = 'ca' | 'es' | 'en';
 
+/** Textos de la barra de l'editor de pàgines (només desenvolupament). */
+export type PageEditorStrings = {
+	tag: string;
+	editing: string;
+	view: string;
+	discard: string;
+	discardConfirm: string;
+	save: string;
+	saving: string;
+	saved: string;
+	unsaved: string;
+	errorSave: string;
+	errorGeneric: string;
+	linkUrl: string;
+	linkApply: string;
+	linkCancel: string;
+	localeSwitcher: string;
+};
+
+export const pageEditorStrings: Record<EditorLocale, PageEditorStrings> = {
+	ca: {
+		tag: 'Editor de pàgina · només en desenvolupament',
+		editing: 'Edita el text directament sobre la pàgina.',
+		view: 'Veure publicada',
+		discard: 'Descarta',
+		discardConfirm: 'Descarta els canvis no desats?',
+		save: 'Desa els canvis',
+		saving: 'Desant…',
+		saved: 'Pàgina desada.',
+		unsaved: 'Canvis sense desar',
+		errorSave: 'No s’ha pogut desar la pàgina.',
+		errorGeneric: 'Error inesperat.',
+		linkUrl: 'URL de l’enllaç',
+		linkApply: 'Aplica',
+		linkCancel: 'Cancel·la',
+		localeSwitcher: 'Edita en un altre idioma',
+	},
+	es: {
+		tag: 'Editor de página · solo en desarrollo',
+		editing: 'Edita el texto directamente sobre la página.',
+		view: 'Ver publicada',
+		discard: 'Descartar',
+		discardConfirm: '¿Descartar los cambios sin guardar?',
+		save: 'Guardar los cambios',
+		saving: 'Guardando…',
+		saved: 'Página guardada.',
+		unsaved: 'Cambios sin guardar',
+		errorSave: 'No se ha podido guardar la página.',
+		errorGeneric: 'Error inesperado.',
+		linkUrl: 'URL del enlace',
+		linkApply: 'Aplicar',
+		linkCancel: 'Cancelar',
+		localeSwitcher: 'Editar en otro idioma',
+	},
+	en: {
+		tag: 'Page editor · development only',
+		editing: 'Edit the text directly on the page.',
+		view: 'View published',
+		discard: 'Discard',
+		discardConfirm: 'Discard unsaved changes?',
+		save: 'Save changes',
+		saving: 'Saving…',
+		saved: 'Page saved.',
+		unsaved: 'Unsaved changes',
+		errorSave: 'Could not save the page.',
+		errorGeneric: 'Unexpected error.',
+		linkUrl: 'Link URL',
+		linkApply: 'Apply',
+		linkCancel: 'Cancel',
+		localeSwitcher: 'Edit in another language',
+	},
+};
+
 export type EditorStrings = {
 	metaTitle: string;
 	tag: string;

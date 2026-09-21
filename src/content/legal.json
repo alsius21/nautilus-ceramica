@@ -1,0 +1,83 @@
+{
+  "ca": {
+    "eyebrow": "Legal",
+    "title": "Avís legal",
+    "lead": "Aquesta pàgina identifica qui hi ha al darrere de nautilusceramica, com pots contactar-hi i quines condicions s’apliquen a l’ús d’aquest lloc.",
+    "s2": {
+      "title": "Contacte",
+      "body": "Pots contactar amb l’estudi a través del compte d’Instagram que trobaràs al peu de la pàgina."
+    },
+    "s3": {
+      "title": "Propietat intel·lectual",
+      "body": "Tots els continguts d’aquest lloc — textos, imatges de les peces, fotografies i disseny — són propietat del titular i estan protegits per la legislació de propietat intel·lectual. No se’n permet la reproducció, distribució ni comunicació pública sense autorització prèvia."
+    },
+    "s4": {
+      "title": "Privadesa i cookies",
+      "body": "Aquest lloc no recull ni tracta dades personals i no fa servir galetes de seguiment. Podeu veure’n els detalls a",
+      "linkLabel": "política de cookies"
+    },
+    "s5": {
+      "title": "Enllaços a contingut de tercers",
+      "body": "Aquest lloc enllaça cap a pàgines externes (com Instagram). El titular no es fa responsable del seu contingut ni de les seves polítiques de privadesa, que són responsabilitat dels seus propis responsables."
+    },
+    "s6": {
+      "title": "Legislació aplicable",
+      "body": "Aquest lloc es regeix per la legislació espanyola. Per a qualsevol controvèrsia relacionada amb el lloc, les parts se sotmeten als jutjats i tribunals del domicili del titular."
+    },
+    "updated": "Agost de 2026"
+  },
+  "es": {
+    "eyebrow": "Legal",
+    "title": "Aviso legal",
+    "lead": "Esta página identifica quién está detrás de nautilusceramica, cómo puedes contactar y qué condiciones se aplican al uso de este sitio.",
+    "s2": {
+      "title": "Contacto",
+      "body": "Puedes contactar con el estudio a través de la cuenta de Instagram que encontrarás al pie de la página."
+    },
+    "s3": {
+      "title": "Propiedad intelectual",
+      "body": "Todos los contenidos de este sitio — textos, imágenes de las piezas, fotografías y diseño — son propiedad del titular y están protegidos por la legislación de propiedad intelectual. No se permite su reproducción, distribución ni comunicación pública sin autorización previa."
+    },
+    "s4": {
+      "title": "Privacidad y cookies",
+      "body": "Este sitio no recoge ni trata datos personales y no utiliza cookies de seguimiento. Puedes ver los detalles en la",
+      "linkLabel": "política de cookies"
+    },
+    "s5": {
+      "title": "Enlaces a contenido de terceros",
+      "body": "Este sitio enlaza a páginas externas (como Instagram). El titular no se hace responsable de su contenido ni de sus políticas de privacidad, que son responsabilidad de sus propios responsables."
+    },
+    "s6": {
+      "title": "Legislación aplicable",
+      "body": "Este sitio se rige por la legislación española. Para cualquier controversia relacionada con el sitio, las partes se someten a los juzgados y tribunales del domicilio del titular."
+    },
+    "updated": "Agosto de 2026"
+  },
+  "en": {
+    "eyebrow": "Legal",
+    "title": "Legal notice",
+    "lead": "This page identifies who is behind nautilusceramica, how you can contact us, and the terms that apply to the use of this site.",
+    "s2": {
+      "title": "Contact",
+      "body": "You can contact me through the Instagram account found in the footer of the page."
+    },
+    "s3": {
+      "title": "Intellectual property",
+      "body": "All content on this site — texts, images of the pieces, photographs and design — is the property of the owner and is protected by intellectual property law. Reproduction, distribution or public communication is not permitted without prior authorisation."
+    },
+    "s4": {
+      "title": "Privacy and cookies",
+      "body": "This site does not collect or process personal data and does not use tracking cookies. You can see the details in the",
+      "linkLabel": "cookie policy"
+    },
+    "s5": {
+      "title": "Links to third-party content",
+      "body": "This site links to external pages (such as Instagram). The owner is not responsible for their content or privacy policies, which are the responsibility of their own controllers."
+    },
+    "s6": {
+      "title": "Applicable law",
+      "body": "This site is governed by Spanish law. For any dispute related to the site, the parties submit to the courts of the owner’s registered office."
+    },
+    "updated": "August 2026"
+  }
+}
