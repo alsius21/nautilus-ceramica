@@ -77,7 +77,7 @@ export default defineConfig({
 		// Les pàgines de l'editor (dev) no han de sortir al sitemap.
 		sitemap({
 			filter: (page) =>
-				!/\/(contingut\/peces\/(afegir|editar)|es\/contenido\/piezas\/(crear|editar)|en\/content\/pieces\/(add|edit))(\/|$)/.test(
+				!/\/(contingut\/(peces|pagines)|es\/contenido\/(piezas|paginas)|en\/content\/(pieces|pages))\//.test(
 					page,
 				),
 		}),

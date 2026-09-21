@@ -1,62 +1,79 @@
 ---
 import Footer from '@/components/Footer.astro';
+import { getLegal } from '@/lib/content';
 import { t, normalizeLocale, locales } from '@/i18n';
 import { getRelativeLocaleUrl } from 'astro:i18n';
 
+interface Props {
+	/** Mode editor: converteix els textos en camps editables sobre la mateixa pàgina. */
+	editable?: boolean;
+}
+
+const { editable = false } = Astro.props;
 const locale = normalizeLocale(Astro.currentLocale);
+const legal = getLegal(locale);
 const cookiesUrl = getRelativeLocaleUrl(locale, `/${t(locale, 'cookie.path')}`);
+const editHref = getRelativeLocaleUrl(
+	locale,
+	`/${t(locale, 'editor.path')}/${t(locale, 'editor.pages.path')}/${t(locale, 'editor.page.legal.path')}`,
+);
+const editAttr = (path: string) => (editable ? path : undefined);
+const editableAttr = editable ? 'true' : undefined;
 ---
 
 <main class="legal">
 	<header class="journal-header">
 		<a class="back-link" href={getRelativeLocaleUrl(locale, '/')}>← {t(locale, 'legal.back')}</a>
-		<nav class="lang-switcher" aria-label={t(locale, 'lang.selector')}>
-			{locales.map((code) => (
-				<a
-					href={getRelativeLocaleUrl(code, `/${t(code, 'legal.path')}`)}
-					class:list={['lang-link', { 'is-current': code === locale }]}
-					aria-current={code === locale ? 'page' : null}
-					title={t(code, 'lang.name')}
-				>
-					{code}
-				</a>
-			))}
-		</nav>
+		<div class="header-end">
+			{import.meta.env.DEV && <a class="edit-link" href={editHref}>{t(locale, 'editor.page')}</a>}
+			<nav class="lang-switcher" aria-label={t(locale, 'lang.selector')}>
+				{locales.map((code) => (
+					<a
+						href={getRelativeLocaleUrl(code, `/${t(code, 'legal.path')}`)}
+						class:list={['lang-link', { 'is-current': code === locale }]}
+						aria-current={code === locale ? 'page' : null}
+						title={t(code, 'lang.name')}
+					>
+						{code}
+					</a>
+				))}
+			</nav>
+		</div>
 	</header>
 
 	<article class="entry">
 		<div class="entry-intro">
-			<p class="eyebrow">{t(locale, 'legal.eyebrow')}</p>
-			<h1>{t(locale, 'legal.title')}</h1>
-			<p class="description">{t(locale, 'legal.lead')}</p>
+			<p class="eyebrow" data-edit={editAttr('eyebrow')} contenteditable={editableAttr}>{legal.eyebrow}</p>
+			<h1 data-edit={editAttr('title')} contenteditable={editableAttr}>{legal.title}</h1>
+			<p class="description" data-edit={editAttr('lead')} contenteditable={editableAttr}>{legal.lead}</p>
 		</div>
 
 		<div class="statement">
 			<section class="clause">
-				<h2>{t(locale, 'legal.s2.title')}</h2>
-				<p>{t(locale, 'legal.s2.body')}</p>
+				<h2 data-edit={editAttr('s2.title')} contenteditable={editableAttr}>{legal.s2.title}</h2>
+				<p data-edit={editAttr('s2.body')} contenteditable={editableAttr}>{legal.s2.body}</p>
 			</section>
 			<section class="clause">
-				<h2>{t(locale, 'legal.s3.title')}</h2>
-				<p>{t(locale, 'legal.s3.body')}</p>
+				<h2 data-edit={editAttr('s3.title')} contenteditable={editableAttr}>{legal.s3.title}</h2>
+				<p data-edit={editAttr('s3.body')} contenteditable={editableAttr}>{legal.s3.body}</p>
 			</section>
 			<section class="clause">
-				<h2>{t(locale, 'legal.s4.title')}</h2>
+				<h2 data-edit={editAttr('s4.title')} contenteditable={editableAttr}>{legal.s4.title}</h2>
 				<p>
-					{t(locale, 'legal.s4.body')}
-					<a class="internal-link" href={cookiesUrl}>{t(locale, 'legal.s4.linkLabel')}.</a>
+					<span data-edit={editAttr('s4.body')} contenteditable={editableAttr}>{legal.s4.body}</span>
+					{' '}<a class="internal-link" href={cookiesUrl}><span data-edit={editAttr('s4.linkLabel')} contenteditable={editableAttr}>{legal.s4.linkLabel}</span>.</a>
 				</p>
 			</section>
 			<section class="clause">
-				<h2>{t(locale, 'legal.s5.title')}</h2>
-				<p>{t(locale, 'legal.s5.body')}</p>
+				<h2 data-edit={editAttr('s5.title')} contenteditable={editableAttr}>{legal.s5.title}</h2>
+				<p data-edit={editAttr('s5.body')} contenteditable={editableAttr}>{legal.s5.body}</p>
 			</section>
 			<section class="clause">
-				<h2>{t(locale, 'legal.s6.title')}</h2>
-				<p>{t(locale, 'legal.s6.body')}</p>
+				<h2 data-edit={editAttr('s6.title')} contenteditable={editableAttr}>{legal.s6.title}</h2>
+				<p data-edit={editAttr('s6.body')} contenteditable={editableAttr}>{legal.s6.body}</p>
 			</section>
 			<p class="updated">
-				{t(locale, 'legal.updated')} — {t(locale, 'legal.updated.date')}
+				{t(locale, 'legal.updated')} — <span data-edit={editAttr('updated')} contenteditable={editableAttr}>{legal.updated}</span>
 			</p>
 		</div>
 	</article>
@@ -89,6 +106,12 @@ const cookiesUrl = getRelativeLocaleUrl(locale, `/${t(locale, 'cookie.path')}`);
 		padding-bottom: 1.25rem;
 	}
 
+	.header-end {
+		display: flex;
+		align-items: center;
+		gap: 1.5rem;
+	}
+
 	.back-link,
 	.lang-link {
 		color: color-mix(in srgb, var(--ink) 62%, transparent);
@@ -105,6 +128,26 @@ const cookiesUrl = getRelativeLocaleUrl(locale, `/${t(locale, 'cookie.path')}`);
 	.lang-link:focus-visible,
 	.lang-link.is-current {
 		color: var(--ink);
+	}
+
+	.edit-link {
+		color: color-mix(in srgb, var(--ink) 72%, transparent);
+		font-size: 0.68rem;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+		text-decoration: none;
+		border: 1px dashed color-mix(in srgb, var(--ink) 35%, transparent);
+		border-radius: 999px;
+		padding: 0.3rem 0.8rem;
+		transition:
+			color 240ms ease,
+			border-color 240ms ease;
+	}
+
+	.edit-link:hover,
+	.edit-link:focus-visible {
+		color: var(--ink);
+		border-color: var(--ink);
 	}
 
 	.lang-switcher {
@@ -232,6 +275,7 @@ const cookiesUrl = getRelativeLocaleUrl(locale, `/${t(locale, 'cookie.path')}`);
 	@media (prefers-reduced-motion: reduce) {
 		.back-link,
 		.lang-link,
+		.edit-link,
 		.internal-link {
 			transition: none;
 		}

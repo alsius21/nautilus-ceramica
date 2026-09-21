@@ -1,0 +1,16 @@
+---
+import CookiePolicy from '@/components/CookiePolicy.astro';
+import PageEditor from '@/components/PageEditor.astro';
+import Layout from '@/layouts/Layout.astro';
+import { getCookies } from '@/lib/content';
+import { normalizeLocale, t } from '@/i18n';
+
+const locale = normalizeLocale(Astro.currentLocale);
+const cookies = getCookies(locale);
+const path = `/${t(locale, 'cookie.path')}`;
+---
+
+<Layout title={cookies.title} path={path} description={cookies.lead}>
+	<CookiePolicy editable />
+	<PageEditor page="cookies" locale={locale} publishedPath={path} />
+</Layout>

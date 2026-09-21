@@ -1,0 +1,80 @@
+{
+  "ca": {
+    "eyebrow": "Privadesa",
+    "title": "Política de cookies",
+    "lead": "Aquesta pàgina explica, de manera clara i honesta, què passa amb les galetes i amb el teu equip quan visites nautilusceramica. La resposta breu: aquí no hi ha cap galeta que necessiti el teu consentiment.",
+    "s1": {
+      "title": "Cap galeta de seguiment",
+      "body": "No fem servir galetes de seguiment, de publicitat ni de tercers. No hi ha cap servei d’anàlisi (com Google Analytics), no hi ha anuncis integrats i no s’incrusta contingut d’altres llocs. Per això no et demanem cap consentiment de galetes."
+    },
+    "s2": {
+      "title": "Emmagatzematge tècnic estrictament necessari",
+      "body": "El lloc és una aplicació web instal·lable (PWA). El navegador registra un service worker i guarda una còpia de certs fitxers en memòria cau perquè la pàgina també funcioni sense connexió. Això no crea cap galeta: és un emmagatzematge estrictament necessari per al servei que has demanat i queda exempt del consentiment, tal com preveu la directiva de privadesa electrònica (ePrivacy)."
+    },
+    "s3": {
+      "title": "Dades personals",
+      "body": "No recollim, emmagatzemem ni tractem cap dada personal. No hi ha formularis, registres ni cap recollida automatitzada d’informació sobre tu."
+    },
+    "s4": {
+      "title": "Enllaços externs",
+      "body": "Els enllaços cap a pàgines de tercers (com Instagram) surten d’aquest lloc. Un cop allà, s’apliquen les polítiques de privadesa i de galetes del servei corresponent."
+    },
+    "s5": {
+      "title": "Contacte",
+      "body": "Si tens qualsevol dubte sobre aquesta política, pots escriure’ns a través de l’enllaç d’Instagram que trobaràs al peu de la pàgina."
+    },
+    "updated": "Agost de 2026"
+  },
+  "es": {
+    "eyebrow": "Privacidad",
+    "title": "Política de cookies",
+    "lead": "Esta página explica, de forma clara y honesta, qué ocurre con las cookies y con tu equipo cuando visitas nautilusceramica. La respuesta breve: aquí no hay ninguna cookie que necesite tu consentimiento.",
+    "s1": {
+      "title": "Sin cookies de seguimiento",
+      "body": "No utilizamos cookies de seguimiento, de publicidad ni de terceros. No hay ningún servicio de analítica (como Google Analytics), no hay anuncios integrados ni se incrusta contenido de otros sitios. Por eso no te pedimos ningún consentimiento de cookies."
+    },
+    "s2": {
+      "title": "Almacenamiento técnico estrictamente necesario",
+      "body": "El sitio es una aplicación web instalable (PWA). El navegador registra un service worker y guarda una copia de ciertos archivos en memoria caché para que la página también funcione sin conexión. Esto no crea ninguna cookie: es un almacenamiento estrictamente necesario para el servicio que has solicitado y está exento del consentimiento, tal como prevé la directiva de privacidad electrónica (ePrivacy)."
+    },
+    "s3": {
+      "title": "Datos personales",
+      "body": "No recopilamos, almacenamos ni tratamos ningún dato personal. No hay formularios, registros ni ninguna recopilación automatizada de información sobre ti."
+    },
+    "s4": {
+      "title": "Enlaces externos",
+      "body": "Los enlaces hacia páginas de terceros (como Instagram) salen de este sitio. Una vez allí, se aplican las políticas de privacidad y de cookies del servicio correspondiente."
+    },
+    "s5": {
+      "title": "Contacto",
+      "body": "Si tienes cualquier duda sobre esta política, puedes escribirnos a través del enlace de Instagram que encontrarás al pie de la página."
+    },
+    "updated": "Agosto de 2026"
+  },
+  "en": {
+    "eyebrow": "Privacy",
+    "title": "Cookie policy",
+    "lead": "This page explains, clearly and honestly, what happens with cookies and with your device when you visit nautilusceramica. The short answer: there are no cookies here that need your consent.",
+    "s1": {
+      "title": "No tracking cookies",
+      "body": "We do not use tracking, advertising or third-party cookies. There is no analytics service (such as Google Analytics), no integrated ads, and no content embedded from other sites. That is why we do not ask you for any cookie consent."
+    },
+    "s2": {
+      "title": "Strictly necessary technical storage",
+      "body": "This site is an installable web app (PWA). The browser registers a service worker and keeps a copy of certain files in cache so the page also works offline. This does not create any cookie: it is storage strictly necessary for the service you requested and is exempt from consent, as set out in the ePrivacy directive."
+    },
+    "s3": {
+      "title": "Personal data",
+      "body": "We do not collect, store or process any personal data. There are no forms, no accounts, and no automated collection of information about you."
+    },
+    "s4": {
+      "title": "External links",
+      "body": "Links to third-party pages (such as Instagram) leave this site. Once there, the privacy and cookie policies of the respective service apply."
+    },
+    "s5": {
+      "title": "Contact",
+      "body": "If you have any questions about this policy, you can write to us through the Instagram link in the footer of the page."
+    },
+    "updated": "August 2026"
+  }
+}

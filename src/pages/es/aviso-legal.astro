@@ -2,10 +2,12 @@
 import LegalNotice from '@/components/LegalNotice.astro';
 import Layout from '@/layouts/Layout.astro';
 import { normalizeLocale, t } from '@/i18n';
+import { getLegal } from '@/lib/content';
 
 const locale = normalizeLocale(Astro.currentLocale);
-const title = t(locale, 'legal.title');
-const description = t(locale, 'legal.lead');
+const legal = getLegal(locale);
+const title = legal.title;
+const description = legal.lead;
 ---
 
 <Layout title={title} path={`/${t(locale, 'legal.path')}`} description={description}>

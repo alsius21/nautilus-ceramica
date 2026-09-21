@@ -25,6 +25,44 @@ const CATEGORIES = ['vase', 'cup', 'bowl', 'plate', 'bottle', 'juicer', 'sculptu
 const SIZES = ['small', 'medium', 'large'];
 
 const routePath = '/__content/works';
+const pagesRoutePath = '/__content/pages';
+
+/** Pàgines editables: fitxer a `src/content/` i esquema de camps (text). */
+const PAGE_FILES = { about: 'about.json', legal: 'legal.json', cookies: 'cookies.json' };
+const PAGE_SCHEMAS = {
+	about: {
+		eyebrow: 'text',
+		title: 'text',
+		lead: 'text',
+		s1: { title: 'text', body: 'text' },
+		s2: { title: 'text', body: 'text', link: { label: 'text', url: 'text' }, after: 'text' },
+		s3: { title: 'text', body: 'text', link: { label: 'text', url: 'text' }, after: 'text' },
+		s4: { title: 'text', body: 'text' },
+		s5: { title: 'text', body: 'text' },
+	},
+	legal: {
+		eyebrow: 'text',
+		title: 'text',
+		lead: 'text',
+		s2: { title: 'text', body: 'text' },
+		s3: { title: 'text', body: 'text' },
+		s4: { title: 'text', body: 'text', linkLabel: 'text' },
+		s5: { title: 'text', body: 'text' },
+		s6: { title: 'text', body: 'text' },
+		updated: 'text',
+	},
+	cookies: {
+		eyebrow: 'text',
+		title: 'text',
+		lead: 'text',
+		s1: { title: 'text', body: 'text' },
+		s2: { title: 'text', body: 'text' },
+		s3: { title: 'text', body: 'text' },
+		s4: { title: 'text', body: 'text' },
+		s5: { title: 'text', body: 'text' },
+		updated: 'text',
+	},
+};
 
 function fail(message, status = 400) {
 	const error = new Error(message);
@@ -365,6 +403,89 @@ function sendJson(res, status, payload) {
 	res.end(JSON.stringify(payload));
 }
 
+async function readJsonBody(req) {
+	const chunks = [];
+	for await (const chunk of req) chunks.push(chunk);
+	const text = Buffer.concat(chunks).toString('utf8').trim();
+	if (text === '') return {};
+	try {
+		return JSON.parse(text);
+	} catch {
+		throw fail('Les dades rebudes no són JSON vàlid.');
+	}
+}
+
+/** Valida i normalitza el contingut d'una pàgina segons el seu esquema. */
+function sanitize(schema, value, path) {
+	const output = {};
+	for (const [key, spec] of Object.entries(schema)) {
+		const raw = value?.[key];
+		if (spec === 'text') {
+			const text = clean(raw);
+			if (key === 'title' && text === '') throw fail(`Falta «${path}.${key}».`);
+			if (key === 'lead' && text === '') throw fail(`Falta «${path}.${key}».`);
+			output[key] = text;
+			continue;
+		}
+		if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) {
+			throw fail(`Falten dades a «${path}.${key}».`);
+		}
+		output[key] = sanitize(spec, raw, `${path}.${key}`);
+	}
+	return output;
+}
+
+function isInlineLeaf(value) {
+	return (
+		value !== null &&
+		typeof value === 'object' &&
+		!Array.isArray(value) &&
+		Object.values(value).every((item) => item === null || typeof item !== 'object')
+	);
+}
+
+/**
+ * Escriu JSON amb el mateix estil que els fitxers de `src/content/`: els
+ * objectes s'expandeixen, excepte els enllaços (`link`), que queden en una línia.
+ */
+function formatJsonValue(value, indent, key) {
+	const pad = '  '.repeat(indent);
+	if (value === null || typeof value !== 'object') return JSON.stringify(value);
+	if (Array.isArray(value)) {
+		if (value.length === 0) return '[]';
+		const inner = value
+			.map((item) => `${'  '.repeat(indent + 1)}${formatJsonValue(item, indent + 1)}`)
+			.join(',\n');
+		return `[\n${inner}\n${pad}]`;
+	}
+	const entries = Object.entries(value);
+	if (entries.length === 0) return '{}';
+	if (key === 'link' && isInlineLeaf(value)) {
+		return `{ ${entries.map(([item, text]) => `${JSON.stringify(item)}: ${JSON.stringify(text)}`).join(', ')} }`;
+	}
+	const inner = entries
+		.map(([item, child]) => `${'  '.repeat(indent + 1)}${JSON.stringify(item)}: ${formatJsonValue(child, indent + 1, item)}`)
+		.join(',\n');
+	return `{\n${inner}\n${pad}}`;
+}
+
+async function readPage(root, page) {
+	const file = path.join(root, 'src', 'content', PAGE_FILES[page]);
+	const raw = await fs.readFile(file, 'utf8');
+	let data;
+	try {
+		data = JSON.parse(raw);
+	} catch {
+		throw fail(`${PAGE_FILES[page]} no s’ha pogut interpretar.`, 500);
+	}
+	if (data === null || typeof data !== 'object' || Array.isArray(data)) {
+		throw fail(`${PAGE_FILES[page]} ha de ser un objecte amb entrades ca/es/en.`, 500);
+	}
+	// Respectem el final de línia del fitxer per no embrutar el diff (CRLF a Windows).
+	const eol = raw.includes('\r\n') ? '\r\n' : '\n';
+	return { file, data, eol };
+}
+
 export default function contentEditor() {
 	let root = process.cwd();
 
@@ -377,6 +498,36 @@ export default function contentEditor() {
 			'astro:server:setup': ({ server, logger }) => {
 				server.middlewares.use(async (req, res, next) => {
 					const url = (req.url ?? '').split('?')[0] ?? '';
+
+					if (url.endsWith(pagesRoutePath)) {
+						try {
+							if (req.method !== 'POST') {
+								return sendJson(res, 405, { ok: false, error: 'Mètode no admès.' });
+							}
+							const payload = await readJsonBody(req);
+							const page = clean(payload?.page);
+							if (!Object.prototype.hasOwnProperty.call(PAGE_FILES, page)) {
+								throw fail('La pàgina indicada no és editable.');
+							}
+							const locale = clean(payload?.locale);
+							if (!LOCALES.includes(locale)) throw fail('L’idioma indicat no és vàlid.');
+
+							const content = sanitize(PAGE_SCHEMAS[page], payload?.content, page);
+							const { file, data, eol } = await readPage(root, page);
+							data[locale] = content;
+							const body = formatJsonValue(data, 0).replace(/\n/g, eol);
+							await fs.writeFile(file, `${body}${eol}`, 'utf8');
+
+							logger.info(`pàgina «${page}» (${locale}) desada`);
+							return sendJson(res, 200, { ok: true, page, locale });
+						} catch (error) {
+							const status = error?.status ?? 500;
+							const message = error?.message ?? 'Error inesperat en desar la pàgina.';
+							logger.error(message);
+							return sendJson(res, status, { ok: false, error: message });
+						}
+					}
+
 					if (!url.endsWith(routePath)) return next();
 
 					try {
@@ -494,10 +645,19 @@ export default function contentEditor() {
 				const editorDirs = [
 					['contingut', 'peces', 'afegir'],
 					['contingut', 'peces', 'editar'],
+					['contingut', 'pagines', 'sobre'],
+					['contingut', 'pagines', 'avis-legal'],
+					['contingut', 'pagines', 'cookies'],
 					['es', 'contenido', 'piezas', 'crear'],
 					['es', 'contenido', 'piezas', 'editar'],
+					['es', 'contenido', 'paginas', 'sobre-mi'],
+					['es', 'contenido', 'paginas', 'aviso-legal'],
+					['es', 'contenido', 'paginas', 'cookies'],
 					['en', 'content', 'pieces', 'add'],
 					['en', 'content', 'pieces', 'edit'],
+					['en', 'content', 'pages', 'about'],
+					['en', 'content', 'pages', 'legal-notice'],
+					['en', 'content', 'pages', 'cookies'],
 				];
 
 				const candidates = new Set();
