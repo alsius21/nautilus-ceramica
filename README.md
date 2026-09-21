@@ -36,7 +36,7 @@ El lloc és intencionadament petit i ràpid: sortida estàtica amb Astro, obra s
 
 ### Requisits
 
-- Node.js `>= 22.12.0`
+- Node.js `>= 24.0.0`
 - [pnpm](https://pnpm.io/)
 
 ### Instal·lació i desenvolupament
@@ -169,7 +169,7 @@ botiga, i connexions entre fitxes. La galeria conserva la seva presentació.
   i els filtres s'activen al navegador.
 
 Validació de la lògica: `node --experimental-strip-types --test tools/shop-discovery.test.mjs`
-(Node 22.12 o superior). Compilació completa: `pnpm build`.
+(Node 24 o superior). Compilació completa: `pnpm build`.
 
 ### Convenció d'imatges
 
