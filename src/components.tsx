@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router';
 import { BRAND_NAME, SHOP_ENABLED } from '@/consts';
 import {
 	exhibitions,
@@ -37,9 +38,9 @@ export function Footer({ locale }: { locale: Locale }) {
 		<footer className="site-footer">
 			<p className="footer-year">&copy; {new Date().getFullYear()} {BRAND_NAME}</p>
 			<div className="footer-links">
-				<a className="footer-legal" href={localeUrl(locale, `/${t(locale, 'about.path')}`)}>{t(locale, 'about.footer')}</a>
-				<a className="footer-legal" href={localeUrl(locale, `/${t(locale, 'legal.path')}`)}>{t(locale, 'legal.footer')}</a>
-				<a className="footer-cookies" href={localeUrl(locale, `/${t(locale, 'cookie.path')}`)}>{t(locale, 'cookie.footer')}</a>
+				<Link className="footer-legal" to={localeUrl(locale, `/${t(locale, 'about.path')}`)}>{t(locale, 'about.footer')}</Link>
+				<Link className="footer-legal" to={localeUrl(locale, `/${t(locale, 'legal.path')}`)}>{t(locale, 'legal.footer')}</Link>
+				<Link className="footer-cookies" to={localeUrl(locale, `/${t(locale, 'cookie.path')}`)}>{t(locale, 'cookie.footer')}</Link>
 				<a className="footer-instagram" href={INSTAGRAM} target="_blank" rel="noopener noreferrer">Instagram</a>
 			</div>
 		</footer>
@@ -50,15 +51,15 @@ function LangSwitcher({ locale, target }: { locale: Locale; target: (code: Local
 	return (
 		<nav className="lang-switcher" aria-label={t(locale, 'lang.selector')}>
 			{locales.map((code) => (
-				<a
+				<Link
 					key={code}
-					href={target(code)}
+					to={target(code)}
 					className={`lang-link${code === locale ? ' is-current' : ''}`}
 					aria-current={code === locale ? 'page' : undefined}
 					title={t(code, 'lang.name')}
 				>
 					{code}
-				</a>
+				</Link>
 			))}
 		</nav>
 	);
@@ -68,17 +69,17 @@ function PageHeader({ locale, current }: { locale: Locale; current: 'gallery' | 
 	const paths = { gallery: 'gallery.path', exhibitions: 'exhibitions.path', shop: 'shop.path' } as const;
 	return (
 		<header className="journal-header">
-			<a className="brand-name" href={localeUrl(locale, '/')}>{BRAND_NAME}</a>
+			<Link className="brand-name" to={localeUrl(locale, '/')}>{BRAND_NAME}</Link>
 			<div className="header-meta">
 				<nav className="page-nav" aria-label={t(locale, 'nav.label')}>
 					{(['gallery', 'exhibitions', 'shop'] as const).map((key) => (
-						<a key={key} href={localeUrl(locale, `/${t(locale, paths[key])}`)} aria-current={current === key ? 'page' : undefined}>
+						<Link key={key} to={localeUrl(locale, `/${t(locale, paths[key])}`)} aria-current={current === key ? 'page' : undefined}>
 							{t(locale, key === 'gallery' ? 'nav.gallery' : key === 'exhibitions' ? 'nav.exhibitions' : 'nav.shop')}
-						</a>
+						</Link>
 					))}
 				</nav>
 				<LangSwitcher locale={locale} target={(code) => localeUrl(code, `/${t(code, paths[current])}`)} />
-				{DEV_EDITOR && current !== 'exhibitions' && <a className="dev-link" href={pieceEditorUrl(locale, 'add')}>{t(locale, 'editor.add')}</a>}
+				{DEV_EDITOR && current !== 'exhibitions' && <Link className="dev-link" to={pieceEditorUrl(locale, 'add')}>{t(locale, 'editor.add')}</Link>}
 			</div>
 		</header>
 	);
@@ -87,17 +88,17 @@ function PageHeader({ locale, current }: { locale: Locale; current: 'gallery' | 
 function HomeHeader({ locale }: { locale: Locale }) {
 	return (
 		<header className="journal-header">
-			<a className="brand-name" href={localeUrl(locale, '/')} aria-label={BRAND_NAME}>
+			<Link className="brand-name" to={localeUrl(locale, '/')} aria-label={BRAND_NAME}>
 				<h1>{BRAND_NAME}</h1>
-			</a>
+			</Link>
 			<div className="header-meta">
 				<nav className="page-nav" aria-label={t(locale, 'nav.label')}>
-					<a href={localeUrl(locale, `/${t(locale, 'gallery.path')}`)}>{t(locale, 'nav.gallery')}</a>
-					<a href={localeUrl(locale, `/${t(locale, 'exhibitions.path')}`)}>{t(locale, 'nav.exhibitions')}</a>
-					<a href={localeUrl(locale, `/${t(locale, 'shop.path')}`)}>{t(locale, 'nav.shop')}</a>
+					<Link to={localeUrl(locale, `/${t(locale, 'gallery.path')}`)}>{t(locale, 'nav.gallery')}</Link>
+					<Link to={localeUrl(locale, `/${t(locale, 'exhibitions.path')}`)}>{t(locale, 'nav.exhibitions')}</Link>
+					<Link to={localeUrl(locale, `/${t(locale, 'shop.path')}`)}>{t(locale, 'nav.shop')}</Link>
 				</nav>
 				<LangSwitcher locale={locale} target={(code) => localeUrl(code, '/')} />
-				{DEV_EDITOR && <a className="dev-link" href={pieceEditorUrl(locale, 'add')}>{t(locale, 'editor.add')}</a>}
+				{DEV_EDITOR && <Link className="dev-link" to={pieceEditorUrl(locale, 'add')}>{t(locale, 'editor.add')}</Link>}
 			</div>
 		</header>
 	);
@@ -167,11 +168,11 @@ export function Welcome({ locale }: { locale: Locale }) {
 			<HomeHeader locale={locale} />
 			<section className="gallery" aria-label={t(locale, 'gallery.label')}>
 				{images.map((image, index) => (
-					<a className={`artwork artwork-${index + 1}`} key={image.slug} href={localeUrl(locale, `/${t(locale, 'gallery.path')}/${image.slug}`)}>
+					<Link className={`artwork artwork-${index + 1}`} key={image.slug} to={localeUrl(locale, `/${t(locale, 'gallery.path')}/${image.slug}`)}>
 						<figure>
 							<img src={IMG(image.src)} alt={image.alt} loading={index === 0 ? 'eager' : 'lazy'} />
 						</figure>
-					</a>
+					</Link>
 				))}
 			</section>
 			<Footer locale={locale} />
@@ -194,11 +195,11 @@ export function Gallery({ locale }: { locale: Locale }) {
 				</div>
 				<section className="work-grid" aria-label={t(locale, 'nav.gallery')}>
 					{images.map((image, index) => (
-						<a className="artwork" key={image.slug} href={localeUrl(locale, `/${t(locale, 'gallery.path')}/${image.slug}`)}>
+						<Link className="artwork" key={image.slug} to={localeUrl(locale, `/${t(locale, 'gallery.path')}/${image.slug}`)}>
 							<figure>
 								<img src={IMG(image.src)} alt={image.alt} loading={index === 0 ? 'eager' : 'lazy'} />
 							</figure>
-						</a>
+						</Link>
 					))}
 				</section>
 			</article>
@@ -218,8 +219,8 @@ export function WorkJournal({ locale, work }: { locale: Locale; work: Work }) {
 		<main className="journal">
 			<header className="journal-header">
 				<div className="header-left">
-					{DEV_EDITOR && <a className="edit-link" href={pieceEditorUrl(locale, 'edit', work.id)}>{t(locale, 'editor.edit')}</a>}
-					<a className="back-link" href={localeUrl(locale, `/${t(locale, 'gallery.path')}`)}>← {t(locale, 'gallery.page.eyebrow')}</a>
+					<Link className="back-link" to={localeUrl(locale, `/${t(locale, 'gallery.path')}`)}>← {t(locale, 'gallery.page.eyebrow')}</Link>
+					{DEV_EDITOR && <Link className="edit-link" to={pieceEditorUrl(locale, 'edit', work.id)}>{t(locale, 'editor.edit')}</Link>}
 				</div>
 				<LangSwitcher locale={locale} target={(code) => localeUrl(code, `/${t(code, 'gallery.path')}/${getSlug(work, code)}`)} />
 			</header>
@@ -232,9 +233,9 @@ export function WorkJournal({ locale, work }: { locale: Locale; work: Work }) {
 						<div className="detail-actions">
 							<ShareButton title={title} text={work.description[locale]} locale={locale} />
 							{shopAvailable && (
-								<a className="shop-link" href={localeUrl(locale, `/${t(locale, 'shop.path')}/${t(locale, 'shop.article.path')}/${getSlug(work, locale)}`)}>
+									<Link className="shop-link" to={localeUrl(locale, `/${t(locale, 'shop.path')}/${t(locale, 'shop.article.path')}/${getSlug(work, locale)}`)}>
 									{t(locale, 'shop.view_in_shop')} →
-								</a>
+								</Link>
 							)}
 						</div>
 					</div>
@@ -273,16 +274,16 @@ export function Exhibitions({ locale }: { locale: Locale }) {
 									<p className="venue">
 										{exhibition.url ? <a href={exhibition.url} target="_blank" rel="noopener noreferrer">{exhibition.venue[locale]}</a> : exhibition.venue[locale]}
 									</p>
-									<h2><a className="exhibit-link" href={detail}>{exhibition.title[locale]}</a></h2>
+								<h2><Link className="exhibit-link" to={detail}>{exhibition.title[locale]}</Link></h2>
 									<p className="description">{exhibition.description[locale]}</p>
 								</header>
 								<div className="exhibit-grid">
 									{exhibition.images.map((image, index) => (
-										<a className="artwork" key={image.file} href={detail}>
+										<Link className="artwork" key={image.file} to={detail}>
 											<figure>
 												<img src={IMG(image.file)} alt={image.alt[locale]} loading={index === 0 ? 'eager' : 'lazy'} />
 											</figure>
-										</a>
+										</Link>
 									))}
 								</div>
 							</section>
@@ -300,7 +301,7 @@ export function ExhibitionJournal({ locale, exhibition }: { locale: Locale; exhi
 	return (
 		<main className="journal">
 			<header className="journal-header">
-				<a className="back-link" href={localeUrl(locale, `/${t(locale, 'exhibitions.path')}`)}>← {t(locale, 'exhibit.back')}</a>
+				<Link className="back-link" to={localeUrl(locale, `/${t(locale, 'exhibitions.path')}`)}>← {t(locale, 'exhibit.back')}</Link>
 				<LangSwitcher locale={locale} target={(code) => localeUrl(code, `/${t(code, 'exhibitions.path')}/${exhibition.slug}`)} />
 			</header>
 			<article className="entry">
@@ -330,7 +331,7 @@ export function ExhibitionJournal({ locale, exhibition }: { locale: Locale; exhi
 function BackHeader({ locale, backHref, backLabel, target }: { locale: Locale; backHref: string; backLabel: string; target: (code: Locale) => string }) {
 	return (
 		<header className="journal-header">
-			<a className="back-link" href={backHref}>← {backLabel}</a>
+			<Link className="back-link" to={backHref}>← {backLabel}</Link>
 			<LangSwitcher locale={locale} target={target} />
 		</header>
 	);
@@ -341,11 +342,11 @@ export function About({ locale }: { locale: Locale }) {
 	return (
 		<main className="about">
 			<header className="journal-header">
-				<a className="back-link" href={localeUrl(locale, '/')}>← {t(locale, 'about.back')}</a>
-				<div className="header-end">
-					{DEV_EDITOR && <a className="edit-link" href={pageEditorUrl(locale, 'about')}>{t(locale, 'editor.page')}</a>}
-					<LangSwitcher locale={locale} target={(code) => localeUrl(code, `/${t(code, 'about.path')}`)} />
+				<div className="header-left">
+					<Link className="back-link" to={localeUrl(locale, '/')}>← {t(locale, 'about.back')}</Link>
+					{DEV_EDITOR && <Link className="edit-link" to={pageEditorUrl(locale, 'about')}>{t(locale, 'editor.page')}</Link>}
 				</div>
+				<LangSwitcher locale={locale} target={(code) => localeUrl(code, `/${t(code, 'about.path')}`)} />
 			</header>
 			<article className="entry">
 				<div className="entry-intro">
@@ -398,11 +399,11 @@ export function LegalNotice({ locale }: { locale: Locale }) {
 	return (
 		<main className="legal">
 			<header className="journal-header">
-				<a className="back-link" href={localeUrl(locale, '/')}>← {t(locale, 'legal.back')}</a>
-				<div className="header-end">
-					{DEV_EDITOR && <a className="edit-link" href={pageEditorUrl(locale, 'legal')}>{t(locale, 'editor.page')}</a>}
-					<LangSwitcher locale={locale} target={(code) => localeUrl(code, `/${t(code, 'legal.path')}`)} />
+				<div className="header-left">
+					<Link className="back-link" to={localeUrl(locale, '/')}>← {t(locale, 'legal.back')}</Link>
+					{DEV_EDITOR && <Link className="edit-link" to={pageEditorUrl(locale, 'legal')}>{t(locale, 'editor.page')}</Link>}
 				</div>
+				<LangSwitcher locale={locale} target={(code) => localeUrl(code, `/${t(code, 'legal.path')}`)} />
 			</header>
 			<article className="entry">
 				<div className="entry-intro">
@@ -421,7 +422,7 @@ export function LegalNotice({ locale }: { locale: Locale }) {
 						<h2>{legal.s4.title}</h2>
 						<p>
 							<span>{legal.s4.body}</span>{' '}
-							<a className="internal-link" href={cookiesHref}><span>{legal.s4.linkLabel}</span>.</a>
+							<Link className="internal-link" to={cookiesHref}><span>{legal.s4.linkLabel}</span>.</Link>
 						</p>
 					</section>
 					{[legal.s5, legal.s6].map((section, index) => (
@@ -443,11 +444,11 @@ export function CookiePolicy({ locale }: { locale: Locale }) {
 	return (
 		<main className="legal">
 			<header className="journal-header">
-				<a className="back-link" href={localeUrl(locale, '/')}>← {t(locale, 'cookie.back')}</a>
-				<div className="header-end">
-					{DEV_EDITOR && <a className="edit-link" href={pageEditorUrl(locale, 'cookies')}>{t(locale, 'editor.page')}</a>}
-					<LangSwitcher locale={locale} target={(code) => localeUrl(code, `/${t(code, 'cookie.path')}`)} />
+				<div className="header-left">
+					<Link className="back-link" to={localeUrl(locale, '/')}>← {t(locale, 'cookie.back')}</Link>
+					{DEV_EDITOR && <Link className="edit-link" to={pageEditorUrl(locale, 'cookies')}>{t(locale, 'editor.page')}</Link>}
 				</div>
+				<LangSwitcher locale={locale} target={(code) => localeUrl(code, `/${t(code, 'cookie.path')}`)} />
 			</header>
 			<article className="entry">
 				<div className="entry-intro">
@@ -585,7 +586,7 @@ function CartUI({ locale, items, setItems, contactHref }: { locale: Locale; item
 	return <><aside className={`cart-sidebar${open ? ' is-open' : ''}`} data-cart role="dialog" aria-modal="true" aria-label={t(locale, 'shop.cart.title')}>
 		<div className="cart-head"><h3 className="cart-title">{t(locale, 'shop.cart.title')} — <span>{items.length}</span></h3><div className="cart-head-actions"><button type="button" className="cart-clear" onClick={() => setItems([])}>{t(locale, 'shop.cart.clear')}</button><button type="button" className="cart-close" onClick={() => setOpen(false)} aria-label={t(locale, 'shop.cart.close')}>×</button></div></div>
 		<ul className="cart-list">{entries.map(work => <li className="cart-item" key={work.id}><span className="cart-item-title">{work.title[locale]}</span><span className="cart-item-right"><span className="cart-item-price">{work.shop.price ?? t(locale, 'shop.price.inquiry')} {work.shop.price !== undefined ? t(locale, 'shop.price.suffix') : ''}</span><button type="button" className="cart-item-remove" onClick={() => setItems(current => current.filter(id => id !== work.id))} aria-label={`${t(locale, 'shop.cart.remove_label')} ${work.title[locale]}`}>×</button></span></li>)}</ul>
-		<p className="cart-total">{total ? `${t(locale, 'shop.cart.total')}: ${total} €${hasInquiry ? ` + ${t(locale, 'shop.price.inquiry').toLocaleLowerCase(locale)}` : ''}` : t(locale, 'shop.price.inquiry')}</p><a className="cart-cta" href={contactHref}>{t(locale, 'shop.cart.go_to_form')} →</a>
+		<p className="cart-total">{total ? `${t(locale, 'shop.cart.total')}: ${total} €${hasInquiry ? ` + ${t(locale, 'shop.price.inquiry').toLocaleLowerCase(locale)}` : ''}` : t(locale, 'shop.price.inquiry')}</p><Link className="cart-cta" to={contactHref}>{t(locale, 'shop.cart.go_to_form')} →</Link>
 	</aside><button ref={triggerRef} type="button" className="cart-fab" onClick={() => setOpen(value => !value)} aria-label={t(locale, 'shop.cart.open')} aria-haspopup="dialog" aria-expanded={open}><span aria-hidden="true">▢</span><span className="cart-fab-badge">{items.length}</span></button>{open && <div className="cart-backdrop is-open" onClick={() => setOpen(false)} />}</>;
 }
 
@@ -644,7 +645,7 @@ export function Shop({ locale }: { locale: Locale }) {
 	return (
 		<main className="portfolio shop-index">
 			<PageHeader locale={locale} current="shop" />
-			<article className={`entry is-shop-list${SHOP_ENABLED ? ' has-cart' : ''}`}>
+			<article className={`entry is-shop-list${cart.items.length ? ' has-cart' : ''}`}>
 				<div className="shop-main">
 					{cards.length === 0 ? (
 						<p className="empty">{t(locale, 'shop.empty')}</p>
@@ -712,16 +713,16 @@ export function Shop({ locale }: { locale: Locale }) {
 										data-category={card.category}
 										data-size={card.size}
 									>
-										<a className="card-link" href={card.href} aria-label={`${card.title} — ${t(locale, 'shop.card.view')}`}>
+										<Link className="card-link" to={card.href} aria-label={`${card.title} — ${t(locale, 'shop.card.view')}`}>
 											<figure>
 												<img src={IMG(card.src)} alt={card.alt} loading={index === 0 ? 'eager' : 'lazy'} />
 												<span className={`badge badge-${card.status}`}>{card.statusLabel}</span>
 											</figure>
-										</a>
+										</Link>
 										<div className="card-meta">
-											<h2 className="card-title"><a href={card.href}>{card.title}</a></h2>
+											<h2 className="card-title"><Link to={card.href}>{card.title}</Link></h2>
 										<div className="card-actions">
-											<a className="view-link" href={card.href}>{t(locale, 'shop.card.view')} →</a>
+											<Link className="view-link" to={card.href}>{t(locale, 'shop.card.view')} →</Link>
 											{SHOP_ENABLED && <button type="button" className={`cart-btn${cart.items.includes(card.id) ? ' is-added' : ''}`} onClick={() => cart.toggle(card.id)} aria-pressed={cart.items.includes(card.id)}>{cart.items.includes(card.id) ? t(locale, 'shop.card.remove') : t(locale, 'shop.card.add')}</button>}
 										</div>
 										</div>
@@ -751,11 +752,11 @@ export function ShopJournal({ locale, work }: { locale: Locale; work: Work }) {
 	return (
 		<main className="journal shop-journal">
 			<header className="journal-header">
-				<a className="back-link" href={localeUrl(locale, `/${t(locale, 'shop.path')}`)}>← {t(locale, 'shop.page.title')}</a>
-				<div className="header-meta">
-					<LangSwitcher locale={locale} target={(code) => localeUrl(code, `/${t(code, 'shop.path')}/${t(code, 'shop.article.path')}/${getSlug(work, code)}`)} />
-					{DEV_EDITOR && <a className="edit-link" href={pieceEditorUrl(locale, 'edit', work.id)}>{t(locale, 'editor.edit')}</a>}
+				<div className="header-left">
+					<Link className="back-link" to={localeUrl(locale, `/${t(locale, 'shop.path')}`)}>← {t(locale, 'shop.page.title')}</Link>
+					{DEV_EDITOR && <Link className="edit-link" to={pieceEditorUrl(locale, 'edit', work.id)}>{t(locale, 'editor.edit')}</Link>}
 				</div>
+				<LangSwitcher locale={locale} target={(code) => localeUrl(code, `/${t(code, 'shop.path')}/${t(code, 'shop.article.path')}/${getSlug(work, code)}`)} />
 			</header>
 			<article className={`entry${SHOP_ENABLED ? ' has-cart' : ''}`}>
 				<div className="entry-intro">
@@ -777,7 +778,7 @@ export function ShopJournal({ locale, work }: { locale: Locale; work: Work }) {
 						</dl>
 						<div className="detail-actions">
 							<ShareButton title={title} text={description} locale={locale} />
-							<a className="gallery-link" href={localeUrl(locale, `/${t(locale, 'gallery.path')}/${getSlug(work, locale)}`)}>{t(locale, 'gallery.view_in_gallery')} →</a>
+							<Link className="gallery-link" to={localeUrl(locale, `/${t(locale, 'gallery.path')}/${getSlug(work, locale)}`)}>{t(locale, 'gallery.view_in_gallery')} →</Link>
 						</div>
 						{SHOP_ENABLED ? <><div className="shop-actions"><button type="button" className={`cart-btn${cart.items.includes(work.id) ? ' is-added' : ''}`} onClick={() => cart.toggle(work.id)} aria-pressed={cart.items.includes(work.id)}>{cart.items.includes(work.id) ? t(locale, 'shop.card.remove') : t(locale, 'shop.card.add')}</button></div><p className="shop-note">{t(locale, 'shop.form.hint')}</p></> : <p className="shop-note">{t(locale, 'shop.disabled.description')}</p>}
 					</div>
@@ -818,7 +819,7 @@ export function RelatedPieces({ pieces, category, locale }: { pieces: readonly W
 			<div className="related-grid">
 				{pieces.map((piece) => (
 					<article className="related-card" key={piece.id}>
-						<a className="related-link" href={localeUrl(locale, `/${t(locale, 'shop.path')}/${t(locale, 'shop.article.path')}/${getSlug(piece, locale)}`)} aria-label={`${piece.title[locale]} — ${labels.view}`}>
+						<Link className="related-link" to={localeUrl(locale, `/${t(locale, 'shop.path')}/${t(locale, 'shop.article.path')}/${getSlug(piece, locale)}`)} aria-label={`${piece.title[locale]} — ${labels.view}`}>
 							<figure>
 								<img src={IMG(piece.images[0].file)} alt={piece.images[0].alt[locale]} loading="lazy" sizes="(max-width: 700px) 100vw, (max-width: 1000px) 50vw, 33vw" />
 							</figure>
@@ -826,7 +827,7 @@ export function RelatedPieces({ pieces, category, locale }: { pieces: readonly W
 								<h3>{piece.title[locale]}</h3>
 								<span>{labels.view} <span aria-hidden="true">→</span></span>
 							</div>
-						</a>
+						</Link>
 					</article>
 				))}
 			</div>
@@ -840,7 +841,7 @@ export function ShopContact({ locale }: { locale: Locale }) {
 		return (
 			<main className="portfolio">
 				<header className="journal-header">
-					<a className="back-link" href={shopHref}>← {t(locale, 'shop.contact.back')}</a>
+					<Link className="back-link" to={shopHref}>← {t(locale, 'shop.contact.back')}</Link>
 					<LangSwitcher locale={locale} target={(code) => localeUrl(code, `/${t(code, 'order.path')}/${t(code, 'shop.contact.path')}`)} />
 				</header>
 				<article className="entry">
@@ -866,7 +867,7 @@ export function ShopContact({ locale }: { locale: Locale }) {
 		);
 	}
 	const cart = useCart();
-	return <main className="portfolio"><header className="journal-header"><a className="back-link" href={shopHref}>← {t(locale, 'shop.contact.back')}</a><LangSwitcher locale={locale} target={(code) => localeUrl(code, `/${t(code, 'order.path')}/${t(code, 'shop.contact.path')}`)} /></header><article className="entry"><div className="entry-intro"><p className="eyebrow">{t(locale, 'shop.form.eyebrow')}</p><h1>{t(locale, 'shop.form.title')}</h1><p className="description">{t(locale, 'shop.form.lead')}</p></div><div className="shop-main"><div className="cart cart-contact"><div className="cart-head"><h3 className="cart-title">{t(locale, 'shop.cart.title')} — <span>{cart.items.length}</span></h3><button type="button" className="cart-clear" onClick={() => cart.setItems([])}>{t(locale, 'shop.cart.clear')}</button></div><ul className="cart-list">{cart.items.map(id => { const work = works.find(item => item.id === id); return work ? <li className="cart-item" key={id}><span className="cart-item-title">{work.title[locale]}</span></li> : null; })}</ul></div><InquiryForm locale={locale} selected={cart.items} onSuccess={() => cart.setItems([])} compact /></div></article><Footer locale={locale} /></main>;
+	return <main className="portfolio"><header className="journal-header"><Link className="back-link" to={shopHref}>← {t(locale, 'shop.contact.back')}</Link><LangSwitcher locale={locale} target={(code) => localeUrl(code, `/${t(code, 'order.path')}/${t(code, 'shop.contact.path')}`)} /></header><article className="entry"><div className="entry-intro"><p className="eyebrow">{t(locale, 'shop.form.eyebrow')}</p><h1>{t(locale, 'shop.form.title')}</h1><p className="description">{t(locale, 'shop.form.lead')}</p></div><div className="shop-main"><div className="cart cart-contact"><div className="cart-head"><h3 className="cart-title">{t(locale, 'shop.cart.title')} — <span>{cart.items.length}</span></h3><button type="button" className="cart-clear" onClick={() => cart.setItems([])}>{t(locale, 'shop.cart.clear')}</button></div><ul className="cart-list">{cart.items.map(id => { const work = works.find(item => item.id === id); return work ? <li className="cart-item" key={id}><span className="cart-item-title">{work.title[locale]}</span></li> : null; })}</ul></div><InquiryForm locale={locale} selected={cart.items} onSuccess={() => cart.setItems([])} compact /></div></article><Footer locale={locale} /></main>;
 }
 
 export function NotFound({ locale }: { locale: Locale }) {
@@ -878,8 +879,8 @@ export function NotFound({ locale }: { locale: Locale }) {
 				<h1>{title}</h1>
 				<p className="body">{t(locale, 'notfound.body')}</p>
 				<nav className="links" aria-label={title}>
-					<a href={localeUrl(locale, '/')}>{t(locale, 'notfound.home')}</a>
-					<a href={localeUrl(locale, `/${t(locale, 'gallery.path')}`)}>{t(locale, 'nav.gallery')}</a>
+					<Link to={localeUrl(locale, '/')}>{t(locale, 'notfound.home')}</Link>
+					<Link to={localeUrl(locale, `/${t(locale, 'gallery.path')}`)}>{t(locale, 'nav.gallery')}</Link>
 				</nav>
 			</div>
 			<Footer locale={locale} />

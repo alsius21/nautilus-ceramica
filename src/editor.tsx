@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
+import { Link } from 'react-router';
 import {
 	getAbout,
 	getCookies,
@@ -10,7 +11,8 @@ import {
 } from '@/lib/content';
 import { editorStrings, pageEditorStrings } from '@/dev/editor-i18n';
 import { categoryLabel, PIECE_CATEGORIES, PIECE_SIZES, sizeLabel } from '@/lib/shop-discovery';
-import { t, type Locale } from '@/i18n';
+import { locales, t, type Locale } from '@/i18n';
+import { Footer } from './components';
 import { BASE, localeUrl } from './routes';
 
 type EditorImage = { file?: string; upload?: File; alt: string };
@@ -148,24 +150,83 @@ export function PieceEditor({ locale, work }: PieceEditorProps) {
 	</main>;
 }
 
-type PageEditorProps = { locale: Locale; page: EditablePageKey };
-type PageValue = Record<string, unknown>;
-const pageFields: Record<EditablePageKey, string[]> = {
-	about: ['eyebrow', 'title', 'lead', 's1.title', 's1.body', 's2.title', 's2.body', 's2.link.label', 's2.link.url', 's2.after', 's3.title', 's3.body', 's3.link.label', 's3.link.url', 's3.after', 's4.title', 's4.body', 's5.title', 's5.body'],
-	legal: ['eyebrow', 'title', 'lead', 's2.title', 's2.body', 's3.title', 's3.body', 's4.title', 's4.body', 's4.linkLabel', 's5.title', 's5.body', 's6.title', 's6.body', 'updated'],
-	cookies: ['eyebrow', 'title', 'lead', 's1.title', 's1.body', 's2.title', 's2.body', 's3.title', 's3.body', 's4.title', 's4.body', 's5.title', 's5.body', 'updated'],
-};
-function getPath(value: PageValue, path: string) { return path.split('.').reduce<unknown>((current, key) => (current as PageValue)?.[key], value) as string ?? ''; }
-function setPath(value: PageValue, path: string, text: string) { const keys = path.split('.'); let current = value; keys.slice(0, -1).forEach((key) => { current[key] = (current[key] as PageValue) ?? {}; current = current[key] as PageValue; }); current[keys[keys.length - 1]] = text; }
 
+type PageEditorProps = { locale: Locale; page: EditablePageKey };
+type PageValue = Record<string, any>;
+
+function getPath(value: PageValue, path: string): string {
+	return path.split('.').reduce<any>((current, key) => current?.[key], value) ?? '';
+}
+function setPath(value: PageValue, path: string, text: string) {
+	const keys = path.split('.');
+	let current = value;
+	keys.slice(0, -1).forEach((key) => { current[key] = current[key] && typeof current[key] === 'object' ? current[key] : {}; current = current[key]; });
+	current[keys[keys.length - 1]] = text;
+}
+function cloneValue<T>(value: T): T { return JSON.parse(JSON.stringify(value)) as T; }
+function pageEditorHref(locale: Locale, page: EditablePageKey) {
+	const key = page === 'about' ? 'editor.page.about.path' : page === 'legal' ? 'editor.page.legal.path' : 'editor.page.cookies.path';
+	return localeUrl(locale, '/' + t(locale, 'editor.path') + '/' + t(locale, 'editor.pages.path') + '/' + t(locale, key));
+}
+function EditableText({ tag, path, value, onChange, className }: { tag: 'p' | 'h1' | 'h2' | 'span'; path: string; value: string; onChange: (path: string, value: string) => void; className?: string }) {
+	const props = { className, contentEditable: true, suppressContentEditableWarning: true, 'data-edit': path, onInput: (event: React.FormEvent<HTMLElement>) => onChange(path, event.currentTarget.textContent ?? '') };
+	if (tag === 'h1') return <h1 {...props}>{value}</h1>;
+	if (tag === 'h2') return <h2 {...props}>{value}</h2>;
+	if (tag === 'span') return <span {...props}>{value}</span>;
+	return <p {...props}>{value}</p>;
+}
+function PageEditorBar({ locale, page, value, source, setValue, published, dirty, setDirty }: { locale: Locale; page: EditablePageKey; value: PageValue; source: PageValue; setValue: React.Dispatch<React.SetStateAction<PageValue>>; published: string; dirty: boolean; setDirty: (value: boolean) => void }) {
+	const s = pageEditorStrings[locale];
+	const [status, setStatus] = useState({ text: '', tone: '' });
+	const [busy, setBusy] = useState(false);
+	const save = async () => {
+		setBusy(true); setStatus({ text: s.saving, tone: 'progress' });
+		try {
+			const response = await fetch(BASE + '/__content/pages', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ page, locale, content: value }) });
+			const result = await response.json().catch(() => ({}));
+			if (!response.ok || !result.ok) throw new Error(result.error ?? s.errorSave);
+			setDirty(false); setStatus({ text: s.saved, tone: 'ok' }); window.setTimeout(() => window.location.reload(), 400);
+		} catch (error) { setStatus({ text: error instanceof Error ? error.message : s.errorGeneric, tone: 'error' }); }
+		finally { setBusy(false); }
+	};
+	const discard = () => { if (dirty && !window.confirm(s.discardConfirm)) return; setDirty(false); setValue(cloneValue(source)); window.location.reload(); };
+	return <div className="page-editor"><div className="page-editor__bar">
+		<div className="page-editor__lead"><p className="page-editor__tag">{s.tag}</p><p className="page-editor__hint">{s.editing}</p></div>
+		<p className="page-editor__status" role="status" aria-live="polite" data-tone={status.tone}>{status.text}</p>
+		<div className="page-editor__actions"><nav className="page-editor__langs" aria-label={s.localeSwitcher}>{locales.map((code) => <Link key={code} to={pageEditorHref(code, page)} className={'page-editor__lang' + (code === locale ? ' is-current' : '')} aria-current={code === locale ? 'page' : undefined} title={code.toUpperCase()}>{code}</Link>)}</nav><Link className="page-editor__view" to={published}>{s.view}</Link><button type="button" className="page-editor__discard" onClick={discard}>{s.discard}</button><button type="button" className="page-editor__save" onClick={save} disabled={busy}>{busy ? s.saving : s.save}</button></div>
+	</div></div>;
+}
+function PagePreview({ locale, page, value, onChange, onLink }: { locale: Locale; page: EditablePageKey; value: PageValue; onChange: (path: string, value: string) => void; onLink: (path: string) => void }) {
+	const about = page === 'about', legal = page === 'legal';
+	const mainClass = about ? 'about' : 'legal';
+	const pathKey = about ? 'about.path' : legal ? 'legal.path' : 'cookie.path';
+	const backKey = about ? 'about.back' : legal ? 'legal.back' : 'cookie.back';
+	const text = (path: string) => getPath(value, path);
+	const field = (tag: 'p' | 'h1' | 'h2' | 'span', path: string, className?: string) => <EditableText tag={tag} path={path} value={text(path)} onChange={onChange} className={className} />;
+	const section = (path: string) => <section className="clause" key={path}>{field('h2', path + '.title')}{field('p', path + '.body')}</section>;
+	let statement: React.ReactNode;
+	if (about) statement = <div className="statement">
+		<section className="clause">{field('h2', 's1.title')}{field('p', 's1.body')}</section>
+		<section className="clause">{field('h2', 's2.title')}<p>{field('span', 's2.body')} <a className="external" href={text('s2.link.url')} data-link-url="s2.link.url" onClick={(event) => event.preventDefault()}><span>{field('span', 's2.link.label')}</span></a><button type="button" className="page-editor__chip" onClick={() => onLink('s2.link.url')}>url</button>{field('span', 's2.after')}</p></section>
+		<section className="clause">{field('h2', 's3.title')}<p>{field('span', 's3.body')} <a className="external" href={text('s3.link.url')} data-link-url="s3.link.url" onClick={(event) => event.preventDefault()}><span>{field('span', 's3.link.label')}</span></a><button type="button" className="page-editor__chip" onClick={() => onLink('s3.link.url')}>url</button>{field('span', 's3.after')}</p></section>
+		<section className="clause">{field('h2', 's4.title')}{field('p', 's4.body')}</section>
+		<section className="clause">{field('h2', 's5.title')}{field('p', 's5.body')}<p style={{ marginTop: '0.75rem' }}><a href="https://www.instagram.com/nautilceramica/" target="_blank" rel="noopener noreferrer" className="external">Instagram →</a></p></section>
+	</div>;
+	else if (legal) statement = <div className="statement">{['s2', 's3'].map(section)}<section className="clause">{field('h2', 's4.title')}<p>{field('span', 's4.body')} <Link className="internal-link" to={localeUrl(locale, '/' + t(locale, 'cookie.path'))}>{field('span', 's4.linkLabel')}.</Link></p></section>{['s5', 's6'].map(section)}<p className="updated">{t(locale, 'legal.updated')} — {field('span', 'updated')}</p></div>;
+	else statement = <div className="statement">{['s1', 's2', 's3', 's4', 's5'].map(section)}<p className="updated">{t(locale, 'cookie.updated')} — {field('span', 'updated')}</p></div>;
+	return <main className={mainClass}>
+		<header className="journal-header"><div className="header-left"><Link className="back-link" to={localeUrl(locale, '/')}>← {t(locale, backKey as Parameters<typeof t>[1])}</Link><Link className="edit-link" to={pageEditorHref(locale, page)}>{t(locale, 'editor.page')}</Link></div><nav className="lang-switcher" aria-label={t(locale, 'lang.selector')}>{locales.map((code) => <Link key={code} to={localeUrl(code, '/' + t(code, pathKey as Parameters<typeof t>[1]))} className={'lang-link' + (code === locale ? ' is-current' : '')}>{code}</Link>)}</nav></header>
+		<article className="entry"><div className="entry-intro">{field('p', 'eyebrow', 'eyebrow')}{field('h1', 'title')}{field('p', 'lead', 'description')}</div>{statement}</article><Footer locale={locale} />
+	</main>;
+}
 export function PageEditor({ locale, page }: PageEditorProps) {
-	const strings = pageEditorStrings[locale];
 	const source = page === 'about' ? getAbout(locale) : page === 'legal' ? getLegal(locale) : getCookies(locale);
-	const [value, setValue] = useState<PageValue>(() => JSON.parse(JSON.stringify(source)) as PageValue);
-	const [message, setMessage] = useState(''); const [busy, setBusy] = useState(false);
-	const title = (source as { title: string }).title;
-	const published = localeUrl(locale, `/${page === 'about' ? t(locale, 'about.path') : page === 'legal' ? t(locale, 'legal.path') : t(locale, 'cookie.path')}`);
-	const fields = useMemo(() => pageFields[page], [page]);
-	const save = async () => { setBusy(true); setMessage(strings.saving); try { const response = await fetch(`${BASE}/__content/pages`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ page, locale, content: value }) }); const result = await response.json(); if (!response.ok || !result.ok) throw new Error(result.error ?? strings.errorSave); setMessage(strings.saved); } catch (error) { setMessage(error instanceof Error ? error.message : strings.errorGeneric); } finally { setBusy(false); } };
-	return <main className="editor-page"><EditorHeader locale={locale} backHref={published} title={strings.tag} /><div className="editor-intro"><p className="eyebrow">{strings.tag}</p><h1>{title}</h1><p>{strings.editing}</p></div><div className="page-editor-form">{fields.map((field) => <Field key={field} label={field}><textarea rows={field.endsWith('body') || field === 'lead' ? 4 : 2} value={getPath(value, field)} onChange={(e) => { const next = JSON.parse(JSON.stringify(value)) as PageValue; setPath(next, field, e.target.value); setValue(next); }} /></Field>)}</div><div className="editor-actions"><a className="editor-back" href={published}>{strings.view}</a><button className="editor-submit" type="button" onClick={save} disabled={busy}>{busy ? strings.saving : strings.save}</button><span role="status">{message}</span></div></main>;
+	const [value, setValue] = useState<PageValue>(() => cloneValue(source));
+	const [dirty, setDirty] = useState(false);
+	const [linkPath, setLinkPath] = useState<string | null>(null);
+	const [linkValue, setLinkValue] = useState('');
+	const onChange = (path: string, text: string) => { setValue((current) => { const next = cloneValue(current); setPath(next, path, text); return next; }); setDirty(true); };
+	const openLink = (path: string) => { setLinkPath(path); setLinkValue(getPath(value, path)); };
+	const publishedKey = page === 'about' ? 'about.path' : page === 'legal' ? 'legal.path' : 'cookie.path';
+	return <><PagePreview locale={locale} page={page} value={value} onChange={onChange} onLink={openLink} /><PageEditorBar locale={locale} page={page} value={value} source={source as PageValue} setValue={setValue} published={localeUrl(locale, '/' + t(locale, publishedKey as Parameters<typeof t>[1]))} dirty={dirty} setDirty={setDirty} />{linkPath && <div className="page-editor__popover"><label className="page-editor__popover-label" htmlFor="page-editor-link-url">{pageEditorStrings[locale].linkUrl}</label><input id="page-editor-link-url" value={linkValue} onChange={(event) => setLinkValue(event.target.value)} autoFocus /><div className="page-editor__popover-actions"><button type="button" className="page-editor__ghost" onClick={() => setLinkPath(null)}>{pageEditorStrings[locale].linkCancel}</button><button type="button" className="page-editor__save" onClick={() => { onChange(linkPath, linkValue.trim()); setLinkPath(null); }}>{pageEditorStrings[locale].linkApply}</button></div></div>}</>;
 }

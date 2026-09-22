@@ -125,6 +125,14 @@ export function metaFor(pathname: string): MetaInput {
 			const cookies = getCookies(locale);
 			return { locale, path: `/${t(locale, 'cookie.path')}`, title: cookies.title, description: cookies.lead };
 		}
+		case 'pageEditor': {
+			const page = route.page;
+			const data = page === 'about' ? getAbout(locale) : page === 'legal' ? getLegal(locale) : getCookies(locale);
+			const pathKey = page === 'about' ? 'about.path' : page === 'legal' ? 'legal.path' : 'cookie.path';
+			return { locale, path: `/${t(locale, pathKey)}`, title: data.title, description: data.lead };
+		}
+		case 'pieceEditor':
+			return { locale, path: `/${t(locale, 'gallery.path')}`, title: route.work?.title[locale] ?? t(locale, 'editor.add.path'), noindex: true };
 		default:
 			return { locale, path: '/', title: t(locale, 'notfound.title'), noindex: true };
 	}

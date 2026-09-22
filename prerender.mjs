@@ -1,10 +1,19 @@
 import { readFile, writeFile, mkdir, readdir, copyFile } from 'node:fs/promises';
 import path from 'node:path';
 import sharp from 'sharp';
-import { render } from './src/ssr.tsx';
-import { metaFor, renderHead } from './src/seo.ts';
-import { exhibitions, getSlug, works } from './src/lib/content.ts';
-import { locales, t } from './src/i18n/index.ts';
+import { loadEnv } from 'vite';
+
+// tsx executes the SSR module outside Vite, so expose the same .env values
+// before importing modules that read import.meta.env at module initialisation.
+const env = loadEnv('production', process.cwd(), '');
+for (const [key, value] of Object.entries(env)) {
+	if (process.env[key] === undefined) process.env[key] = value;
+}
+
+const { render } = await import('./src/ssr.tsx');
+const { metaFor, renderHead } = await import('./src/seo.ts');
+const { exhibitions, getSlug, works } = await import('./src/lib/content.ts');
+const { locales, t } = await import('./src/i18n/index.ts');
 
 const root = path.resolve('dist');
 const base = '/nautilus-ceramica/';

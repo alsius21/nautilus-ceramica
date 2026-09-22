@@ -6,7 +6,7 @@ import './base.css';
 import './styles.css';
 
 const root = document.getElementById('root')!;
-const app = <BrowserRouter basename="/nautilus-ceramica"><App /></BrowserRouter>;
+const app = <BrowserRouter><App /></BrowserRouter>;
 
 // Vite dev serves an empty root; prerendered production pages contain markup.
 // Use the matching client API in each mode to avoid hydration mismatches.

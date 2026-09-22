@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite-plus';
+import { loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
@@ -27,17 +28,20 @@ function serveDevelopmentFonts() {
   };
 }
 
-export default defineConfig({
-  root: import.meta.dirname,
-  base: '/nautilus-ceramica/',
-  publicDir: path.resolve(import.meta.dirname, './public'),
-  plugins: [serveDevelopmentFonts(), viteContentEditor(), react()],
-  define: { 'import.meta.env.PUBLIC_SHOP_ENABLED': JSON.stringify(process.env.PUBLIC_SHOP_ENABLED ?? '') },
-  resolve: { alias: { '@': path.resolve(import.meta.dirname, './src') } },
-  build: {
-    outDir: path.resolve(import.meta.dirname, './dist'),
-    emptyOutDir: true,
-    manifest: true,
-    rollupOptions: { output: { entryFileNames: 'assets/app.js', chunkFileNames: 'assets/[name].js', assetFileNames: 'assets/[name][extname]' } },
-  },
+export default defineConfig(({ mode }) => {
+	const env = loadEnv(mode, import.meta.dirname, '');
+	return {
+		root: import.meta.dirname,
+		base: '/nautilus-ceramica/',
+		publicDir: path.resolve(import.meta.dirname, './public'),
+		plugins: [serveDevelopmentFonts(), viteContentEditor(), react()],
+		define: { 'import.meta.env.PUBLIC_SHOP_ENABLED': JSON.stringify(env.PUBLIC_SHOP_ENABLED ?? '') },
+		resolve: { alias: { '@': path.resolve(import.meta.dirname, './src') } },
+		build: {
+			outDir: path.resolve(import.meta.dirname, './dist'),
+			emptyOutDir: true,
+			manifest: true,
+			rollupOptions: { output: { entryFileNames: 'assets/app.js', chunkFileNames: 'assets/[name].js', assetFileNames: 'assets/[name][extname]' } },
+		},
+	};
 });

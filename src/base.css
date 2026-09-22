@@ -67,9 +67,19 @@ body {
 	overflow: visible;
 }
 
+/* When the cart has items, mirror Astro's desktop two-column composition:
+   the product grid stays on the left and the selected-items panel sits in the
+   reserved right column. */
+@media (min-width: 1101px) {
+	.portfolio.shop-index .entry.has-cart > .cart-sidebar {
+		grid-column: 2;
+		grid-row: 2;
+	}
+}
+
 @media (max-width: 1100px) {
 	.portfolio.shop-index .entry.has-cart {
-		grid-template-columns: minmax(14rem, 0.65fr) minmax(0, 1.35fr);
+		grid-template-columns: minmax(0, 1fr);
 	}
 }
 
@@ -465,12 +475,21 @@ body {
    dev server and are excluded from the static route list. */
 .editor-page {
 	--ink: #29251f;
-	--paper: #eee9e1;
+	--paper: #e8e5dc;
+	--line: color-mix(in srgb, var(--ink) 22%, transparent);
+	--muted: color-mix(in srgb, var(--ink) 62%, transparent);
+	display: flex;
+	flex-direction: column;
 	min-height: 100dvh;
 	box-sizing: border-box;
-	padding: clamp(1.25rem, 4vw, 4rem) clamp(1rem, 6vw, 7rem) 4rem;
-	background: var(--paper);
+	padding: clamp(1.5rem, 4vw, 4rem) clamp(1.25rem, 6vw, 7rem) 0;
+	background:
+		linear-gradient(115deg, rgba(217, 232, 222, 0.7), transparent 42%),
+		radial-gradient(ellipse at 82% 12%, rgba(191, 214, 200, 0.45), transparent 34%),
+		var(--paper);
 	color: var(--ink);
+	font-family: 'Archivo Variable', system-ui, sans-serif;
+	-webkit-font-smoothing: antialiased;
 }
 .editor-topline { display: flex; justify-content: space-between; align-items: baseline; gap: 1.5rem; border-bottom: 1px solid color-mix(in srgb, var(--ink) 30%, transparent); padding-bottom: 1rem; }
 .editor-brand, .editor-back { color: inherit; text-decoration: none; }
@@ -533,6 +552,302 @@ body {
 .editor-actions [role='status'] { min-height: 1.4em; font-size: .85rem; }
 .page-editor-form { display: grid; gap: 1rem; }
 .page-editor-form .editor-field { margin: 0; }
+
 @media (max-width: 900px) { .editor-layout { grid-template-columns: 1fr; } .editor-sidebar { position: static; grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 700px) { .editor-topline { align-items: flex-start; flex-direction: column; } .editor-topline > div { display: flex; flex-wrap: wrap; gap: .75rem; } .editor-back { margin-left: 0; } .editor-grid-2 { grid-template-columns: 1fr; gap: 0; } .editor-intro h1 { font-size: clamp(2.8rem, 13vw, 4.5rem); } .editor-sidebar { grid-template-columns: 1fr; } }
-@media (prefers-color-scheme: dark) { .editor-page { --ink: #e8e3d9; --paper: #191712; } .editor-form fieldset, .page-editor-form { background: color-mix(in srgb, var(--paper) 90%, white 5%); } }
+@media (prefers-color-scheme: dark) { .editor-page { --ink: #e8e3d9; --paper: #191712; background: linear-gradient(115deg, rgba(58, 92, 82, 0.4), transparent 42%), radial-gradient(ellipse at 82% 12%, rgba(72, 112, 96, 0.3), transparent 34%), var(--paper); } .editor-form fieldset, .page-editor-form { background: color-mix(in srgb, var(--paper) 90%, white 5%); } }
+
+/* Page editor styles copied from the Astro reference. */
+
+	body:has(.page-editor) {
+		padding-bottom: 6.5rem;
+	}
+
+	[data-edit] {
+		transition:
+			outline-color 160ms ease,
+			background 160ms ease;
+		border-radius: 2px;
+	}
+	[data-edit]:hover:not(:focus) {
+		outline: 1px dashed color-mix(in srgb, currentColor 40%, transparent);
+		outline-offset: 3px;
+	}
+	[data-edit]:focus {
+		outline: 1px solid currentColor;
+		outline-offset: 3px;
+		background: color-mix(in srgb, currentColor 5%, transparent);
+	}
+	[data-edit][data-placeholder]:empty::before {
+		content: attr(data-placeholder);
+		color: color-mix(in srgb, currentColor 45%, transparent);
+		font-style: italic;
+	}
+
+	.page-editor__chip {
+		font: inherit;
+		font-size: 0.58rem;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		vertical-align: super;
+		margin-left: 0.3rem;
+		padding: 0 0.35rem;
+		color: inherit;
+		background: transparent;
+		border: 1px solid color-mix(in srgb, currentColor 40%, transparent);
+		border-radius: 999px;
+		opacity: 0.55;
+		cursor: pointer;
+	}
+	.page-editor__chip:hover,
+	.page-editor__chip:focus-visible {
+		opacity: 1;
+		border-color: currentColor;
+	}
+
+	.page-editor__bar {
+		position: fixed;
+		right: 0;
+		bottom: 0;
+		left: 0;
+		z-index: 50;
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem 1.5rem;
+		padding: 0.85rem clamp(1rem, 4vw, 3rem);
+		background: color-mix(in srgb, #eee9e1 88%, transparent);
+		backdrop-filter: blur(8px);
+		border-top: 1px solid color-mix(in srgb, #29251f 20%, transparent);
+		color: #29251f;
+		font-family: 'Archivo Variable', system-ui, sans-serif;
+	}
+
+	.page-editor__lead {
+		display: grid;
+		gap: 0.15rem;
+	}
+
+	.page-editor__tag {
+		margin: 0;
+		font-size: 0.66rem;
+		font-weight: 500;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+	}
+
+	.page-editor__hint {
+		margin: 0;
+		font-size: 0.72rem;
+		color: color-mix(in srgb, #29251f 60%, transparent);
+	}
+
+	.page-editor__status {
+		flex: 1 1 12rem;
+		margin: 0;
+		font-size: 0.75rem;
+		text-align: center;
+	}
+	.page-editor__status[data-tone='error'] {
+		color: #8a2f22;
+	}
+	.page-editor__status[data-tone='dirty'],
+	.page-editor__status[data-tone='progress'] {
+		color: color-mix(in srgb, #29251f 65%, transparent);
+	}
+	.page-editor__status[data-tone='ok'] {
+		color: #2f6a4f;
+	}
+
+	.page-editor__actions {
+		display: flex;
+		align-items: center;
+		gap: 0.85rem;
+	}
+
+	.page-editor__langs {
+		display: flex;
+		gap: 0.6rem;
+		margin-right: 0.4rem;
+		font-size: 0.66rem;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+	}
+
+	.page-editor__lang {
+		color: color-mix(in srgb, #29251f 55%, transparent);
+		text-decoration: none;
+	}
+	.page-editor__lang:hover,
+	.page-editor__lang:focus-visible,
+	.page-editor__lang.is-current {
+		color: #29251f;
+	}
+
+	.page-editor__view {
+		font-size: 0.68rem;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		color: color-mix(in srgb, #29251f 70%, transparent);
+		text-decoration: none;
+	}
+	.page-editor__view:hover,
+	.page-editor__view:focus-visible {
+		color: #29251f;
+	}
+
+	.page-editor__save,
+	.page-editor__discard,
+	.page-editor__ghost {
+		font: inherit;
+		font-size: 0.68rem;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		border-radius: 2px;
+		padding: 0.6rem 1.1rem;
+		cursor: pointer;
+		transition:
+			opacity 160ms ease,
+			border-color 160ms ease;
+	}
+
+	.page-editor__save {
+		color: #eee9e1;
+		background: #29251f;
+		border: 1px solid #29251f;
+	}
+	.page-editor__save:hover:not(:disabled),
+	.page-editor__save:focus-visible {
+		opacity: 0.85;
+	}
+	.page-editor__save:disabled {
+		opacity: 0.5;
+		cursor: wait;
+	}
+
+	.page-editor__discard,
+	.page-editor__ghost {
+		color: #29251f;
+		background: transparent;
+		border: 1px solid color-mix(in srgb, #29251f 30%, transparent);
+	}
+	.page-editor__discard:hover,
+	.page-editor__discard:focus-visible,
+	.page-editor__ghost:hover,
+	.page-editor__ghost:focus-visible {
+		border-color: #29251f;
+	}
+
+	.page-editor__popover {
+		position: fixed;
+		z-index: 60;
+		width: min(22rem, calc(100vw - 2rem));
+		display: grid;
+		gap: 0.55rem;
+		padding: 0.85rem;
+		background: #f4f1ea;
+		border: 1px solid color-mix(in srgb, #29251f 25%, transparent);
+		border-radius: 4px;
+		box-shadow: 0 18px 40px rgba(25, 23, 18, 0.18);
+		color: #29251f;
+		font-family: 'Archivo Variable', system-ui, sans-serif;
+	}
+	.page-editor__popover[hidden] {
+		display: none;
+	}
+	.page-editor__popover-label {
+		font-size: 0.62rem;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+		color: color-mix(in srgb, #29251f 60%, transparent);
+	}
+	.page-editor__popover input {
+		width: 100%;
+		font: inherit;
+		font-size: 0.85rem;
+		padding: 0.55rem 0.65rem;
+		color: #29251f;
+		background: #fff;
+		border: 1px solid color-mix(in srgb, #29251f 25%, transparent);
+		border-radius: 2px;
+	}
+	.page-editor__popover input:focus-visible {
+		outline: 1px solid #29251f;
+		outline-offset: 1px;
+	}
+	.page-editor__popover-actions {
+		display: flex;
+		justify-content: flex-end;
+		gap: 0.5rem;
+	}
+
+	@media (prefers-color-scheme: dark) {
+		.page-editor__bar {
+			background: color-mix(in srgb, #191712 88%, transparent);
+			border-top-color: color-mix(in srgb, #e8e3d9 22%, transparent);
+			color: #e8e3d9;
+		}
+		.page-editor__hint,
+		.page-editor__status[data-tone='dirty'],
+		.page-editor__status[data-tone='progress'] {
+			color: color-mix(in srgb, #e8e3d9 62%, transparent);
+		}
+		.page-editor__status[data-tone='error'] {
+			color: #e2a294;
+		}
+		.page-editor__status[data-tone='ok'] {
+			color: #93caae;
+		}
+		.page-editor__lang {
+			color: color-mix(in srgb, #e8e3d9 55%, transparent);
+		}
+		.page-editor__lang:hover,
+		.page-editor__lang:focus-visible,
+		.page-editor__lang.is-current,
+		.page-editor__view:hover,
+		.page-editor__view:focus-visible {
+			color: #e8e3d9;
+		}
+		.page-editor__view {
+			color: color-mix(in srgb, #e8e3d9 70%, transparent);
+		}
+		.page-editor__save {
+			color: #191712;
+			background: #e8e3d9;
+			border-color: #e8e3d9;
+		}
+		.page-editor__discard,
+		.page-editor__ghost {
+			color: #e8e3d9;
+			border-color: color-mix(in srgb, #e8e3d9 30%, transparent);
+		}
+		.page-editor__discard:hover,
+		.page-editor__discard:focus-visible,
+		.page-editor__ghost:hover,
+		.page-editor__ghost:focus-visible {
+			border-color: #e8e3d9;
+		}
+		.page-editor__popover {
+			background: #211e19;
+			border-color: color-mix(in srgb, #e8e3d9 25%, transparent);
+			color: #e8e3d9;
+		}
+		.page-editor__popover-label {
+			color: color-mix(in srgb, #e8e3d9 60%, transparent);
+		}
+		.page-editor__popover input {
+			color: #e8e3d9;
+			background: #191712;
+			border-color: color-mix(in srgb, #e8e3d9 25%, transparent);
+		}
+		.page-editor__popover input:focus-visible {
+			outline-color: #e8e3d9;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		[data-edit] {
+			transition: none;
+		}
+	}

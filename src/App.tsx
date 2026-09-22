@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useLocation } from 'react-router';
 import {
 	About,
@@ -16,10 +16,15 @@ import {
 } from './components';
 import { resolveRoute } from './routes';
 import { PageEditor, PieceEditor } from './editor';
+import { metaFor } from './seo';
 
 export default function App() {
 	const { pathname } = useLocation();
 	const route = resolveRoute(pathname);
+	useEffect(() => {
+		const meta = metaFor(pathname);
+		document.title = meta.title ? meta.title + ' · nautilusceramica' : 'nautilusceramica';
+	}, [pathname]);
 	switch (route.kind) {
 		case 'pieceEditor':
 			return <PieceEditor locale={route.locale} work={route.work} />;

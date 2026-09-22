@@ -6,4 +6,4 @@ export const BRAND_NAME = 'nautilusceramica';
  * When disabled: prices hidden, buttons/form not rendered, shop pages show fallback.
  */
 const publicShopEnabled = import.meta.env?.PUBLIC_SHOP_ENABLED ?? (typeof process !== 'undefined' ? process.env.PUBLIC_SHOP_ENABLED : undefined);
-export const SHOP_ENABLED = publicShopEnabled === 'true';
+export const SHOP_ENABLED = publicShopEnabled?.trim().toLowerCase() === 'true';
