@@ -12,6 +12,7 @@
     "react:dev": "vp dev",
     "react:build": "vp build && tsx prerender.mjs",
     "react:typecheck": "tsc --noEmit",
+    "e2e": "pnpm build && node tools/e2e.mjs",
     "storybook": "storybook dev -p 6006",
     "storybook:build": "storybook build",
     "preview": "vp preview"

@@ -8,6 +8,7 @@ Nautilus Ceramica és una aplicació React 19 amb TypeScript 7 i Vite+. El lloc 
 - `pnpm build`: compila React i genera HTML, sitemap, robots.txt, manifest i service worker a `dist/`.
 - `pnpm preview`: serveix la sortida estàtica.
 - `pnpm react:typecheck`: comprovació TypeScript.
+- `pnpm e2e`: prerenderitza el lloc i comprova les 87 rutes públiques en mòbil i desktop amb Playwright.
 - `pnpm storybook:build`: Storybook amb els components reals.
 
 ## Estructura
