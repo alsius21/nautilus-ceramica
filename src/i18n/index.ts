@@ -173,6 +173,9 @@ const es: Record<keyof typeof ca, string> = {
 	'shop.contact.back': 'Volver a la tienda',
 	'shop.contact.fallback': 'Por el momento, puedes contactar con el estudio a través de Instagram.',
 	'shop.empty': 'Ahora mismo no hay piezas disponibles. Vuelve pronto o escríbenos y te avisamos.',
+	'shop.disabled.title': 'Tienda en preparación',
+	'shop.disabled.description': 'La tienda todavía no es pública. Estamos trabajando en ella — los precios y las solicitudes aún no están disponibles.',
+	'shop.disabled.cta': 'Volver al inicio',
 	'shop.card.view': 'Ver pieza',
 	'shop.card.add': 'Añadir',
 	'shop.card.remove': 'Quitar',
@@ -293,6 +296,9 @@ const en: Record<keyof typeof ca, string> = {
 	'shop.contact.back': 'Back to shop',
 	'shop.contact.fallback': 'For now, you can contact me via Instagram.',
 	'shop.empty': 'No pieces available right now. Check back soon or drop us a line and we’ll let you know.',
+	'shop.disabled.title': 'Shop coming soon',
+	'shop.disabled.description': 'The shop is not public yet. We are working on it — prices and enquiries are not available yet.',
+	'shop.disabled.cta': 'Back to home',
 	'shop.card.view': 'View piece',
 	'shop.card.add': 'Add',
 	'shop.card.remove': 'Remove',
@@ -376,7 +382,7 @@ export function t(locale: Locale, key: keyof typeof ca): string {
 	return ui[locale][key];
 }
 
-/** Map Astro's locale (from the URL) onto a supported locale, falling back to the default. */
+/** Map the URL locale onto a supported locale, falling back to the default. */
 export function normalizeLocale(locale: string | undefined): Locale {
 	if (locale && (locales as readonly string[]).includes(locale)) {
 		return locale as Locale;

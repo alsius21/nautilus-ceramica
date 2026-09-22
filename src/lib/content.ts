@@ -305,7 +305,7 @@ function loadLocal() {
 	};
 }
 
-const provider = (import.meta.env.CONTENT_PROVIDER ?? 'local').toLowerCase();
+const provider = (import.meta.env?.CONTENT_PROVIDER ?? 'local').toLowerCase();
 if (provider !== 'local') {
 	fail(
 		`provider «${provider}» no configurat. Valors admesos avui: «local». ` +

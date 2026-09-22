@@ -1,5 +1,12 @@
 # build output
 dist/
+dist/
+.migration/
+.react-router/
+build/
+storybook-static/
+test-results/
+playwright-report/
 
 # generated types
 .astro/

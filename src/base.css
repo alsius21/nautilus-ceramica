@@ -1,0 +1,538 @@
+/* Local variable fonts (Fraunces full + Archivo latin). */
+@font-face {
+	font-family: 'Fraunces Variable';
+	font-style: normal;
+	font-display: swap;
+	font-weight: 100 900;
+	src: url('/nautilus-ceramica/fonts/fraunces-latin-full-normal.woff2') format('woff2-variations');
+}
+
+@font-face {
+	font-family: 'Archivo Variable';
+	font-style: normal;
+	font-display: swap;
+	font-weight: 100 900;
+	src: url('/nautilus-ceramica/fonts/archivo-latin-wght-normal.woff2') format('woff2-variations');
+}
+
+/* Global layout. */
+:root {
+	--nc-ink-dark: #e8e3d9;
+	--nc-paper-dark: #191712;
+	color-scheme: light dark;
+}
+
+html,
+body {
+	margin: 0;
+	width: 100%;
+	min-height: 100%;
+	background: #eee9e1;
+}
+
+body {
+	font-family: 'Archivo Variable', system-ui, -apple-system, sans-serif;
+	-webkit-font-smoothing: antialiased;
+	text-rendering: optimizeLegibility;
+	padding-top: env(safe-area-inset-top);
+	padding-bottom: env(safe-area-inset-bottom);
+}
+
+@media (prefers-color-scheme: dark) {
+	html,
+	body {
+		background: var(--nc-paper-dark);
+	}
+}
+
+/* Shop index: unscoped duplicates of .entry/.shop-main from other components
+   (ShopJournal, ShopContact) leak in the flattened stylesheet, so re-assert the
+   list layout with higher specificity. */
+.portfolio.shop-index .entry {
+	grid-template-columns: minmax(0, 1fr);
+	gap: clamp(1.5rem, 3vw, 3rem);
+	margin-top: clamp(2rem, 4vw, 4rem);
+}
+
+.portfolio.shop-index .entry.has-cart {
+	grid-template-columns: minmax(0, 1.9fr) minmax(16rem, 0.7fr);
+}
+
+.portfolio.shop-index .shop-main {
+	display: contents;
+	min-width: 0;
+	gap: 0;
+	border: none;
+	background: none;
+	overflow: visible;
+}
+
+@media (max-width: 1100px) {
+	.portfolio.shop-index .entry.has-cart {
+		grid-template-columns: minmax(14rem, 0.65fr) minmax(0, 1.35fr);
+	}
+}
+
+@media (max-width: 768px) {
+	.portfolio.shop-index .entry {
+		display: block;
+		margin-top: 2.5rem;
+	}
+
+	.portfolio.shop-index .shop-main {
+		display: block;
+		padding-bottom: 5rem;
+	}
+}
+
+@media (max-width: 700px) {
+	.portfolio.shop-index .entry {
+		display: block;
+		margin-top: 3.5rem;
+	}
+}
+
+.about .clause h2,
+.legal .clause h2 {
+	font-family: inherit;
+	font-optical-sizing: auto;
+	font-variation-settings: normal;
+	font-size: 0.68rem;
+	font-weight: 400;
+	letter-spacing: 0.18em;
+	line-height: normal;
+}
+
+/* Footer. */
+.site-footer {
+	--ink: #29251f;
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 1.5rem;
+	margin-top: auto;
+	padding-top: 1.25rem;
+	padding-bottom: clamp(1.5rem, 4vw, 3rem);
+	border-top: 1px solid color-mix(in srgb, var(--ink) 20%, transparent);
+	font-size: 0.68rem;
+	letter-spacing: 0.18em;
+	text-transform: uppercase;
+	color: color-mix(in srgb, var(--ink) 65%, transparent);
+}
+
+.journal-header > .header-meta { display: flex; align-items: baseline; gap: 1rem; }
+
+.footer-year {
+	margin: 0;
+}
+
+.footer-links {
+	display: flex;
+	align-items: baseline;
+	gap: 2rem;
+}
+
+.footer-legal,
+.footer-legal:visited,
+.footer-cookies,
+.footer-cookies:visited,
+.footer-instagram,
+.footer-instagram:visited {
+	color: inherit;
+	text-decoration: none;
+	transition: color 240ms ease;
+}
+
+.footer-legal:hover,
+.footer-legal:focus-visible,
+.footer-cookies:hover,
+.footer-cookies:focus-visible,
+.footer-instagram:hover,
+.footer-instagram:focus-visible,
+.footer-legal:visited:hover,
+.footer-legal:visited:focus-visible,
+.footer-cookies:visited:hover,
+.footer-cookies:visited:focus-visible,
+.footer-instagram:visited:hover,
+.footer-instagram:visited:focus-visible {
+	color: var(--ink);
+}
+
+@media (max-width: 640px) {
+	.site-footer {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 0.5rem;
+	}
+
+	.footer-links {
+		order: -1;
+	}
+}
+
+@media (prefers-color-scheme: dark) {
+	.site-footer {
+		--ink: var(--nc-ink-dark);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.footer-legal,
+	.footer-legal:visited,
+	.footer-cookies,
+	.footer-cookies:visited,
+	.footer-instagram,
+	.footer-instagram:visited {
+		transition: none;
+	}
+}
+
+/* Components scope these shared selectors. The flattened
+   compatibility sheet is intentionally kept for the original declarations,
+   so restore the same responsive ownership on each React page root. */
+@media (max-width: 880px) {
+	.home .journal-header,
+	.portfolio .journal-header {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 0.9rem;
+	}
+	.portfolio.shop-index .header-meta { gap: 0.25rem; }
+	.portfolio.shop-index .entry.is-shop-list { margin-top: 2.5rem; }
+	.journal .journal-header,
+	.about .journal-header,
+	.legal .journal-header {
+		flex-direction: row;
+		align-items: baseline;
+		gap: 2rem;
+	}
+}
+
+@media (max-width: 700px) {
+	.portfolio .entry-intro,
+	.about .entry-intro,
+	.legal .entry-intro,
+	.journal:not(.shop-journal) .entry-intro {
+		display: block;
+		position: static;
+		margin-bottom: 2.5rem;
+	}
+	.shop-journal .entry-intro { display: contents; }
+}
+
+/* The catalogue badge is absolutely positioned over card images. The same
+   class is reused by the shop detail metadata, where it must stay in flow. */
+.shop-journal .shop-detail .badge {
+	position: static;
+	inset: auto;
+}
+
+/* About. */
+.about {
+	--ink: #29251f;
+	--paper: #e8e5dc;
+	display: flex;
+	flex-direction: column;
+	box-sizing: border-box;
+	min-height: 100dvh;
+	padding: clamp(1.5rem, 4vw, 4rem) clamp(1.25rem, 6vw, 7rem) 0;
+	background:
+		linear-gradient(115deg, rgba(217, 232, 222, 0.78), transparent 42%),
+		radial-gradient(ellipse at 80% 18%, rgba(191, 214, 200, 0.5), transparent 32%),
+		var(--paper);
+	color: var(--ink);
+}
+
+.about .header-end {
+	display: flex;
+	align-items: center;
+	gap: 1.5rem;
+}
+
+.about .external {
+	color: var(--ink);
+	text-decoration: underline;
+	text-underline-offset: 0.2em;
+}
+
+.about .external:hover,
+.about .external:focus-visible {
+	color: color-mix(in srgb, var(--ink) 55%, transparent);
+}
+
+.about :focus-visible {
+	outline: 1px solid var(--ink);
+	outline-offset: 0.35rem;
+}
+
+@media (max-width: 700px) {
+	.about .entry {
+		display: block;
+		margin-top: 3.5rem;
+	}
+
+	.about .entry-intro {
+		position: static;
+		margin-bottom: 2.5rem;
+	}
+
+	.about h1 {
+		max-width: 12ch;
+	}
+}
+
+@media (prefers-color-scheme: dark) {
+	.about {
+		--ink: var(--nc-ink-dark);
+		--paper: var(--nc-paper-dark);
+		background:
+			linear-gradient(115deg, rgba(58, 92, 82, 0.42), transparent 42%),
+			radial-gradient(ellipse at 80% 18%, rgba(72, 112, 96, 0.3), transparent 32%),
+			var(--nc-paper-dark);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.about .back-link,
+	.about .lang-link,
+	.about .edit-link,
+	.about .external {
+		transition: none;
+	}
+}
+
+/* 404. */
+.not-found {
+	--ink: #29251f;
+	--paper: #e8e5dc;
+	display: flex;
+	flex-direction: column;
+	box-sizing: border-box;
+	min-height: 100dvh;
+	padding: clamp(1.5rem, 4vw, 4rem) clamp(1.25rem, 6vw, 7rem) 0;
+	background:
+		linear-gradient(115deg, rgba(217, 232, 222, 0.78), transparent 42%),
+		radial-gradient(ellipse at 80% 18%, rgba(191, 214, 200, 0.5), transparent 32%),
+		var(--paper);
+	color: var(--ink);
+}
+
+.not-found .panel {
+	flex: 1;
+	display: grid;
+	align-content: center;
+	gap: 1.5rem;
+	width: 100%;
+	max-width: 46rem;
+	margin: 0 auto;
+	padding: clamp(3rem, 12vh, 9rem) 0;
+}
+
+.not-found .eyebrow {
+	margin: 0;
+	font-size: 0.68rem;
+	letter-spacing: 0.18em;
+	text-transform: uppercase;
+}
+
+.not-found h1 {
+	margin: 0;
+	font-family: 'Fraunces Variable', Georgia, serif;
+	font-size: clamp(2.5rem, 7vw, 5.5rem);
+	font-weight: 400;
+	font-optical-sizing: auto;
+	font-variation-settings: 'SOFT' 40, 'WONK' 1;
+	letter-spacing: -0.055em;
+	line-height: 0.92;
+}
+
+.not-found .body {
+	margin: 0;
+	max-width: 34rem;
+	font-size: clamp(0.95rem, 1.3vw, 1.1rem);
+	line-height: 1.65;
+	color: color-mix(in srgb, var(--ink) 78%, transparent);
+}
+
+.not-found .links {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1.5rem;
+	margin-top: 1rem;
+}
+
+.not-found .links a {
+	font-size: 0.68rem;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+	color: var(--ink);
+	text-decoration: none;
+	border-bottom: 1px solid color-mix(in srgb, var(--ink) 32%, transparent);
+	padding-bottom: 0.2rem;
+	transition:
+		color 200ms ease,
+		border-color 200ms ease;
+}
+
+.not-found .links a:hover,
+.not-found .links a:focus-visible {
+	color: color-mix(in srgb, var(--ink) 62%, transparent);
+	border-color: var(--ink);
+}
+
+.not-found :focus-visible {
+	outline: 1px solid var(--ink);
+	outline-offset: 0.35rem;
+}
+
+@media (prefers-color-scheme: dark) {
+	.not-found {
+		--ink: var(--nc-ink-dark);
+		--paper: var(--nc-paper-dark);
+		background:
+			linear-gradient(115deg, rgba(58, 92, 82, 0.42), transparent 42%),
+			radial-gradient(ellipse at 80% 18%, rgba(72, 112, 96, 0.3), transparent 32%),
+			var(--nc-paper-dark);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.not-found .links a {
+		transition: none;
+	}
+}
+
+/* ShareButton. */
+.share-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.35rem;
+	height: 1.35rem;
+	padding: 0;
+	border: 0;
+	border-bottom: 1px solid color-mix(in srgb, currentColor 28%, transparent);
+	background: transparent;
+	color: color-mix(in srgb, currentColor 62%, transparent);
+	font: inherit;
+	font-size: 0.68rem;
+	line-height: 1.4;
+	cursor: pointer;
+	transition:
+		color 200ms ease,
+		border-color 200ms ease,
+		opacity 200ms ease;
+}
+
+.share-button:hover,
+.share-button:focus-visible {
+	color: currentColor;
+	border-color: currentColor;
+}
+
+.share-button:disabled {
+	cursor: wait;
+	opacity: 0.62;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.share-button {
+		transition: none;
+	}
+}
+
+/* ExhibitionJournal. */
+.visit {
+	display: inline-block;
+	margin-top: 2rem;
+	font-size: 0.72rem;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+	color: color-mix(in srgb, var(--ink) 70%, transparent);
+	text-decoration: none;
+	transition: color 240ms ease;
+}
+
+.visit:hover,
+.visit:focus-visible {
+	color: var(--ink);
+	text-decoration: underline;
+	text-decoration-thickness: 1px;
+	text-underline-offset: 0.25em;
+}
+
+/* React development editors. These controls are only reachable from Vite's
+   dev server and are excluded from the static route list. */
+.editor-page {
+	--ink: #29251f;
+	--paper: #eee9e1;
+	min-height: 100dvh;
+	box-sizing: border-box;
+	padding: clamp(1.25rem, 4vw, 4rem) clamp(1rem, 6vw, 7rem) 4rem;
+	background: var(--paper);
+	color: var(--ink);
+}
+.editor-topline { display: flex; justify-content: space-between; align-items: baseline; gap: 1.5rem; border-bottom: 1px solid color-mix(in srgb, var(--ink) 30%, transparent); padding-bottom: 1rem; }
+.editor-brand, .editor-back { color: inherit; text-decoration: none; }
+.editor-brand { font: 1.4rem/1 'Fraunces Variable', Georgia, serif; letter-spacing: -.05em; }
+.editor-tag, .editor-back { font-size: .68rem; letter-spacing: .14em; text-transform: uppercase; }
+.editor-back { margin-left: 1rem; text-decoration: underline; text-underline-offset: .2em; }
+.editor-intro { max-width: 52rem; margin: clamp(2.5rem, 7vw, 6rem) auto 2.5rem; }
+.editor-intro h1 { max-width: 12ch; margin: .5rem 0 1.5rem; }
+.editor-intro > p:last-child { max-width: 40rem; font-size: 1.05rem; line-height: 1.6; }
+.editor-form, .page-editor-form { width: min(100%, 74rem); margin: 0 auto; }
+.editor-layout { width: min(100%, 96rem); margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1fr) minmax(16rem, 22rem); gap: clamp(1rem, 3vw, 2rem); align-items: start; }
+.editor-layout .editor-form { width: auto; margin: 0; min-width: 0; }
+.editor-sidebar { display: grid; gap: 1rem; position: sticky; top: 1rem; }
+.editor-panel { border: 1px solid color-mix(in srgb, var(--ink) 18%, transparent); padding: 1rem; background: color-mix(in srgb, var(--paper) 86%, white); }
+.editor-panel h2 { display: flex; justify-content: space-between; gap: 1rem; margin: 0 0 1rem; font: 1.15rem/1 'Fraunces Variable', Georgia, serif; }
+.editor-panel h2 span { font: .65rem/1 'Archivo Variable', Arial, sans-serif; letter-spacing: .12em; }
+.editor-preview { border: 1px solid color-mix(in srgb, var(--ink) 12%, transparent); }
+.editor-preview-media { aspect-ratio: 1 / 1; display: grid; place-items: center; background: #dcd5ca; }
+.editor-preview-media img { width: 100%; height: 100%; object-fit: cover; }
+.editor-preview-media p { padding: 1rem; text-align: center; font-size: .8rem; }
+.editor-preview-copy { padding: 1rem; display: grid; gap: .45rem; }
+.editor-preview-copy > * { margin: 0; }
+.editor-preview-copy p:first-child { font-size: .65rem; letter-spacing: .12em; text-transform: uppercase; }
+.editor-preview-copy h3 { font: 1.5rem/1.05 'Fraunces Variable', Georgia, serif; }
+.editor-preview-copy small { line-height: 1.4; }
+.editor-preview-copy strong { font-size: .72rem; font-weight: 500; }
+.editor-preview-copy strong[data-available='true'] { color: #38734b; }
+.editor-existing { list-style: none; padding: 0; margin: 0; display: grid; gap: .5rem; max-height: 30rem; overflow: auto; }
+.editor-existing a { display: flex; justify-content: space-between; gap: .75rem; color: inherit; text-decoration: none; border-top: 1px solid color-mix(in srgb, var(--ink) 12%, transparent); padding-top: .5rem; }
+.editor-existing small { white-space: nowrap; opacity: .65; }
+.editor-form fieldset, .page-editor-form { border: 1px solid color-mix(in srgb, var(--ink) 18%, transparent); background: color-mix(in srgb, var(--paper) 86%, white); padding: clamp(1rem, 3vw, 2rem); margin: 0 0 1rem; }
+.editor-form legend { padding: 0 .5rem; font: 1.45rem/1 'Fraunces Variable', Georgia, serif; }
+.editor-field { display: grid; gap: .4rem; margin: 0 0 1rem; }
+.editor-field > span { font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; color: color-mix(in srgb, var(--ink) 68%, transparent); }
+.editor-field input, .editor-field textarea, .editor-field select { width: 100%; box-sizing: border-box; border: 1px solid color-mix(in srgb, var(--ink) 22%, transparent); border-radius: 0; background: transparent; color: inherit; font: inherit; padding: .65rem .7rem; }
+.editor-field textarea { resize: vertical; line-height: 1.5; }
+.editor-field input:focus-visible, .editor-field textarea:focus-visible, .editor-field select:focus-visible { outline: 2px solid color-mix(in srgb, var(--ink) 65%, transparent); outline-offset: 2px; }
+.editor-grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.editor-form details { border: 1px solid color-mix(in srgb, var(--ink) 18%, transparent); padding: 1rem 1.25rem; margin: 0 0 1rem; }
+.editor-form summary { cursor: pointer; font: 1.2rem/1 'Fraunces Variable', Georgia, serif; }
+.editor-form details > *:not(summary) { margin-top: 1.25rem; }
+.editor-hint { color: color-mix(in srgb, var(--ink) 68%, transparent); line-height: 1.5; }
+.editor-dropzone { display: grid; gap: .4rem; border: 1px dashed color-mix(in srgb, var(--ink) 40%, transparent); padding: 1.5rem; text-align: center; cursor: pointer; }
+.editor-dropzone.is-over { border-color: var(--ink); background: color-mix(in srgb, var(--paper) 75%, white); }
+.editor-dropzone input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.editor-dropzone strong { font: 1.2rem/1 'Fraunces Variable', Georgia, serif; }
+.editor-dropzone span { font-size: .8rem; color: color-mix(in srgb, var(--ink) 65%, transparent); }
+.editor-shots { display: grid; gap: .75rem; margin-top: 1rem; }
+.editor-shot { display: grid; grid-template-columns: 5rem minmax(0, 1fr); gap: .9rem; align-items: center; border-top: 1px solid color-mix(in srgb, var(--ink) 14%, transparent); padding-top: .75rem; }
+.editor-shot img { width: 5rem; height: 5rem; object-fit: cover; background: #dcd5ca; }
+.editor-shot-actions { display: flex; gap: .5rem; margin-top: .5rem; }
+.editor-shot-actions button, .editor-check input { accent-color: var(--ink); }
+.editor-shot-actions button { border: 0; border-bottom: 1px solid color-mix(in srgb, var(--ink) 35%, transparent); background: none; color: inherit; cursor: pointer; padding: .2rem; font: inherit; }
+.editor-shot-actions button:disabled { opacity: .35; cursor: default; }
+.editor-check { display: flex; gap: .6rem; align-items: center; margin: 0 0 1rem; }
+.editor-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 1rem; margin-top: 1.25rem; }
+.editor-submit { border: 1px solid var(--ink); background: var(--ink); color: var(--paper); cursor: pointer; padding: .75rem 1.25rem; font: inherit; }
+.editor-submit:hover, .editor-submit:focus-visible { background: transparent; color: var(--ink); }
+.editor-submit:disabled { opacity: .55; cursor: wait; }
+.editor-actions [role='status'] { min-height: 1.4em; font-size: .85rem; }
+.page-editor-form { display: grid; gap: 1rem; }
+.page-editor-form .editor-field { margin: 0; }
+@media (max-width: 900px) { .editor-layout { grid-template-columns: 1fr; } .editor-sidebar { position: static; grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 700px) { .editor-topline { align-items: flex-start; flex-direction: column; } .editor-topline > div { display: flex; flex-wrap: wrap; gap: .75rem; } .editor-back { margin-left: 0; } .editor-grid-2 { grid-template-columns: 1fr; gap: 0; } .editor-intro h1 { font-size: clamp(2.8rem, 13vw, 4.5rem); } .editor-sidebar { grid-template-columns: 1fr; } }
+@media (prefers-color-scheme: dark) { .editor-page { --ink: #e8e3d9; --paper: #191712; } .editor-form fieldset, .page-editor-form { background: color-mix(in srgb, var(--paper) 90%, white 5%); } }

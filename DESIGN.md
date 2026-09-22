@@ -13,7 +13,7 @@ Registre viu de les decisions visuals i tipogràfiques del lloc de l'estudi. Man
 Parella: **Fraunces Variable** (display) + **Archivo Variable** (UI).
 
 - Autoallotjada amb `@fontsource-variable` (variable, subsetjada, woff2 — sense peticions externes de fonts).
-- Importada globalment a `src/layouts/Layout.astro`:
+- Importada globalment a `src/base.css`:
   - `@fontsource-variable/fraunces/full.css` (tots els eixos: opsz, wght, SOFT, WONK)
   - `@fontsource-variable/archivo` (wght)
 - Cos / etiquetes petites en majúscules: `'Archivo Variable'`, amb `-webkit-font-smoothing: antialiased` i `optimizeLegibility`.
@@ -51,9 +51,9 @@ Parella: **Fraunces Variable** (display) + **Archivo Variable** (UI).
 
 - **2026-08-16** — Tipografia: es substitueix Georgia/font de sistema per Fraunces Variable + Archivo Variable (autoallotjada). Direcció escollida: display serif artesà i càlid + UI grotesca neutra.
 - **2026-08-16** — Composició: la home es reconstrueix com a landing d'estudi; el peu de pàgina queda fixat a la part baixa de la viewport; `min-height: 100dvh`.
-- **2026-08-16** — i18n: tres llengües — català (per defecte, sense prefix a `/`), castellà (`/es/`) i anglès (`/en/`). Diccionari central a `src/i18n/index.ts`; `Astro.currentLocale` alimenta el `lang` del document, els textos i el selector d'idioma de la capçalera (estil meta, enllaç actiu amb `aria-current`).
+- **2026-08-16** — i18n: tres llengües — català (per defecte, sense prefix a `/`), castellà (`/es/`) i anglès (`/en/`). Diccionari central a `src/i18n/index.ts`; la ruta React alimenta el `lang` del document, els textos i el selector d'idioma de la capçalera (estil meta, enllaç actiu amb `aria-current`).
 - **2026-08-16** — Requisit implementat: plantilla reutilitzable de pàgines d'obra (estil diari) amb títol, descripció, galeria opcional i rutes localitzades per llengua — `/obres/`, `/es/obras/` i `/en/pieces/` (segment plural traduït, definit al diccionari `src/i18n/index.ts`; els slugs són comuns a les tres llengües).
-- **2026-08-16** — PWA: el lloc passa a ser instal·lable i a funcionar offline. `vite-plugin-pwa` s'integra a la capa de Vite; com que `@vite-pwa/astro` no cobreix Astro 7, el muntatge del SW es replica al config (generació del `sw.js` des de l'`astro:build:done`). Icones pròpies: espiral de nàutil en tinta sobre paper, amb rentat celadon (192/512/512 maskable/180 Apple). El manifest usa `start_url` i `scope` relatius (`.`) per resoldre's correctament sota el base path `/nautilus-ceramica/`. Precache de totes les pàgines per llengua, tipografies (woff2) i obra en WebP; `theme-color` i meta tags d'iOS al `<head>`. El SW es registra des de `src/pwa.ts` (auto-update, sense prompt).
-- **2026-08-16** — Desplegament: el `base` de l'Astro és condicional — `/nautilus-ceramica` a GitHub Pages, `/` quan Netlify compila (`NETLIFY=true`). Així els actius (CSS, imatges, fonts, PWA) es resolen a l'arrel del domini a Netlify i no es trenquen els recursos.
+- **2026-08-16** — PWA: el lloc passa a ser instal·lable i a funcionar offline. Workbox s'integra al prerender de Vite+ i genera el `sw.js` després de les pàgines estàtiques. Icones pròpies: espiral de nàutil en tinta sobre paper, amb rentat celadon (192/512/512 maskable/180 Apple). El manifest usa `start_url` i `scope` relatius (`.`) per resoldre's correctament sota el base path `/nautilus-ceramica/`. Precache de totes les pàgines per llengua, tipografies (woff2) i obra en WebP; `theme-color` i meta tags d'iOS al `<head>`. El SW es registra des de `src/main.tsx` (auto-update, sense prompt).
+- **2026-08-16** — Desplegament: Vite+ publica la sortida estàtica a GitHub Pages sota `/nautilus-ceramica/`.
 - **2026-08-16** — Mòbil: `viewport-fit=cover` al meta viewport + fons paper (`#eee9e1`) a `html`/`body` + `env(safe-area-inset-*)` com a padding del body. Fins ara les bandes de la notch i de l'indicador d'inici sortien blanques (el fons només vivia a `.home`); ara queden del color del paper i el contingut no queda amagat sota la notch.
-- **2026-08-16** — Marca: el nom de l'estudi passa a escriure's tot en minúscules — `nautilusceramica` — a la capçalera, al peu, al `<title>` i al manifest PWA (`BRAND_NAME` a `src/consts.ts` i `name`/`short_name` al manifest d'`astro.config.mjs`).
+- **2026-08-16** — Marca: el nom de l'estudi passa a escriure's tot en minúscules — `nautilusceramica` — a la capçalera, al peu, al `<title>` i al manifest PWA (`BRAND_NAME` a `src/consts.ts`).
