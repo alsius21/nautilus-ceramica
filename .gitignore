@@ -1,8 +1,10 @@
 # build output
 dist/
-
-# generated types
-.astro/
+.migration/
+build/
+storybook-static/
+test-results/
+playwright-report/
 
 # dependencies
 node_modules/

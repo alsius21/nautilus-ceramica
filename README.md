@@ -4,8 +4,9 @@
 
 **Una llar digital serena per a la ceràmica, el procés i el lloc.**
 
-[![Built with Astro](https://img.shields.io/badge/built%20with-Astro-BC52EE?logo=astro&logoColor=white)](https://astro.build/)
-[![Node.js 22+](https://img.shields.io/badge/node-22%2B-417E38?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![Built with React](https://img.shields.io/badge/built%20with-React-149ECA?logo=react&logoColor=white)](https://react.dev/)
+[![Built with Vite+](https://img.shields.io/badge/built%20with-Vite%2B-646CFF?logo=vite&logoColor=white)](https://viteplus.dev/)
+[![Node.js 24+](https://img.shields.io/badge/node-24%2B-417E38?logo=node.js&logoColor=white)](https://nodejs.org/)
 
 </div>
 
@@ -17,7 +18,7 @@
 
 Nautilus Ceràmica és un portafolis de caràcter editorial per a l'estudi de ceràmica de **Zara Castillo Martínez**. La pàgina d'inici combina un sistema tipogràfic sobri amb una selecció d'imatges del taller i d'exposicions, deixant que les peces siguin les protagonistes.
 
-El lloc és intencionadament petit i ràpid: sortida estàtica amb Astro, obra servida localment, composició adaptable i sense el pes d'un framework de client. També és una **aplicació web progressiva (PWA)**: la instal·la des del navegador, funciona sense connexió gràcies al *service worker* i té una icona pròpia a la pantalla d'inici.
+El lloc és intencionadament petit i ràpid: sortida estàtica amb React i Vite+, obra servida localment, composició adaptable i sense el pes d'un framework de client. També és una **aplicació web progressiva (PWA)**: la instal·la des del navegador, funciona sense connexió gràcies al *service worker* i té una icona pròpia a la pantalla d'inici.
 
 ## Idiomes
 
@@ -26,8 +27,9 @@ El lloc és intencionadament petit i ràpid: sortida estàtica amb Astro, obra s
 
 ## Tecnologies
 
-- [Astro](https://astro.build/) per al lloc i la compilació estàtica
-- [vite-plugin-pwa](https://vite-pwa-org.netlify.app/) per al *service worker*, el manifest d'aplicació i l'ofuscació offline
+- [React](https://react.dev/) per a la interfàcie i el prerender estàtic
+- [Vite+](https://viteplus.dev/) (`vp dev`, `vp build`, `vp preview`) per al tooling i la compilació
+- Workbox per al *service worker* i la precàrrega offline
 - [Fraunces](https://fonts.google.com/specimen/Fraunces) per a la tipografia de display
 - [Archivo](https://fonts.google.com/specimen/Archivo) per al text d'interfície
 - Imatges WebP a `public/images/`
@@ -46,7 +48,7 @@ pnpm install
 pnpm dev
 ```
 
-El servidor de desenvolupament estarà disponible per defecte a `http://localhost:4321`.
+El servidor de desenvolupament estarà disponible per defecte a `http://localhost:5173`.
 
 ### Worktrees de Git
 
@@ -61,13 +63,13 @@ pnpm install --frozen-lockfile
 pnpm dev
 ```
 
-Les dependències (`node_modules/`), la sortida (`dist/`) i els fitxers generats per
-Astro (`.astro/`) són locals a cada worktree i estan exclosos de Git. Per executar
+Les dependències (`node_modules/`) i la sortida (`dist/`) són locals a cada
+worktree i estan excloses de Git.
 diversos worktrees alhora, crea un `.env` a cadascun a partir de `.env.example` i
 assigna un port diferent:
 
 ```bash
-PORT=4322 pnpm dev
+PORT=5174 pnpm dev
 ```
 
 Per veure, eliminar o netejar worktrees:
@@ -87,43 +89,34 @@ pnpm preview
 
 `pnpm build` genera el lloc estàtic preparat per a producció dins de `dist/`.
 
+Abans d'obrir una MR, executa també les comprovacions de la branca:
+
+```bash
+pnpm typecheck
+pnpm e2e
+pnpm storybook:build
+```
+
+`pnpm e2e` serveix el prerender amb Vite+ Preview i recorre les rutes públiques
+en mòbil i desktop. `pnpm storybook:build` comprova que els components reals
+continuen sent compilables a Storybook.
+
 ## Estructura del projecte
 
 ```text
 src/
-├── components/
-│   ├── Footer.astro       # Copyright i enllaç a Instagram
-│   └── Welcome.astro      # Composició de la pàgina d'inici, galeria i selector d'idioma
-├── content/
-│   ├── works.json         # Obres: títols, descripcions, slugs, imatges, dates i botiga (ca/es/en)
-│   ├── exhibitions.json   # Exposicions (ca/es/en)
-│   └── about.json          # Pàgina «Sobre mi» (ca/es/en)
-├── dev/
-│   └── editor-i18n.ts       # Textos de l'editor (ca/es/en)
-├── lib/
-│   └── content.ts         # Capa de contingut: tipus, validació i accés a les dades
-├── i18n/
-│   └── index.ts           # Diccionari de textos: català, castellà, anglès
-├── layouts/
-│   └── Layout.astro       # Estructura del document, fonts, metadades i manifest PWA
-├── pwa.ts                 # Registre del service worker (virtual:pwa-register)
-└── pages/
-    ├── index.astro        # Inici en català a `/`
-    ├── es/
-    │   └── index.astro    # Versió castellana a `/es/`
-    └── en/
-        └── index.astro    # Versió anglesa a `/en/`
+|- App.tsx                 # Aplicació React i resolució de rutes
+|- components.tsx          # Components visuals
+|- content/                # Obres, exposicions i textos editorials
+|- i18n/                   # Diccionari ca/es/en
+|- lib/                    # Tipus, validació i accés a les dades
+`- base.css                # Globals i estils visuals
+prerender.mjs              # HTML estàtic, sitemap, PWA i service worker
 public/
-├── images/
-│   ├── works/              # Imatges d'obres (galeria i botiga)
-│   ├── exhibitions/        # Imatges d'exposicions
-│   └── instagram/          # Àrea de tria, mai publicada
-├── pwa-192x192.png         # Icona PWA (192 px)
-├── pwa-512x512.png         # Icona PWA (512 px)
-├── pwa-maskable-512x512.png# Icona maskable (512 px)
-└── apple-touch-icon.png    # Icona per a dispositius Apple (180 px)
+|- images/                 # Obres, exposicions i recursos visuals
+`- pwa-*.png               # Icones PWA
 tools/
-└── content-editor.mjs      # Integració de desenvolupament: ruta i desament de peces
+`- *.mjs                   # Eines de contingut i validació
 ```
 
 ## Actualitzar el contingut (sense tocar codi)
@@ -196,24 +189,9 @@ public/images/
 
 ### Editor de contingut (només en desenvolupament)
 
-Amb `pnpm dev` en marxa, la galeria mostra un botó **+ Nova peça** que obre
-l'editor, una pàgina normal sota `src/pages/` amb la seva ruta localitzada:
-`/contingut/peces/afegir` (i `/es/contenido/piezas/crear`,
-`/en/content/pieces/add`). Per **editar**, cada pàgina de peça mostra un enllaç
-**Editar peça** cap a `/contingut/peces/editar/<id>` (i les versions es/en).
-Des d'allà pots escriure el títol, la descripció, la data de fabricació
-opcional, afegir i **retallar** fotografies (marc arrossegable i relacions
-d'aspecte) i desar:
+Amb `pnpm dev` pots editar peces des de la galeria amb **+ Nova peça** i des de cada fitxa amb **Editar peça**. També hi ha editors per a les pàgines Sobre, Avís legal i Cookies. Les rutes localitzades són les mateixes que a la font React: `/contingut/peces/afegir`, `/contingut/peces/editar/<id>` i `/contingut/pagines/<pagina>` (amb els equivalents `/es/` i `/en/`).
 
-- les imatges es converteixen a WebP i es desen a `public/images/works/<id>/`;
-- l'entrada s'afegeix o s'actualitza a `src/content/works.json`, amb les dates
-  d'alta i d'edició automàtiques (`updatedAt` canvia en editar);
-- en desar, l'editor et porta a la pàgina de la peça perquè vegis com ha quedat.
-
-L'editor és només per a desenvolupament: el punt de desament només existeix amb
-`astro dev` i `astro build` treu les pàgines de l'editor de `dist/` i del
-sitemap, així que no arriben a producció.
-
+L'editor React desa `src/content/works.json` i `src/content/{about,legal,cookies}.json`, converteix les imatges pujades a WebP dins de `public/images/works/<id>/` i no prerenderitza aquestes rutes en `dist/`.
 El perfil d'Instagram enllaçat al lloc és [@nautilceramica](https://www.instagram.com/nautilceramica/).
 
 ## Llicència

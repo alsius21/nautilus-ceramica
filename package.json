@@ -7,20 +7,34 @@
     "node": ">=24.0.0"
   },
   "scripts": {
-    "dev": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview",
-    "astro": "astro"
+    "dev": "vp dev",
+    "build": "vp build && tsx prerender.mjs",
+    "typecheck": "tsc --noEmit",
+    "e2e": "pnpm build && playwright test",
+    "storybook": "storybook dev -p 6006",
+    "storybook:build": "storybook build",
+    "preview": "vp preview"
   },
   "dependencies": {
-    "@astrojs/sitemap": "^3.7.3",
     "@fontsource-variable/archivo": "^5.3.0",
     "@fontsource-variable/fraunces": "^5.3.0",
-    "astro": "^7.1.6",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "react-router": "^8.4.0",
     "sharp": "^0.35.3"
   },
   "devDependencies": {
-    "vite-plugin-pwa": "^1.3.0",
+    "@playwright/test": "^1.63.0",
+    "@storybook/react-vite": "^10.6.0",
+    "@types/node": "^26.6.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "storybook": "^10.6.0",
+    "tsx": "^4.20.6",
+    "typescript": "^7.0.2",
+    "vite": "8.2.0",
+    "vite-plus": "^0.2.9",
     "workbox-build": "^7.4.1",
     "workbox-window": "^7.4.1"
   }

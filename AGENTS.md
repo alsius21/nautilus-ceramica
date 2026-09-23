@@ -1,12 +1,12 @@
 ## Development
 
-When starting the dev server, use background mode:
+When starting the React dev server, use background mode:
 
 ```
-astro dev --background
+pnpm dev -- --background
 ```
 
-Manage the background server with `astro dev stop`, `astro dev status`, and `astro dev logs`.
+Manage the Vite+ background server with the corresponding `vp` process controls.
 
 ## Nautilus Ceramica Direction
 
@@ -22,13 +22,5 @@ This is an artistic portfolio and studio website for Nautilus Ceramica. Taste, r
 
 ## Documentation
 
-Full documentation: https://docs.astro.build
-
-Consult these guides before working on related tasks:
-
-- [Adding pages, dynamic routes, or middleware](https://docs.astro.build/en/guides/routing/)
-- [Working with Astro components](https://docs.astro.build/en/basics/astro-components/)
-- [Using React, Vue, Svelte, or other framework components](https://docs.astro.build/en/guides/framework-components/)
-- [Adding or managing content](https://docs.astro.build/en/guides/content-collections/)
-- [Adding styles or using Tailwind](https://docs.astro.build/en/guides/styling/)
-- [Supporting multiple languages](https://docs.astro.build/en/guides/internationalization/)
+Consult the React, Vite+ and React Router documentation before changing routing,
+prerendering, styling or deployment behavior.

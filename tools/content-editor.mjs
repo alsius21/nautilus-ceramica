@@ -1,15 +1,14 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 
 /**
  * Editor de contingut — eina de desenvolupament.
  *
- * Les pàgines són pàgines normals sota `src/pages/` (`/contingut/peces/afegir`,
+ * Les dades editables viuen sota `src/content/` i les rutes React són
+ * `/contingut/peces/afegir`,
  * `/contingut/peces/editar/<id>`, i les versions es/en). Aquesta integració hi
  * afegeix el punt de desament (`POST /__content/works`), que només existeix
- * mentre corre `astro dev`, i esborra les pàgines de l'editor de `dist/` en
- * compilar, perquè no arribin mai a producció.
+ * mentre corre el servidor Vite+, i no s'inclouen al prerender de producció.
  *
  * El desament converteix les fotografies a WebP amb `sharp`, les desa a
  * `public/images/works/<id>/` (la convenció que valida `src/lib/content.ts`) i
@@ -27,7 +26,7 @@ const SIZES = ['small', 'medium', 'large'];
 const routePath = '/__content/works';
 const pagesRoutePath = '/__content/pages';
 
-/** Pàgines editables: fitxer a `src/content/` i esquema de camps (text). */
+/** Pàgines editables: fitxers a `src/content/` i esquema de camps (text). */
 const PAGE_FILES = { about: 'about.json', legal: 'legal.json', cookies: 'cookies.json' };
 const PAGE_SCHEMAS = {
 	about: {
@@ -486,225 +485,24 @@ async function readPage(root, page) {
 	return { file, data, eol };
 }
 
-export default function contentEditor() {
-	let root = process.cwd();
-
-	return {
-		name: 'nautilus-content-editor',
-		hooks: {
-			'astro:config:setup': ({ config }) => {
-				root = fileURLToPath(config.root);
-			},
-			'astro:server:setup': ({ server, logger }) => {
-				server.middlewares.use(async (req, res, next) => {
-					const url = (req.url ?? '').split('?')[0] ?? '';
-
-					if (url.endsWith(pagesRoutePath)) {
-						try {
-							if (req.method !== 'POST') {
-								return sendJson(res, 405, { ok: false, error: 'Mètode no admès.' });
-							}
-							const payload = await readJsonBody(req);
-							const page = clean(payload?.page);
-							if (!Object.prototype.hasOwnProperty.call(PAGE_FILES, page)) {
-								throw fail('La pàgina indicada no és editable.');
-							}
-							const locale = clean(payload?.locale);
-							if (!LOCALES.includes(locale)) throw fail('L’idioma indicat no és vàlid.');
-
-							const content = sanitize(PAGE_SCHEMAS[page], payload?.content, page);
-							const { file, data, eol } = await readPage(root, page);
-							data[locale] = content;
-							const body = formatJsonValue(data, 0).replace(/\n/g, eol);
-							await fs.writeFile(file, `${body}${eol}`, 'utf8');
-
-							logger.info(`pàgina «${page}» (${locale}) desada`);
-							return sendJson(res, 200, { ok: true, page, locale });
-						} catch (error) {
-							const status = error?.status ?? 500;
-							const message = error?.message ?? 'Error inesperat en desar la pàgina.';
-							logger.error(message);
-							return sendJson(res, status, { ok: false, error: message });
-						}
-					}
-
-					if (!url.endsWith(routePath)) return next();
-
-					try {
-						if (req.method === 'GET') {
-							const { data } = await readWorks(root);
-							return sendJson(res, 200, { ok: true, works: data });
-						}
-						if (req.method !== 'POST') return sendJson(res, 405, { ok: false, error: 'Mètode no admès.' });
-
-						const form = await readMultipart(req);
-						const rawPayload = form.get('payload');
-						if (typeof rawPayload !== 'string') throw fail('Falten les dades de la peça.');
-
-						let payload;
-						try {
-							payload = JSON.parse(rawPayload);
-						} catch {
-							throw fail('Les dades de la peça no són vàlides.');
-						}
-
-						const text = buildText(payload);
-						const { data } = await readWorks(root);
-						const now = new Date().toISOString();
-
-						let index = -1;
-						let existing = null;
-						let id;
-						let addedAt;
-
-						if (clean(payload?.id)) {
-							index = data.findIndex((entry) => entry.id === payload.id);
-							if (index === -1) throw fail(`No existeix cap peça amb l’identificador «${payload.id}».`, 404);
-							existing = data[index];
-							id = existing.id;
-							addedAt = existing.addedAt ?? now;
-							for (const locale of LOCALES) {
-								if (data.some((entry, i) => i !== index && entry.slugs?.[locale] === text.slugs[locale])) {
-									throw fail(`Ja existeix una altra peça amb el slug «${text.slugs[locale]}» (${locale}).`);
-								}
-							}
-						} else {
-							id = text.slugs.ca;
-							if (data.some((entry) => entry.id === id)) {
-								throw fail(`Ja existeix una peça amb l’identificador «${id}». Canvia el títol o el slug.`);
-							}
-							for (const locale of LOCALES) {
-								if (data.some((entry) => entry.slugs?.[locale] === text.slugs[locale])) {
-									throw fail(`Ja existeix una peça amb el slug «${text.slugs[locale]}» (${locale}).`);
-								}
-							}
-							addedAt = now;
-						}
-
-						const dir = path.join(root, 'public', 'images', 'works', id);
-						const startIndex = await nextImageIndex(dir, id);
-						const { images, uploads, migrations } = await resolveImages({
-							form,
-							payload,
-							id,
-							title: text.title,
-							startIndex,
-						});
-
-						await writeUploads(root, dir, uploads);
-						await migrateImages(root, migrations);
-						await pruneImages(dir, id, images);
-
-						const work = {
-							id,
-							slugs: text.slugs,
-							title: text.title,
-							description: text.description,
-							meta: text.meta,
-							made: text.made,
-						};
-						if (text.madeAt) work.madeAt = text.madeAt;
-						if (text.category) work.category = text.category;
-						else if (existing?.category && payload.category === undefined) work.category = existing.category;
-						if (text.size) work.size = text.size;
-						else if (existing?.size && payload.size === undefined) work.size = existing.size;
-						if (text.tags) work.tags = text.tags;
-						else if (existing?.tags && payload.tags === undefined) work.tags = existing.tags;
-						work.addedAt = addedAt;
-						work.updatedAt = now;
-						work.images = images;
-						work.shop = text.shop;
-
-						if (index === -1) data.push(work);
-						else data[index] = work;
-						await writeWorks(root, data);
-
-						logger.info(
-							`peça ${index === -1 ? 'creada' : 'actualitzada'} «${id}» (${images.length} imatge${images.length === 1 ? '' : 's'})`,
-						);
-						return sendJson(res, index === -1 ? 201 : 200, {
-							ok: true,
-							id,
-							slug: work.slugs.ca,
-							images: images.length,
-							created: index === -1,
-						});
-					} catch (error) {
-						const status = error?.status ?? 500;
-						const message = error?.message ?? 'Error inesperat en desar la peça.';
-						logger.error(message);
-						return sendJson(res, status, { ok: false, error: message });
-					}
-				});
-			},
-			'astro:build:done': async ({ dir }) => {
-				// Les pàgines de l'editor són pàgines normals, així que es compilen
-				// amb la resta del lloc. Les traiem de `dist/` perquè no arribin a
-				// producció (i netegem les carpetes i els assets que quedin orfes).
-				const dist = fileURLToPath(dir);
-				const editorDirs = [
-					['contingut', 'peces', 'afegir'],
-					['contingut', 'peces', 'editar'],
-					['contingut', 'pagines', 'sobre'],
-					['contingut', 'pagines', 'avis-legal'],
-					['contingut', 'pagines', 'cookies'],
-					['es', 'contenido', 'piezas', 'crear'],
-					['es', 'contenido', 'piezas', 'editar'],
-					['es', 'contenido', 'paginas', 'sobre-mi'],
-					['es', 'contenido', 'paginas', 'aviso-legal'],
-					['es', 'contenido', 'paginas', 'cookies'],
-					['en', 'content', 'pieces', 'add'],
-					['en', 'content', 'pieces', 'edit'],
-					['en', 'content', 'pages', 'about'],
-					['en', 'content', 'pages', 'legal-notice'],
-					['en', 'content', 'pages', 'cookies'],
-				];
-
-				const candidates = new Set();
-				for (const parts of editorDirs) {
-					const leaf = path.join(dist, ...parts);
-					try {
-						const html = await fs.readFile(path.join(leaf, 'index.html'), 'utf8');
-						for (const match of html.matchAll(/(?:src|href)="[^"]*?(\/_astro\/[^"]+)"/g)) {
-							candidates.add(match[1].replace(/^\//, ''));
-						}
-					} catch {
-						// Sense HTML: no hi ha res a rastrejar.
-					}
-					await fs.rm(leaf, { recursive: true, force: true });
-					let current = path.dirname(leaf);
-					while (current.startsWith(dist) && current !== dist) {
-						try {
-							await fs.rmdir(current);
-						} catch {
-							break;
-						}
-						current = path.dirname(current);
-					}
-				}
-
-				if (candidates.size === 0) return;
-
-				const referenced = new Set();
-				const htmlFiles = [];
-				const walk = async (folder) => {
-					for (const entry of await fs.readdir(folder, { withFileTypes: true })) {
-						const full = path.join(folder, entry.name);
-						if (entry.isDirectory()) await walk(full);
-						else if (entry.name.endsWith('.html')) htmlFiles.push(full);
-					}
-				};
-				await walk(dist);
-				for (const file of htmlFiles) {
-					const html = await fs.readFile(file, 'utf8');
-					for (const match of html.matchAll(/_astro\/[^"'()]+/g)) referenced.add(match[0]);
-				}
-				for (const asset of candidates) {
-					if (!referenced.has(asset)) {
-						await fs.rm(path.join(dist, asset), { force: true });
-					}
-				}
-			},
-		},
-	};
-}
+// Shared persistence primitives used by the React/Vite development adapter.
+export {
+	PAGE_FILES,
+	PAGE_SCHEMAS,
+	buildText,
+	clean,
+	fail,
+	formatJsonValue,
+	migrateImages,
+	nextImageIndex,
+	pruneImages,
+	readJsonBody,
+	readMultipart,
+	readPage,
+	readWorks,
+	resolveImages,
+	sanitize,
+	sendJson,
+	writeUploads,
+	writeWorks,
+};

@@ -1,0 +1,20 @@
+import React from 'react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
+import { About, CookiePolicy, ExhibitionJournal, Exhibitions, Gallery, LegalNotice, Shop, ShopContact, ShopJournal, Welcome, WorkJournal } from './components';
+import { exhibitions, works } from '@/lib/content';
+
+const meta = { title: 'Nautilus / real components', parameters: { layout: 'fullscreen' } } satisfies Meta;
+export default meta;
+type Story = StoryObj<typeof meta>;
+const view = (Component: React.ComponentType<any>, props: any = {}) => React.createElement(Component, props);
+export const Home: Story = { render: () => view(Welcome, { locale: 'ca' }) };
+export const GalleryPage: Story = { render: () => view(Gallery, { locale: 'ca' }) };
+export const WorkJournalPage: Story = { render: () => view(WorkJournal, { locale: 'ca', work: works[0] }) };
+export const AboutPage: Story = { render: () => view(About, { locale: 'ca' }) };
+export const ShopPage: Story = { render: () => view(Shop, { locale: 'ca' }) };
+export const ShopWorkPage: Story = { render: () => view(ShopJournal, { locale: 'ca', work: works[0] }) };
+export const ShopContactPage: Story = { render: () => view(ShopContact, { locale: 'ca' }) };
+export const ExhibitionsPage: Story = { render: () => view(Exhibitions, { locale: 'ca' }) };
+export const ExhibitionPage: Story = { render: () => view(ExhibitionJournal, { locale: 'ca', exhibition: exhibitions[0] }) };
+export const LegalNoticePage: Story = { render: () => view(LegalNotice, { locale: 'ca' }) };
+export const CookiePolicyPage: Story = { render: () => view(CookiePolicy, { locale: 'ca' }) };

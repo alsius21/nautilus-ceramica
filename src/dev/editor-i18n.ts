@@ -216,7 +216,7 @@ export const editorStrings: Record<EditorLocale, EditorStrings> = {
 		panelWhere: 'On es desa',
 		whereJson: 'Textos i slugs (ca/es/en)',
 		whereImages: 'Fotografies convertides a WebP',
-		whereHint: 'Aquesta pàgina i el punt de desament només funcionen amb astro dev.',
+		whereHint: 'Aquesta pàgina i el punt de desament només funcionen amb pnpm dev.',
 		cropTitle: 'Retalla la imatge',
 		cropFree: 'Lliure',
 		cropHint:
@@ -300,7 +300,7 @@ export const editorStrings: Record<EditorLocale, EditorStrings> = {
 		panelWhere: 'Dónde se guarda',
 		whereJson: 'Textos y slugs (ca/es/en)',
 		whereImages: 'Fotografías convertidas a WebP',
-		whereHint: 'Esta página y el punto de guardado solo funcionan con astro dev.',
+		whereHint: 'Esta página y el punto de guardado solo funcionan con pnpm dev.',
 		cropTitle: 'Recorta la imagen',
 		cropFree: 'Libre',
 		cropHint:
@@ -384,7 +384,7 @@ export const editorStrings: Record<EditorLocale, EditorStrings> = {
 		panelWhere: 'Where it is saved',
 		whereJson: 'Text and slugs (ca/es/en)',
 		whereImages: 'Photos converted to WebP',
-		whereHint: 'This page and the save endpoint only work with astro dev.',
+		whereHint: 'This page and the save endpoint only work with pnpm dev.',
 		cropTitle: 'Crop the image',
 		cropFree: 'Free',
 		cropHint: 'Drag the frame to move it and the corners to resize. The crop is applied before saving.',
