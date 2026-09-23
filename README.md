@@ -89,6 +89,18 @@ pnpm preview
 
 `pnpm build` genera el lloc estàtic preparat per a producció dins de `dist/`.
 
+Abans d'obrir una MR, executa també les comprovacions de la branca:
+
+```bash
+pnpm typecheck
+pnpm e2e
+pnpm storybook:build
+```
+
+`pnpm e2e` serveix el prerender amb Vite+ Preview i recorre les rutes públiques
+en mòbil i desktop. `pnpm storybook:build` comprova que els components reals
+continuen sent compilables a Storybook.
+
 ## Estructura del projecte
 
 ```text

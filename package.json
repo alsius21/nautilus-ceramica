@@ -9,9 +9,7 @@
   "scripts": {
     "dev": "vp dev",
     "build": "vp build && tsx prerender.mjs",
-    "react:dev": "vp dev",
-    "react:build": "vp build && tsx prerender.mjs",
-    "react:typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
     "e2e": "pnpm build && playwright test",
     "storybook": "storybook dev -p 6006",
     "storybook:build": "storybook build",
@@ -20,7 +18,6 @@
   "dependencies": {
     "@fontsource-variable/archivo": "^5.3.0",
     "@fontsource-variable/fraunces": "^5.3.0",
-    "@react-router/node": "^8.4.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "react-router": "^8.4.0",
@@ -28,14 +25,11 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0",
-    "@react-router/dev": "^8.4.0",
     "@storybook/react-vite": "^10.6.0",
     "@types/node": "^26.6.2",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.1",
-    "pixelmatch": "^7.2.0",
-    "pngjs": "^7.0.0",
     "storybook": "^10.6.0",
     "tsx": "^4.20.6",
     "typescript": "^7.0.2",
